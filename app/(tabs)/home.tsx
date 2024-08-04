@@ -1,33 +1,147 @@
 import React from "react";
-import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  Button,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import User from "@/assets/icons/user.svg";
+import Droplet from "@/assets/icons/droplet.svg";
+import Plus from "@/assets/icons/plus.svg";
+import CustomText from "@/components/CustomText";
+
+const daysAfter = (days: number) => (date: Date) =>
+  new Date(date.getTime() + days * (24 * 60 * 60 * 1000));
+const yesterday = daysAfter(-1);
+const tomorrow = daysAfter(1);
+
+const _months = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
+const getMonth = (month: number) =>
+  month >= 0 && month < 12 ? _months[month] : "???";
+
+const _days = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+];
+const getDay = (day: number) =>
+  (day >= 0 && day < 7 ? _days[day] : "???").toUpperCase();
+
+const ICON_SIZE = 28;
 
 const HomeScreen = () => {
+  const today = new Date();
+
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text className="font-bold">Good Morning, Ning.</Text>
-        {/* <TouchableOpacity>
-          <Image
-            source={require("./assets/profile-icon.png")}
-            style={styles.profileIcon}
-          />
-        </TouchableOpacity> */}
+      <View className="flex flex-row justify-between">
+        <TouchableOpacity className="p-4">
+          <Droplet width={ICON_SIZE} height={ICON_SIZE} />
+        </TouchableOpacity>
+        <TouchableOpacity className="p-4">
+          <User width={ICON_SIZE} height={ICON_SIZE} />
+        </TouchableOpacity>
       </View>
 
-      <View style={styles.dateContainer}>
-        {/* <Image
-          source={require("./assets/coffee.jpg")}
-          style={styles.coffeeImage}
-        /> */}
-        <View style={styles.dateBox}>
-          <Text style={styles.date}>2 May</Text>
-          <Text style={styles.today}>TODAY</Text>
+      <View>
+        <CustomText className="font-bold text-2xl text-center">
+          Good Morning, Ning.
+        </CustomText>
+      </View>
+
+      <View className="w-full pt-12 flex flex-row justify-center items-center relative">
+        <View
+          className="absolute w-full"
+          style={[styles.mainCardHeight, styles.scaledCard]}
+        >
+          <View
+            style={[styles.mainCard, styles.mainCardHeight, styles.shadow]}
+            className="bg-white flex flex-col items-center justify-end relative"
+          >
+            <Text className="text-3xl font-semibold text-center">
+              {`${yesterday(today).getDate()} ${getMonth(
+                yesterday(today).getMonth()
+              )}`}
+            </Text>
+            <Text className="text-sm text-center mb-5 mt-1">
+              {getDay(yesterday(today).getDay())}
+            </Text>
+
+            <View className="absolute w-full h-full flex justify-center items-center">
+              <TouchableOpacity>
+                <View
+                  className="rounded-full bg-white flex justify-center items-center"
+                  style={[styles.shadow, styles.circle]}
+                >
+                  <Plus
+                    width={ICON_SIZE}
+                    height={ICON_SIZE}
+                    stroke={"rgba(0, 0, 0, 0.7)"}
+                  />
+                </View>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+        <View
+          style={[styles.mainCard, styles.mainCardHeight, styles.shadow]}
+          className="bg-white flex flex-col items-center justify-end relative"
+        >
+          <Text className="text-3xl font-semibold text-center">
+            {`${today.getDate()} ${getMonth(today.getMonth())}`}
+          </Text>
+          <Text className="text-sm text-center mb-5 mt-1">
+            {getDay(today.getDay())}
+          </Text>
+
+          <View className="absolute w-full h-full flex justify-center items-center">
+            <TouchableOpacity>
+              <View
+                className="rounded-full bg-white flex justify-center items-center"
+                style={[styles.shadow, styles.circle]}
+              >
+                <Plus
+                  width={ICON_SIZE}
+                  height={ICON_SIZE}
+                  stroke={"rgba(0, 0, 0, 0.7)"}
+                />
+              </View>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
 
-      <Text style={styles.suggestionsTitle}>Suggestions for you</Text>
-      <Text style={styles.suggestionsSubtitle}>Based on your day</Text>
+      <View className="w-screen px-5 pt-8">
+        <View style={styles.line} className="h-0.5 w-full rounded-full" />
+      </View>
+
+      <CustomText className="font-bold px-5 pt-5 text-2xl">
+        Suggestions for you
+      </CustomText>
+      <CustomText className="mt-1 px-5 color-gray">
+        Based on your day
+      </CustomText>
 
       <View style={styles.suggestionBox}>
         <Text style={styles.suggestionTitle}>Relax</Text>
@@ -42,53 +156,30 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#E7F1FB",
   },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 20,
+  scaledCard: {
+    transform: "scale(0.7)",
   },
-  profileIcon: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+  mainCard: {
+    width: 210,
+    borderRadius: 20,
   },
-  dateContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    padding: 20,
+  mainCardHeight: {
+    height: 270,
   },
-  coffeeImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 10,
+  circle: {
+    height: 48,
+    width: 48,
   },
-  dateBox: {
-    backgroundColor: "white",
-    padding: 20,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
+  shadow: {
+    shadowColor: "rgba(0, 0, 0, 0.1)",
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
+    shadowRadius: 20,
   },
-  date: {
-    fontSize: 24,
-    fontWeight: "bold",
-  },
-  today: {
-    fontSize: 12,
-    color: "gray",
-  },
-  suggestionsTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginLeft: 20,
-    marginTop: 20,
-  },
-  suggestionsSubtitle: {
-    fontSize: 14,
-    color: "gray",
-    marginLeft: 20,
-    marginBottom: 10,
+  line: {
+    backgroundColor: "#D1CCC8",
   },
   suggestionBox: {
     backgroundColor: "white",
@@ -103,39 +194,6 @@ const styles = StyleSheet.create({
   suggestionDescription: {
     fontSize: 14,
     color: "gray",
-  },
-  navbar: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    backgroundColor: "white",
-    paddingVertical: 10,
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-  },
-  navItem: {
-    alignItems: "center",
-  },
-  navIcon: {
-    width: 24,
-    height: 24,
-  },
-  navText: {
-    fontSize: 12,
-  },
-  addButton: {
-    backgroundColor: "#007AFF",
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  addButtonText: {
-    color: "white",
-    fontSize: 24,
   },
 });
 

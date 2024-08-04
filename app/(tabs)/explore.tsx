@@ -7,61 +7,75 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
+import CustomText from "@/components/CustomText";
+import User from "@/assets/icons/user.svg";
+import Droplet from "@/assets/icons/droplet.svg";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
 const ExploreScreen: React.FC = () => {
   return (
-    <View style={styles.container}>
+    <View className="flex-1 bg-blue100">
       {/* Header */}
-      <View style={styles.header}>
-        <Ionicons name="search-outline" size={24} style={styles.icon} />
-        <Text style={styles.title}>Explore</Text>
-        <Ionicons name="refresh-outline" size={24} style={styles.icon} />
+      <View className="flex-row justify-between items-center p-4 bg-blue100">
+        <Droplet height={28} width={28} />
+        <User height={28} width={28} />
       </View>
 
+      <CustomText className="text-2xl text-center text-gray200">
+        Explore
+      </CustomText>
+
       {/* Search Bar */}
-      <TextInput style={styles.searchBar} placeholder="Search stuff" />
+      <TextInput
+        className="bg-white rounded-full px-4 py-2 mx-4 my-4"
+        placeholder="Search stuff"
+        placeholderTextColor="#8B8B8B"
+      />
 
       {/* Scrollable Content */}
-      <ScrollView style={styles.scrollView}>
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Journal</Text>
-          <Text style={styles.cardSubtitle}>Write about your day.</Text>
+      <ScrollView className="px-4">
+        <View className="bg-white rounded-2xl p-4 mb-4">
+          <CustomText className="text-lg font-semibold">Journal</CustomText>
+          <CustomText className="text-sm text-gray100">
+            Write about your day.
+          </CustomText>
         </View>
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Guided Writing</Text>
-          <Text style={styles.cardSubtitle}>
+        <View className="bg-white rounded-2xl p-4 mb-4">
+          <CustomText className="text-lg font-semibold">
+            Guided Writing
+          </CustomText>
+          <CustomText className="text-sm text-gray100">
             Discover your hidden thoughts.
-          </Text>
+          </CustomText>
         </View>
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Relax</Text>
-          <Text style={styles.cardSubtitle}>Unwind out your day.</Text>
+        <View className="bg-white rounded-2xl p-4 mb-4">
+          <CustomText className="text-lg font-semibold">Relax</CustomText>
+          <CustomText className="text-sm text-gray100">
+            Unwind out your day.
+          </CustomText>
         </View>
       </ScrollView>
 
       {/* Footer Navigation */}
-      <View style={styles.footer}>
-        <TouchableOpacity style={styles.footerButton}>
-          <Ionicons name="home-outline" size={24} color="#808080" />
-          <Text style={styles.footerText}>Home</Text>
+      <View className="flex-row justify-around bg-white py-4">
+        <TouchableOpacity className="items-center">
+          <Ionicons name="home-outline" size={24} color="#676767" />
+          <CustomText className="text-gray200">Home</CustomText>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.footerButton}>
-          <Ionicons name="compass-outline" size={24} color="#0000FF" />
-          <Text style={[styles.footerText, styles.activeFooterText]}>
-            Explore
-          </Text>
+        <TouchableOpacity className="items-center">
+          <Ionicons name="compass-outline" size={24} color="#3373B0" />
+          <CustomText className="text-blue200">Explore</CustomText>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.addButton}>
+        <TouchableOpacity className="w-12 h-12 rounded-full bg-blue200 justify-center items-center mb-4">
           <Ionicons name="add" size={24} color="#FFFFFF" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.footerButton}>
-          <Ionicons name="book-outline" size={24} color="#808080" />
-          <Text style={styles.footerText}>Read</Text>
+        <TouchableOpacity className="items-center">
+          <Ionicons name="book-outline" size={24} color="#676767" />
+          <CustomText className="text-gray200">Read</CustomText>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.footerButton}>
-          <Ionicons name="journal-outline" size={24} color="#808080" />
-          <Text style={styles.footerText}>Journey</Text>
+        <TouchableOpacity className="items-center">
+          <Ionicons name="journal-outline" size={24} color="#676767" />
+          <CustomText className="text-gray200">Journey</CustomText>
         </TouchableOpacity>
       </View>
     </View>

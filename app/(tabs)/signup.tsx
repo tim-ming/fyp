@@ -1,198 +1,141 @@
 import React from "react";
 import {
   View,
-  Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
   Image,
+  Keyboard,
+  TouchableWithoutFeedback,
+  StyleSheet,
 } from "react-native";
+import {} from "nativewind";
+import CustomText from "@/components/CustomText";
+import Lock from "@/assets/icons/lock.svg";
+import Mail from "@/assets/icons/mail.svg";
+import Apple from "@/assets/icons/apple.svg";
+import Google from "@/assets/icons/google.svg";
+import { useRef } from "react";
+import { shadows } from "@/constants/styles";
 
 const SignUpScreen = () => {
+  const emailInputRef = useRef<TextInput>(null);
+  const passwordInputRef = useRef<TextInput>(null);
   return (
-    <View className="flex-1" style={styles.container}>
-      <Text style={styles.title}>Hello!</Text>
-      <Text style={styles.subtitle}>Create an account.</Text>
-      <Text style={styles.tagline}>Be a better you today.</Text>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <View className="flex-1 p-4 pt-20 bg-gray-100">
+        <View className="flex flex-col">
+          <CustomText className="text-4xl font-medium text-black200 tracking-tighter">
+            Hello!
+          </CustomText>
+          <CustomText className="text-4xl font-medium tracking-tighter">
+            <CustomText className="text-blue200">Create</CustomText>{" "}
+            <CustomText className="text-black200">an account.</CustomText>
+          </CustomText>
+          <CustomText className="text-base text-gray-500 mt-4 mb-6 tracking-tight">
+            Be a better you today.
+          </CustomText>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Enter your email address"
-        keyboardType="email-address"
-      />
+          <View className="flex flex-col gap-3">
+            <View className="relative">
+              <TextInput
+                ref={emailInputRef}
+                style={shadows.card}
+                className="h-14 bg-white rounded-2xl pl-12 pr-4 font-[PlusJakartaSans] placeholder:text-gray100"
+                placeholder="Enter your email address"
+                keyboardType="email-address"
+              />
+              <TouchableOpacity
+                className="absolute left-0 top-0 h-full w-14 items-center justify-center"
+                onPress={() => emailInputRef.current?.focus()}
+              >
+                <Mail
+                  width={24}
+                  height={24}
+                  strokeWidth={1.5}
+                  className="stroke-gray200"
+                />
+              </TouchableOpacity>
+            </View>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Enter your password"
-        secureTextEntry
-      />
+            <View className="relative">
+              <TextInput
+                style={shadows.card}
+                ref={passwordInputRef}
+                className="h-14 bg-white rounded-2xl pl-12 pr-4 shadow-[0px_4px_20px_0px_rgba(0,_0,_0,_0.1)] font-[PlusJakartaSans] placeholder:text-gray100"
+                placeholder="Enter your password"
+                secureTextEntry
+              />
+              <TouchableOpacity
+                className="absolute left-0 top-0 h-full w-14 items-center justify-center"
+                onPress={() => passwordInputRef.current?.focus()}
+              >
+                <Lock
+                  width={24}
+                  height={24}
+                  strokeWidth={1.5}
+                  className="stroke-gray200"
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
 
-      <View style={styles.termsContainer}>
-        <TouchableOpacity style={styles.checkbox}>
-          <View style={styles.checkboxEmpty}></View>
+        <View className="flex-row items-center my-6">
+          <TouchableOpacity className="w-7 h-7 items-center justify-center mr-2">
+            <View
+              style={shadows.cardDarker}
+              className="bg-white rounded-full w-full h-full"
+            ></View>
+          </TouchableOpacity>
+          <CustomText className="text-sm text-gray-500 ">
+            By signing up, you agree to our{" "}
+            <CustomText className="text-blue200 underline">
+              Terms of Service
+            </CustomText>{" "}
+            and{" "}
+            <CustomText className="text-blue200 underline">
+              Privacy Policy
+            </CustomText>
+            .
+          </CustomText>
+        </View>
+
+        <TouchableOpacity className="h-14 bg-blue200 items-center justify-center rounded-full">
+          <CustomText className="text-white text-base font-medium">
+            Sign up
+          </CustomText>
         </TouchableOpacity>
-        <Text style={styles.termsText}>
-          By signing up, you agree to our{" "}
-          <Text style={styles.link}>Terms of Service</Text> and{" "}
-          <Text style={styles.link}>Privacy Policy</Text>.
-        </Text>
+
+        <View className="flex-row items-center my-6">
+          <View className="flex-1 h-px bg-gray-300" />
+          <CustomText className="text-center text-gray-500 mx-2">OR</CustomText>
+          <View className="flex-1 h-px bg-gray-300" />
+        </View>
+
+        <View className="flex flex-col gap-3">
+          <TouchableOpacity className="flex-row justify-center items-center h-14 bg-white border border-gray-300 px-4 rounded-full">
+            <Google width={24} height={24} className="mr-2" />
+            <CustomText className="text-black text-base font-medium">
+              Sign in with Google
+            </CustomText>
+          </TouchableOpacity>
+
+          <TouchableOpacity className="flex-row justify-center items-center h-14 bg-black px-4 rounded-full">
+            <Apple width={24} height={24} className="mr-2" />
+            <CustomText className="text-white text-base font-medium">
+              Sign in with Apple
+            </CustomText>
+          </TouchableOpacity>
+        </View>
+
+        <CustomText className="text-center text-gray-500 mt-10">
+          Already have an account?{" "}
+          <CustomText className="text-blue200 underline font-medium">
+            Sign in
+          </CustomText>
+        </CustomText>
       </View>
-
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>Sign up</Text>
-      </TouchableOpacity>
-
-      <Text style={styles.orText}>OR</Text>
-
-      <TouchableOpacity style={styles.googleButton}>
-        <Image
-          source={{
-            uri: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png",
-          }}
-          style={styles.googleLogo}
-        />
-        <Text style={styles.googleButtonText}>Sign in with Google</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.appleButton}>
-        <Image
-          source={{
-            uri: "https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg",
-          }}
-          style={styles.appleLogo}
-        />
-        <Text style={styles.appleButtonText}>Sign in with Apple</Text>
-      </TouchableOpacity>
-
-      <Text style={styles.signInText}>
-        Already have an account? <Text style={styles.link}>Sign in</Text>
-      </Text>
-    </View>
+    </TouchableWithoutFeedback>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: "#F3F4F6",
-    fontFamily: "PlusJakartaSans",
-  },
-  title: {
-    fontSize: 36,
-    fontWeight: "bold",
-    color: "#000",
-  },
-  subtitle: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#000",
-  },
-  tagline: {
-    fontSize: 16,
-    color: "#666",
-    marginVertical: 20,
-  },
-  input: {
-    height: 50,
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    marginBottom: 16,
-    borderColor: "#ddd",
-    borderWidth: 1,
-  },
-  termsContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  checkbox: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "#666",
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 10,
-  },
-  checkboxEmpty: {
-    width: 14,
-    height: 14,
-    backgroundColor: "#fff",
-  },
-  termsText: {
-    fontSize: 12,
-    color: "#666",
-  },
-  link: {
-    color: "#0000EE",
-    textDecorationLine: "underline",
-  },
-  button: {
-    height: 50,
-    backgroundColor: "#007BFF",
-    borderRadius: 8,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 16,
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  orText: {
-    textAlign: "center",
-    color: "#666",
-    marginVertical: 16,
-  },
-  googleButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    height: 50,
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    marginBottom: 16,
-    paddingHorizontal: 16,
-  },
-  googleLogo: {
-    width: 20,
-    height: 20,
-    marginRight: 10,
-  },
-  googleButtonText: {
-    color: "#000",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  appleButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    height: 50,
-    backgroundColor: "#000",
-    borderRadius: 8,
-    marginBottom: 16,
-    paddingHorizontal: 16,
-  },
-  appleLogo: {
-    width: 20,
-    height: 20,
-    marginRight: 10,
-  },
-  appleButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  signInText: {
-    textAlign: "center",
-    color: "#666",
-    marginTop: 20,
-  },
-});
-
 export default SignUpScreen;

@@ -52,6 +52,18 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="signin"
+        options={{
+          title: "Signin",
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon
+              name={focused ? "code-slash" : "code-slash-outline"}
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="home"
         options={{
           title: "Home",

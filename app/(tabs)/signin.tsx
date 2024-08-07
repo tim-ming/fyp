@@ -43,7 +43,7 @@ const Checkbox = () => {
   );
 };
 
-const SignUpScreen = () => {
+const SignInScreen = () => {
   const emailInputRef = useRef<TextInput>(null);
   const passwordInputRef = useRef<TextInput>(null);
   return (
@@ -54,8 +54,8 @@ const SignUpScreen = () => {
             Hello!
           </CustomText>
           <CustomText className="text-4xl font-medium tracking-tighter">
-            <CustomText className="text-blue200">Create</CustomText>{" "}
-            <CustomText className="text-black200">an account.</CustomText>
+            <CustomText className="text-blue200">Login</CustomText>{" "}
+            <CustomText className="text-black200">your account.</CustomText>
           </CustomText>
           <CustomText className="text-base text-gray-500 mt-4 mb-6 tracking-tight">
             Be a better you today.
@@ -101,24 +101,15 @@ const SignUpScreen = () => {
           </View>
         </View>
 
-        <View className="flex-row items-center my-6">
-          <Checkbox />
-          <CustomText className="text-sm text-gray-500 ">
-            By signing up, you agree to our{" "}
-            <CustomText className="text-blue200 underline">
-              Terms of Service
-            </CustomText>{" "}
-            and{" "}
-            <CustomText className="text-blue200 underline">
-              Privacy Policy
-            </CustomText>
-            .
+        <Pressable className="flex flex-row w-full justify-end my-4">
+          <CustomText className="text-blue200 text-base font-medium">
+            Forgot password?
           </CustomText>
-        </View>
+        </Pressable>
 
         <Pressable className="h-14 bg-blue200 items-center justify-center rounded-full">
           <CustomText className="text-white text-base font-medium">
-            Sign up
+            Sign in
           </CustomText>
         </Pressable>
 
@@ -145,13 +136,13 @@ const SignUpScreen = () => {
         </View>
 
         <CustomText className="text-center text-gray-500 mt-10">
-          Already have an account?{" "}
+          Don't have an account?{" "}
           <CustomText className="text-blue200 underline font-medium">
-            Sign in
+            Sign up
           </CustomText>
         </CustomText>
       </View>
     </TouchableWithoutFeedback>
   );
 };
-export default SignUpScreen;
+export default SignInScreen;

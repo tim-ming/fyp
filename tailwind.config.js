@@ -25,6 +25,19 @@ module.exports = {
       widest: ".25em",
     },
     extend: {
+      fontSize: {
+        '10px': '10px',
+        '12px': '12px',
+        '14px': '14px',
+        '16px': '16px',
+        '18px': '18px',
+        '20px': '20px',
+        '22px': '22px',
+        '24px': '24px',
+        '28px': '28px',
+        '32px': '32px',
+        '36px': '36px',
+      },
       colors: {
         blue100: "#F0F8FF",
         blue200: "#3373B0",

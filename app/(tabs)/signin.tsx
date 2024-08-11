@@ -50,10 +50,10 @@ const SignInScreen = () => {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View className="flex-1 p-4 pt-20 bg-gray-100">
         <View className="flex flex-col">
-          <CustomText className="text-4xl font-medium text-black200 tracking-tighter">
+          <CustomText className="text-[40px] leading-10 font-medium text-black200 tracking-tighter">
             Hello!
           </CustomText>
-          <CustomText className="text-4xl font-medium tracking-tighter">
+          <CustomText className="text-[40px] leading-10 font-medium tracking-tighter">
             <CustomText className="text-blue200">Login</CustomText>{" "}
             <CustomText className="text-black200">your account.</CustomText>
           </CustomText>

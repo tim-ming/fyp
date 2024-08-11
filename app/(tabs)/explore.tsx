@@ -15,19 +15,25 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 const ExploreScreen: React.FC = () => {
   const Card = ({ title, subtitle }: { title: string; subtitle: string }) => (
     <Pressable>
-    {({ pressed }) => (
-      <View className={`bg-white rounded-2xl p-4 shadow-2xl h-40 ${pressed ? 'scale-95' : 'scale-100'}`}>
-        <CustomText className="text-24px font-semibold mt-20 ml-1">{title}</CustomText>
-        <CustomText className="text-14px text-gray100 ml-1">{subtitle}</CustomText>
-      </View>
-    )}
-  </Pressable>
+      {({ pressed }) => (
+        <View
+          className={`bg-white rounded-2xl p-4 shadow-2xl h-40 ${
+            pressed ? "scale-95" : "scale-100"
+          }`}
+        >
+          <CustomText className="text-24px font-semibold mt-20 ml-1">
+            {title}
+          </CustomText>
+          <CustomText className="text-14px text-gray100 ml-1">
+            {subtitle}
+          </CustomText>
+        </View>
+      )}
+    </Pressable>
   );
-
 
   return (
     <View className="flex-1 bg-blue100">
-
       <View className="flex-row justify-between items-center p-4 bg-blue100">
         <TouchableOpacity>
           <Droplet height={28} width={28} />
@@ -51,9 +57,12 @@ const ExploreScreen: React.FC = () => {
 
       <ScrollView className="px-4">
         <Card title="Journal" subtitle="Write about your day." />
-        <Card title="Guided Writing" subtitle="Discover your hidden thoughts."/>
-        <Card title="Relax" subtitle="Unwind out your day."/>
-        <Card title="Reading" subtitle="Feed your mind and imagination."/>
+        <Card
+          title="Guided Writing"
+          subtitle="Discover your hidden thoughts."
+        />
+        <Card title="Relax" subtitle="Unwind out your day." />
+        <Card title="Reading" subtitle="Feed your mind and imagination." />
       </ScrollView>
 
       {/* Footer Navigation */}

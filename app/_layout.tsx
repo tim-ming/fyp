@@ -11,7 +11,7 @@ import "react-native-reanimated";
 import { Pressable } from "react-native";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { NativeWindStyleSheet } from "nativewind";
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation } from "@react-navigation/native";
 import ChevronLeft from "@/assets/icons/chevron-left.svg";
 
 NativeWindStyleSheet.setOutput({
@@ -40,20 +40,31 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Stack screenOptions={{
-        headerTitle: '',
-        headerBackTitleVisible: false, 
-        headerTransparent: true, 
-        headerShadowVisible: false, 
-        headerLeft: () => (
-          <Pressable onPress={() => navigation.goBack()} style={{ marginLeft: 16 }}>
-            <ChevronLeft width={24} height={24} />
-          </Pressable>
-        ),
-      }}
-    >
+      <Stack
+        screenOptions={{
+          headerTitle: "",
+          headerBackTitleVisible: false,
+          headerTransparent: true,
+          headerShadowVisible: false,
+          headerLeft: () => (
+            <Pressable
+              onPress={() => navigation.goBack()}
+              style={{ marginLeft: 16 }}
+            >
+              <ChevronLeft width={24} height={24} />
+            </Pressable>
+          ),
+        }}
+      >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />
+        <Stack.Screen
+          name="settings"
+          options={{
+            presentation: "modal", // Makes it slide in from the right
+            animation: "slide_from_right", // Specifies the slide animation
+          }}
+        />
       </Stack>
     </ThemeProvider>
   );

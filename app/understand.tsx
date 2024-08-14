@@ -4,8 +4,15 @@ import { Image } from "expo-image";
 import CustomText from "@/components/CustomText";
 import { shadows } from "@/constants/styles";
 import Check from "@/assets/icons/check.svg";
+import { useRouter } from "expo-router";
 
 const SocialMediaScreen = () => {
+  const router = useRouter();
+
+  const handleSkipPress = () => {
+    router.push("/settings");
+  };
+
   interface Platform {
     id: string;
     name: string;
@@ -111,7 +118,10 @@ const SocialMediaScreen = () => {
         </CustomText>
       </Pressable>
 
-      <Pressable className="bg-blue200 rounded-full py-3">
+      <Pressable
+        className="bg-blue200 rounded-full py-3"
+        onPress={handleSkipPress}
+      >
         <CustomText className="text-white text-center text-lg">Skip</CustomText>
       </Pressable>
     </View>

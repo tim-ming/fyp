@@ -33,6 +33,8 @@ module.exports = {
         gray300: "#535353",
         black100: "#1F1F1F",
         black200: "#000000",
+        beige200: "#D1CCC8",
+        beige300: "#E7E2DE",
       },
       spacing: {
         12: "48px",

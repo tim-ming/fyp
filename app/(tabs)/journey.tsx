@@ -1,12 +1,10 @@
 import React from "react";
 import { View, Text } from "react-native";
 
-const EmptyScreen: React.FC = () => {
+export default function App() {
   return (
     <View>
-      <Text>Index</Text>
+      <Text>Journey</Text>
     </View>
   );
-};
-
-export default EmptyScreen;
+}

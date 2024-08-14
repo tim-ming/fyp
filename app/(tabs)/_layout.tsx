@@ -5,6 +5,10 @@ import { SafeAreaView, StyleSheet } from "react-native";
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
+import HomeIcon from "@/assets/icons/home.svg";
+import ExploreIcon from "@/assets/icons/search.svg";
+import ReadIcon from "@/assets/icons/book-open.svg";
+import JourneyIcon from "@/assets/icons/calendar.svg";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -18,14 +22,11 @@ export default function TabLayout() {
         }}
       >
         <Tabs.Screen
-          name="index"
+          name="home"
           options={{
             title: "Home",
             tabBarIcon: ({ color, focused }) => (
-              <TabBarIcon
-                name={focused ? "home" : "home-outline"}
-                color={color}
-              />
+              <HomeIcon width={26} height={26} color={color} />
             ),
           }}
         />
@@ -34,17 +35,14 @@ export default function TabLayout() {
           options={{
             title: "Explore",
             tabBarIcon: ({ color, focused }) => (
-              <TabBarIcon
-                name={focused ? "code-slash" : "code-slash-outline"}
-                color={color}
-              />
+              <ExploreIcon width={26} height={26} color={color} />
             ),
           }}
         />
         <Tabs.Screen
-          name="signup"
+          name="add"
           options={{
-            title: "Signup",
+            title: "",
             tabBarIcon: ({ color, focused }) => (
               <TabBarIcon
                 name={focused ? "code-slash" : "code-slash-outline"}
@@ -54,26 +52,20 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="signin"
+          name="read"
           options={{
-            title: "Signin",
+            title: "Read",
             tabBarIcon: ({ color, focused }) => (
-              <TabBarIcon
-                name={focused ? "code-slash" : "code-slash-outline"}
-                color={color}
-              />
+              <ReadIcon width={26} height={26} color={color} />
             ),
           }}
         />
         <Tabs.Screen
-          name="home"
+          name="journey"
           options={{
-            title: "Home",
+            title: "Journey",
             tabBarIcon: ({ color, focused }) => (
-              <TabBarIcon
-                name={focused ? "code-slash" : "code-slash-outline"}
-                color={color}
-              />
+              <JourneyIcon width={26} height={26} color={color} />
             ),
           }}
         />

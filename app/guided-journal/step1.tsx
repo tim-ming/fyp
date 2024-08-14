@@ -6,7 +6,7 @@ import CustomText from '@/components/CustomText';
 
 const GuidedJournalStep1: React.FC = () => {
   return (
-    <View className="flex-1 bg-blue100 px-5 pt-12">
+    <View className="flex-1 justify-between bg-blue100 px-2 pt-12">
       <View>
         <CustomText className="text-[16px] font-semibold text-center text-gray200">Thursday</CustomText>
         <CustomText className="text-[20px] font-semibold text-center text-gray200">2 May 2024</CustomText>
@@ -19,24 +19,24 @@ const GuidedJournalStep1: React.FC = () => {
         <View className="h-1 flex-1 bg-gray-300 rounded-full ml-1" />
       </View>
 
-      <CustomText className="mt-8 text-lg font-semibold text-gray-800 px-4">
+      <CustomText className="mt-4 text-[20px] font-semibold text-gray-800 px-4">
         An unhelpful thought you have?
       </CustomText>
 
-      <View className="mt-4 mx-2 p-4 bg-white rounded-lg">
-        <CustomText className="text-base text-gray-500">
+      <View className="mt-4 mx-2 p-4 bg-white rounded-3xl">
+        <CustomText className=" text-base text-gray300 text-[14px] ">
           {`What if...\nI should...\nI feel...\nI think...\nI am...`}
         </CustomText>
       </View>
 
       <TextInput
-          className="mt-4 p-2 text-gray-800 text-base"
+          className="mt-6 p-4 text-gray-800 text-base flex-grow rounded-md"
           placeholder="I can’t stop overthinking about my..."
           multiline
-          placeholderTextColor="#8B8B8B"
+          placeholderTextColor="#535353"
         />
 
-      <View className="flex-1 justify-end mb-12">
+      <View className="flex-1 justify-end mb-6 mx-2">
         <Link href="/guided-journal/step2" asChild>
           <Pressable className="h-14 bg-blue200 items-center justify-center rounded-full">
             <CustomText className="text-white text-base font-medium">

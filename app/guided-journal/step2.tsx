@@ -17,7 +17,7 @@ const distortionOptions = [
   { id: 10, title: 'Labelling', description: '“I am just a lazy person.”' },
 ];
 
-const GuidedJournalStep1: React.FC = () => {
+const GuidedJournalStep2: React.FC = () => {
   const [selectedDistortions, setSelectedDistortions] = useState<number[]>([]);
 
   const handleSelectDistortion = (id: number): void => {
@@ -81,4 +81,4 @@ const GuidedJournalStep1: React.FC = () => {
   );
 };
 
-export default GuidedJournalStep1;
+export default GuidedJournalStep2;

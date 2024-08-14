@@ -65,6 +65,14 @@ export default function RootLayout() {
             animation: "slide_from_right", // Specifies the slide animation
           }}
         />
+        <Stack.Screen
+          name="guided-journal/completion"
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="journal/completion"
+          options={{ headerShown: false }}
+        />
       </Stack>
     </ThemeProvider>
   );

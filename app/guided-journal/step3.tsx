@@ -4,7 +4,7 @@ import { Link } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import CustomText from '@/components/CustomText';
 
-const GuidedJournalStep1: React.FC = () => {
+const GuidedJournalStep3: React.FC = () => {
   return (
     <View className="flex-1 justify-between bg-blue100 px-2 pt-12">
       <View>
@@ -51,4 +51,4 @@ Think about it again. Oppose your thoughts rationally.`}
   );
 };
 
-export default GuidedJournalStep1;
+export default GuidedJournalStep3;

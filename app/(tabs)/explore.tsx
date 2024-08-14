@@ -63,22 +63,22 @@ const ExploreScreen: React.FC = () => {
         <Card 
           title="Journal" 
           subtitle="Write about your day." 
-          href="/guided-journal/start"
+          href="/journal/start"
         />
         <Card
           title="Guided Writing"
           subtitle="Discover your hidden thoughts."
-          href="./guided-journal/start"
+          href="/guided-journal/start"
         />
         <Card 
           title="Relax" 
           subtitle="Unwind out your day." 
-          href="./guided-journal/step1"
+          href="/guided-journal/start"
         />
         <Card 
           title="Reading" 
           subtitle="Feed your mind and imagination." 
-          href="./guided-journal/step1"
+          href="/(tabs)/read"
         />
       </ScrollView>
 

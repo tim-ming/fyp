@@ -11,9 +11,13 @@ import "react-native-reanimated";
 import { Pressable } from "react-native";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { NativeWindStyleSheet } from "nativewind";
-import { useNavigation } from "@react-navigation/native";
+import { router } from "expo-router";
 import ChevronLeft from "@/assets/icons/chevron-left.svg";
-
+import {
+  SafeAreaProvider,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
+import TopNav from "@/components/TopNav";
 NativeWindStyleSheet.setOutput({
   default: "native",
 });
@@ -36,44 +40,49 @@ export default function RootLayout() {
   if (!loaded) {
     return null;
   }
-  const navigation = useNavigation();
 
+  const goBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.push("/");
+    }
+  };
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Stack
-        screenOptions={{
-          headerTitle: "",
-          headerBackTitleVisible: false,
-          headerTransparent: true,
-          headerShadowVisible: false,
-          headerLeft: () => (
-            <Pressable
-              onPress={() => navigation.goBack()}
-              style={{ marginLeft: 16 }}
-            >
-              <ChevronLeft width={24} height={24} />
-            </Pressable>
-          ),
-        }}
-      >
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-        <Stack.Screen
-          name="settings"
-          options={{
-            presentation: "modal", // Makes it slide in from the right
-            animation: "slide_from_right", // Specifies the slide animation
+      <SafeAreaProvider>
+        <Stack
+          screenOptions={{
+            headerTitle: "",
+            headerBackTitleVisible: false,
+            headerTransparent: true,
+            headerShadowVisible: false,
+            headerLeft: () => (
+              <Pressable onPress={goBack} style={{ marginLeft: 16 }}>
+                <ChevronLeft width={24} height={24} />
+              </Pressable>
+            ),
           }}
-        />
-        <Stack.Screen
-          name="guided-journal/completion"
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="journal/completion"
-          options={{ headerShown: false }}
-        />
-      </Stack>
+        >
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="+not-found" />
+          <Stack.Screen
+            name="settings"
+            options={{
+              presentation: "modal", // Makes it slide in from the right
+              animation: "slide_from_right", // Specifies the slide animation
+            }}
+          />
+          <Stack.Screen
+            name="guided-journal/completion"
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="journal/completion"
+            options={{ headerShown: false }}
+          />
+        </Stack>
+      </SafeAreaProvider>
     </ThemeProvider>
   );
 }

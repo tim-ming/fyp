@@ -90,63 +90,61 @@ const renderCard = (date: Date) => (
 const { width: viewportWidth, height: viewportHeight } =
   Dimensions.get("window");
 
-// const wp = (percentage: number) => {
-//   const value = (percentage * viewportWidth) / 100;
-//   return Math.round(value);
-// };
+const wp = (percentage: number) => {
+  const value = (percentage * viewportWidth) / 100;
+  return Math.round(value);
+};
 
-// const scrollInterpolator2 = (
-//   index: number,
-//   carouselProps: CarouselProps<any>
-// ) => {
-//   const range = [2, 1, 0, -1];
-//   const inputRange = getInputRangeFromIndexes(range, index, carouselProps);
-//   const outputRange = range;
+const scrollInterpolator2 = (
+  index: number,
+  carouselProps: CarouselProps<any>
+) => {
+  const range = [2, 1, 0, -1];
+  const inputRange = getInputRangeFromIndexes(range, index, carouselProps);
+  const outputRange = range;
 
-//   return { inputRange, outputRange };
-// };
+  return { inputRange, outputRange };
+};
 
-// const animatedStyles2 = (
-//   index: number,
-//   animatedValue: Animated.AnimatedValue,
-//   carouselProps: CarouselProps<any>
-// ) => {
-//   return {
-//     zIndex: animatedValue
-//       .interpolate({
-//         inputRange: [-1, -0.5, 0, 0.5, 1],
-//         outputRange: [0, 0, 1, 0, 0],
-//         extrapolate: "clamp",
-//       })
-//       .interpolate({
-//         inputRange: [0, 1],
-//         outputRange: [0, 1000],
-//         extrapolate: "clamp",
-//       }),
-//     opacity: animatedValue.interpolate({
-//       inputRange: [-2, -1, 0, 1, 2],
-//       outputRange: [0.6, 0.75, 1, 0.75, 0.6],
-//     }),
-//     transform: [
-//       {
-//         scale: animatedValue.interpolate({
-//           inputRange: [-2, -1, 0, 1, 2],
-//           outputRange: [0.6, 0.75, 1, 0.75, 0.6],
-//         }),
-//       },
-//       {
-//         translateX: animatedValue.interpolate({
-//           inputRange: [-1, 0, 1],
-//           outputRange: [
-//             styles.mainCard.width / 2,
-//             0,
-//             (-1 * styles.mainCard.width) / 2,
-//           ],
-//         }),
-//       },
-//     ],
-//   };
-// };
+const animatedStyles2 = (
+  index: number,
+  animatedValue: Animated.AnimatedValue,
+  carouselProps: CarouselProps<any>
+) => {
+  return {
+    zIndex: animatedValue.interpolate({
+      inputRange: [-1, -0.5, 0, 0.5, 1],
+      outputRange: [0, 0, 1, 0, 0],
+      extrapolate: 'clamp',
+    }).interpolate({
+      inputRange: [0, 1],
+      outputRange: [0, 1000],
+      extrapolate: 'clamp',
+    }),
+    opacity: animatedValue.interpolate({
+      inputRange: [-2, -1, 0, 1, 2],
+      outputRange: [0.6, 0.75, 1, 0.75, 0.6],
+    }),
+    transform: [
+      {
+        scale: animatedValue.interpolate({
+          inputRange: [-2, -1, 0, 1, 2],
+          outputRange: [0.6, 0.75, 1, 0.75, 0.6],
+        }),
+      },
+      {
+        translateX: animatedValue.interpolate({
+          inputRange: [-1, 0, 1],
+          outputRange: [
+            styles.mainCard.width / 2,
+            0,
+            (-1 * styles.mainCard.width) / 2,
+          ],
+        }),
+      },
+    ],
+  };
+};
 
 const HomeScreen = () => {
   const today = new Date();
@@ -159,7 +157,7 @@ const HomeScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* <View className="flex flex-row justify-between">
+      <View className="flex flex-row justify-between">
         <TouchableOpacity className="p-4">
           <Droplet width={ICON_SIZE} height={ICON_SIZE} />
         </TouchableOpacity>
@@ -174,7 +172,7 @@ const HomeScreen = () => {
         </CustomText>
       </View>
 
-      {/* <View className="w-full pt-12 flex flex-row justify-center items-center relative">
+      <View className="w-full pt-12 flex flex-row justify-center items-center relative">
         <Carousel
           data={data}
           firstItem={data.length - 1}
@@ -191,7 +189,7 @@ const HomeScreen = () => {
           slideInterpolatedStyle={animatedStyles2}
           useScrollView={true}
         />
-      </View> */}
+      </View>
 
       <View className="w-screen px-5 pt-8">
         <View style={styles.line} className="h-0.5 w-full rounded-full" />

@@ -1,12 +1,23 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Index, Integer, SmallInteger, String, DateTime
+from sqlalchemy import (
+    Boolean,
+    Column,
+    ForeignKey,
+    Index,
+    Integer,
+    SmallInteger,
+    String,
+    DateTime,
+)
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-from .database import Base
+from app.database import Base
+
 
 class User(Base):
     """
     User Model
     """
+
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True)
@@ -18,10 +29,12 @@ class User(Base):
     mood_entries = relationship("MoodEntry", back_populates="user")
     journal_entries = relationship("JournalEntry", back_populates="user")
 
+
 class MoodEntry(Base):
     """
     Mood Entry Model
     """
+
     __tablename__ = "mood_entries"
 
     id = Column(Integer, primary_key=True)
@@ -29,35 +42,29 @@ class MoodEntry(Base):
     mood = Column(SmallInteger)
     user_id = Column(Integer, ForeignKey("users.id"), index=True)
 
-    user = relationship("User", back_populates="moods")
+    user = relationship("User", back_populates="mood_entries")
 
     __table_args__ = (
-        Index('ix_moods_datetime_desc', datetime.desc()),
-    ) # Index for datetime in descending order
+        Index("ix_mood_entries_datetime_desc", datetime.desc()),
+    )  # Index for datetime in descending order
 
-    __mapper_args__ = {
-        "order_by": datetime.desc()
-    } # Default order by datetime in descending order
 
 class JournalEntry(Base):
     """
     Journal Entry Model
     """
+
     __tablename__ = "journal_entries"
 
     id = Column(Integer, primary_key=True)
     datetime = Column(DateTime(timezone=True), server_default=func.now(), index=True)
     title = Column(String)
     body = Column(String)
-    image = Column(String)
+    image = Column(String, nullable=True)
     user_id = Column(Integer, ForeignKey("users.id"), index=True)
 
     user = relationship("User", back_populates="journal_entries")
 
     __table_args__ = (
-        Index('ix_moods_datetime_desc', datetime.desc()),
-    ) # Index for datetime in descending order
-
-    __mapper_args__ = {
-        "order_by": datetime.desc()
-    } # Default order by datetime in descending order
+        Index("ix_journal_entries_datetime_desc", datetime.desc()),
+    )  # Index for datetime in descending order

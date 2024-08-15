@@ -1,7 +1,7 @@
 from typing import Optional
 from sqlalchemy.orm import Session
 
-from . import models, schemas
+from app import models, schemas
 
 
 def get_user_by_email(db: Session, email: str) -> Optional[models.User]:
@@ -21,7 +21,7 @@ def create_user(db: Session, user: schemas.UserCreate) -> models.User:
     :param user (schemas.UserCreate): User create schema
     :return (models.User): New user
     """
-    db_user = models.User(email=user.email, hashed_password=user.password)
+    db_user = models.User(email=user.email, name=user.name, hashed_password=user.password)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
@@ -56,6 +56,7 @@ def get_mood_entries_by_user(
     return (
         db.query(models.MoodEntry)
         .filter(models.MoodEntry.user_id == user.id)
+        .order_by(models.JournalEntry.datetime.desc())
         .offset(skip)
         .limit(limit)
         .all()
@@ -93,6 +94,7 @@ def get_journal_entries_by_user(
     return (
         db.query(models.JournalEntry)
         .filter(models.JournalEntry.user_id == user.id)
+        .order_by(models.JournalEntry.datetime.desc())
         .offset(skip)
         .limit(limit)
         .all()

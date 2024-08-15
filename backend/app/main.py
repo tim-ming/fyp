@@ -1,6 +1,8 @@
 import os
 from fastapi import FastAPI, Depends, HTTPException, Query, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+
+from pydantic import ValidationError
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from jose import JWTError, jwt
@@ -9,8 +11,8 @@ from typing import Annotated, Generator, List, Optional
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
 
-from .database import SessionLocal, engine
-from . import schemas, commands, models
+from app.database import SessionLocal, engine
+from app import commands, models, schemas
 
 # Create database tables if they don't exist
 # Should use Alembic for migrations instead but this is fine for now
@@ -52,9 +54,7 @@ def get_db() -> Generator[Session, None, None]:
         db.close()
 
 
-def authenticate_user(
-    email: str, password: str, db: Session = Depends(get_db)
-) -> Optional[schemas.User]:
+def authenticate_user(db: Session, email: str, password: str) -> Optional[schemas.User]:
     """
     Authenticate a user
     :param email (str): Email
@@ -77,7 +77,7 @@ def get_current_user(
 ) -> schemas.User:
     """
     Get the current user
-    :param token (str): JWT token
+    :param token (str): JWT
     :param db (Session): Database session
     :return (schemas.User): Current user
     :raises (HTTPException): If credentials are invalid
@@ -91,9 +91,12 @@ def get_current_user(
     # Decode token and extract the email
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email: str = payload.get("sub")
-        token_data = schemas.TokenData(email=email)
-    except JWTError:
+        user_email: Optional[str] = payload.get("sub")
+        user_id: Optional[int] = (
+            int(payload.get("id")) if payload.get("id") is not None else None
+        )
+        token_data = schemas.TokenData(email=user_email, id=user_id)
+    except JWTError or ValidationError:
         raise credentials_exception
 
     # Get user by email
@@ -104,16 +107,20 @@ def get_current_user(
 
 
 @app.post("/login", response_model=schemas.Token)
-def post_login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
+def post_login(
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+    db: Session = Depends(get_db),
+):
     """
-    Login route to generate a JWT token
+    Login route to generate a JWT
     :param form_data (OAuth2PasswordRequestForm): Form containing username (email) and password
-    :return (schemas.Token): JWT token
+    :param db (Session): Database session
+    :return (schemas.Token): JWT
     :raises (HTTPException): If credentials are invalid
     """
 
     # Authenticate user
-    user = authenticate_user(form_data.username, form_data.password)
+    user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -121,10 +128,11 @@ def post_login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    # Generate JWT token
+    # Generate JWT
     access_token = jwt.encode(
         {
-            "sub": user.username,
+            "sub": user.email,
+            "id": user.id,
             "exp": datetime.now(timezone.utc)
             + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
         },
@@ -135,7 +143,7 @@ def post_login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
     return schemas.Token(access_token=access_token, token_type="bearer")
 
 
-@app.post("/register", response_model=schemas.User)
+@app.post("/register")
 def post_register(user: schemas.UserCreate, db: Session = Depends(get_db)):
     """
     Register a new user
@@ -144,21 +152,25 @@ def post_register(user: schemas.UserCreate, db: Session = Depends(get_db)):
     :return (schemas.User): Created user
     :raises (HTTPException): If user with such email already exists
     """
-    user = commands.get_user_by_email(db, user.email)
-    if user is not None:
+    _user = commands.get_user_by_email(db, user.email)
+    if _user is not None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered"
         )
 
-    return commands.create_user(db, user)
+    # Hash password
+    user.password = pwd_context.hash(user.password)
+    commands.create_user(db, user)
+
+    return {"detail": "User created successfully"}
 
 
-@app.get("/users/me", response_model=schemas.User)
+@app.get("/users/me", response_model=schemas.UserWithoutSensitiveData)
 def get_profile(current_user: Annotated[schemas.User, Depends(get_current_user)]):
     """
     Get current user profile
     :param current_user (schemas.User): Current user
-    :return (schemas.User): Current user
+    :return (schemas.UserWithoutSensitiveData): Current user profile without sensitive data
     """
     return current_user
 

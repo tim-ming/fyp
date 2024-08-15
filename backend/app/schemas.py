@@ -25,13 +25,25 @@ class User(UserBase):
     is_active: bool
 
     class Config:
-        orm_mode = True
+        from_attributes = True
+
+class UserWithoutSensitiveData(UserBase):
+    """
+    User Schema without sensitive data
+    """
+    id: int
+    name: str
+    is_active: bool
+
+    class Config:
+        from_attributes = True
 
 class TokenData(BaseModel):
     """
     Token Data Schema
     """
-    email: Optional[str] = None
+    email: str = None
+    id: int = None
 
 class Token(BaseModel):
     """
@@ -61,7 +73,7 @@ class MoodEntry(MoodEntryBase):
     datetime: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class JournalEntryBase(BaseModel):
     """
@@ -69,7 +81,7 @@ class JournalEntryBase(BaseModel):
     """
     title: str
     body: str
-    image: str
+    image: Optional[str] = None
 
 class JournalEntryCreate(JournalEntryBase):
     """
@@ -86,4 +98,4 @@ class JournalEntry(JournalEntryBase):
     datetime: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True

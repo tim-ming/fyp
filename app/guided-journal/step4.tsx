@@ -42,7 +42,7 @@ with?`}
         <Link href="/guided-journal/completion" asChild>
           <Pressable className="h-14 bg-blue200 items-center justify-center rounded-full">
             <CustomText className="text-white text-base font-medium">
-              Next
+              Finish thought
             </CustomText>
           </Pressable>
         </Link>

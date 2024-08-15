@@ -81,32 +81,6 @@ const ExploreScreen: React.FC = () => {
           href="/(tabs)/read"
         />
       </ScrollView>
-
-      <View className="flex-row justify-around bg-white py-4">
-        <TouchableOpacity className="items-center">
-          <Ionicons name="home-outline" size={24} color="#676767" />
-          <CustomText className="text-gray200">Home</CustomText>
-        </TouchableOpacity>
-
-        <TouchableOpacity className="items-center">
-          <Ionicons name="compass-outline" size={24} color="#3373B0" />
-          <CustomText className="text-blue200">Explore</CustomText>
-        </TouchableOpacity>
-
-        <TouchableOpacity className="w-12 h-12 rounded-full bg-blue200 justify-center items-center mb-4">
-          <Ionicons name="add" size={24} color="#FFFFFF" />
-        </TouchableOpacity>
-
-        <TouchableOpacity className="items-center">
-          <Ionicons name="book-outline" size={24} color="#676767" />
-          <CustomText className="text-gray200">Read</CustomText>
-        </TouchableOpacity>
-
-        <TouchableOpacity className="items-center">
-          <Ionicons name="journal-outline" size={24} color="#676767" />
-          <CustomText className="text-gray200">Journey</CustomText>
-        </TouchableOpacity>
-      </View>
     </SafeAreaView>
   );
 };

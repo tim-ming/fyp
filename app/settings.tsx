@@ -32,7 +32,7 @@ const SettingsScreen = () => {
           paddingTop: 12,
         }}
       > */}
-      <ScrollView className="flex-1 bg-lightblue200 px-4 pt-5">
+      <ScrollView className="flex-1 bg-lightblue200 px-4 pt-16">
         <CustomText className="text-2xl font-medium text-gray300 my-2">
           Profile
         </CustomText>

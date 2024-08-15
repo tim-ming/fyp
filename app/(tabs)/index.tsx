@@ -12,6 +12,7 @@ import User from "@/assets/icons/user.svg";
 import Droplet from "@/assets/icons/droplet.svg";
 import Plus from "@/assets/icons/plus.svg";
 import CustomText from "@/components/CustomText";
+import TopNav from "@/components/TopNav";
 
 const daysAfter = (days: number) => (date: Date) =>
   new Date(date.getTime() + days * (24 * 60 * 60 * 1000));
@@ -48,22 +49,12 @@ const _days = [
 const getDay = (day: number) =>
   (day >= 0 && day < 7 ? _days[day] : "???").toUpperCase();
 
-const ICON_SIZE = 28;
-
 const HomeScreen = () => {
   const today = new Date();
 
   return (
     <SafeAreaView style={styles.container}>
-      <View className="flex flex-row justify-between">
-        <TouchableOpacity className="p-4">
-          <Droplet width={ICON_SIZE} height={ICON_SIZE} />
-        </TouchableOpacity>
-        <TouchableOpacity className="p-4">
-          <User width={ICON_SIZE} height={ICON_SIZE} />
-        </TouchableOpacity>
-      </View>
-
+      <TopNav />
       <View>
         <CustomText className="font-bold text-2xl text-center">
           Good Morning, Ning.
@@ -94,11 +85,7 @@ const HomeScreen = () => {
                   className="rounded-full bg-white flex justify-center items-center"
                   style={[styles.shadow, styles.circle]}
                 >
-                  <Plus
-                    width={ICON_SIZE}
-                    height={ICON_SIZE}
-                    stroke={"rgba(0, 0, 0, 0.7)"}
-                  />
+                  <Plus width={24} height={24} stroke={"rgba(0, 0, 0, 0.7)"} />
                 </View>
               </TouchableOpacity>
             </View>
@@ -121,11 +108,7 @@ const HomeScreen = () => {
                 className="rounded-full bg-white flex justify-center items-center"
                 style={[styles.shadow, styles.circle]}
               >
-                <Plus
-                  width={ICON_SIZE}
-                  height={ICON_SIZE}
-                  stroke={"rgba(0, 0, 0, 0.7)"}
-                />
+                <Plus width={24} height={24} stroke={"rgba(0, 0, 0, 0.7)"} />
               </View>
             </TouchableOpacity>
           </View>

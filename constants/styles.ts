@@ -15,3 +15,15 @@ export const shadows = StyleSheet.create({
     elevation: 5, // For Android shadow
   },
 });
+export const screenStyles = StyleSheet.create({
+  padding: {
+    paddingLeft: 16,
+    paddingRight: 16,
+    paddingTop: 12,
+    paddingBottom: 12,
+  },
+  contentPadding: {
+    paddingTop: 12,
+    paddingBottom: 12,
+  },
+});

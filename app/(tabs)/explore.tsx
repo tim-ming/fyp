@@ -14,7 +14,15 @@ import { Href, Link } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const ExploreScreen: React.FC = () => {
-  const Card = ({ title, subtitle, href }: { title: string; subtitle: string; href: Href<string | object> }) => (
+  const Card = ({
+    title,
+    subtitle,
+    href,
+  }: {
+    title: string;
+    subtitle: string;
+    href: Href<string | object>;
+  }) => (
     <Link href={href} asChild>
       <Pressable>
         {({ pressed }) => (
@@ -30,7 +38,6 @@ const ExploreScreen: React.FC = () => {
               {subtitle}
             </CustomText>
           </View>
-      
         )}
       </Pressable>
     </Link>
@@ -60,9 +67,9 @@ const ExploreScreen: React.FC = () => {
       />
 
       <ScrollView className="px-4">
-        <Card 
-          title="Journal" 
-          subtitle="Write about your day." 
+        <Card
+          title="Journal"
+          subtitle="Write about your day."
           href="/journal/start"
         />
         <Card
@@ -70,14 +77,14 @@ const ExploreScreen: React.FC = () => {
           subtitle="Discover your hidden thoughts."
           href="/guided-journal/start"
         />
-        <Card 
-          title="Relax" 
-          subtitle="Unwind out your day." 
+        <Card
+          title="Relax"
+          subtitle="Unwind out your day."
           href="/guided-journal/start"
         />
-        <Card 
-          title="Reading" 
-          subtitle="Feed your mind and imagination." 
+        <Card
+          title="Reading"
+          subtitle="Feed your mind and imagination."
           href="/(tabs)/read"
         />
       </ScrollView>

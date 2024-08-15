@@ -1,0 +1,291 @@
+import os
+from fastapi import FastAPI, Depends, HTTPException, Query, status
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from sqlalchemy.orm import Session
+from passlib.context import CryptContext
+from jose import JWTError, jwt
+from datetime import datetime, timedelta, timezone
+from typing import Annotated, Generator, List, Optional
+from dotenv import load_dotenv
+from fastapi.middleware.cors import CORSMiddleware
+
+from .database import SessionLocal, engine
+from . import schemas, commands, models
+
+# Create database tables if they don't exist
+# Should use Alembic for migrations instead but this is fine for now
+models.Base.metadata.create_all(bind=engine)
+
+# Create FastAPI app
+app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost",
+        "http://localhost:8081",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Load environment variables
+load_dotenv()
+
+# Configure JWT / security settings
+SECRET_KEY = os.getenv("TOKEN_SECRET_KEY")
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 30  # 30 days
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+
+def get_db() -> Generator[Session, None, None]:
+    """
+    Get a database session
+    :return (Generator[Session, None, None]): Database session
+    """
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+def authenticate_user(
+    email: str, password: str, db: Session = Depends(get_db)
+) -> Optional[schemas.User]:
+    """
+    Authenticate a user
+    :param email (str): Email
+    :param password (str): Password
+    :param db (Session): Database session
+    :return (Optional[schemas.User]): User if succesfully authenticated, None if not authenticated
+    """
+    user = commands.get_user_by_email(db, email)
+    return (
+        user
+        if user is not None
+        and user.is_active
+        and pwd_context.verify(password, user.hashed_password)
+        else None
+    )
+
+
+def get_current_user(
+    token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db)
+) -> schemas.User:
+    """
+    Get the current user
+    :param token (str): JWT token
+    :param db (Session): Database session
+    :return (schemas.User): Current user
+    :raises (HTTPException): If credentials are invalid
+    """
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+    # Decode token and extract the email
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        token_data = schemas.TokenData(email=email)
+    except JWTError:
+        raise credentials_exception
+
+    # Get user by email
+    user = commands.get_user_by_email(db, token_data.email)
+    if user is None or not user.is_active:
+        raise credentials_exception
+    return user
+
+
+@app.post("/login", response_model=schemas.Token)
+def post_login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
+    """
+    Login route to generate a JWT token
+    :param form_data (OAuth2PasswordRequestForm): Form containing username (email) and password
+    :return (schemas.Token): JWT token
+    :raises (HTTPException): If credentials are invalid
+    """
+
+    # Authenticate user
+    user = authenticate_user(form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    # Generate JWT token
+    access_token = jwt.encode(
+        {
+            "sub": user.username,
+            "exp": datetime.now(timezone.utc)
+            + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
+        },
+        SECRET_KEY,
+        algorithm=ALGORITHM,
+    )
+
+    return schemas.Token(access_token=access_token, token_type="bearer")
+
+
+@app.post("/register", response_model=schemas.User)
+def post_register(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    """
+    Register a new user
+    :param user (schemas.UserCreate): Initial user data
+    :param db (Session): Database session
+    :return (schemas.User): Created user
+    :raises (HTTPException): If user with such email already exists
+    """
+    user = commands.get_user_by_email(db, user.email)
+    if user is not None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered"
+        )
+
+    return commands.create_user(db, user)
+
+
+@app.get("/users/me", response_model=schemas.User)
+def get_profile(current_user: Annotated[schemas.User, Depends(get_current_user)]):
+    """
+    Get current user profile
+    :param current_user (schemas.User): Current user
+    :return (schemas.User): Current user
+    """
+    return current_user
+
+
+@app.post("/moods", response_model=schemas.MoodEntry)
+def post_mood_entry(
+    mood_entry: schemas.MoodEntryCreate,
+    current_user: Annotated[schemas.User, Depends(get_current_user)],
+    db: Session = Depends(get_db),
+):
+    """
+    Create a new mood entry
+    :param mood_entry (schemas.MoodEntryCreate): Mood entry data
+    :param current_user (schemas.User): Current user
+    :param db (Session): Database session
+    :return (schemas.MoodEntry): Created mood entry
+    """
+    return commands.create_mood_entry(db, mood_entry, current_user)
+
+
+@app.get("/moods", response_model=List[schemas.MoodEntry])
+def get_mood_entries(
+    current_user: Annotated[schemas.User, Depends(get_current_user)],
+    skip: int = Query(default=0, ge=0, description="Number of entries to skip"),
+    limit: int = Query(
+        default=100, ge=1, le=1000, description="Number of entries to return"
+    ),
+    db: Session = Depends(get_db),
+):
+    """
+    Get mood entries
+    :param current_user (schemas.User): Current user
+    :param skip (int): Number of entries to skip
+    :param limit (int): Number of entries to return
+    :param db (Session): Database session
+    :return (List[schemas.MoodEntry]): Mood entries
+    :raises (HTTPException): If skip or limit values are invalid
+    """
+    if skip < 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Skip value must be non-negative",
+        )
+    if limit < 1 or limit > 1000:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Limit must be between 1 and 1000",
+        )
+
+    return commands.get_mood_entries_by_user(db, current_user, skip, limit)
+
+
+@app.get("/moods/{mood_id}", response_model=schemas.MoodEntry)
+def get_mood_entry(
+    mood_id: int,
+    current_user: Annotated[schemas.User, Depends(get_current_user)],
+    db: Session = Depends(get_db),
+):
+    """
+    Get a mood entry by ID
+    :param mood_id (int): Mood entry ID
+    :param current_user (schemas.User): Current user
+    :param db (Session): Database session
+    :return (schemas.MoodEntry): Mood entry
+    """
+    return commands.get_mood_entry_by_id(db, mood_id, current_user)
+
+
+@app.post("/journals", response_model=schemas.JournalEntry)
+def post_journal_entry(
+    journal_entry: schemas.JournalEntryCreate,
+    current_user: Annotated[schemas.User, Depends(get_current_user)],
+    db: Session = Depends(get_db),
+):
+    """
+    Create a new journal entry
+    :param journal_entry (schemas.JournalEntryCreate): Journal entry data
+    :param current_user (schemas.User): Current user
+    :param db (Session): Database session
+    :return (schemas.JournalEntry): Created journal entry
+    """
+    return commands.create_journal_entry(db, journal_entry, current_user)
+
+
+@app.get("/journals", response_model=List[schemas.JournalEntry])
+def get_journal_entries(
+    current_user: Annotated[schemas.User, Depends(get_current_user)],
+    skip: int = Query(default=0, ge=0, description="Number of entries to skip"),
+    limit: int = Query(
+        default=100, ge=1, le=1000, description="Number of entries to return"
+    ),
+    db: Session = Depends(get_db),
+):
+    """
+    Get journal entries
+    :param current_user (schemas.User): Current user
+    :param skip (int): Number of entries to skip
+    :param limit (int): Number of entries to return
+    :param db (Session): Database session
+    :return (List[schemas.JournalEntry]): Journal entries
+    :raises (HTTPException): If skip or limit values are invalid
+    """
+    if skip < 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Skip value must be non-negative",
+        )
+    if limit < 1 or limit > 1000:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Limit must be between 1 and 1000",
+        )
+
+    return commands.get_journal_entries_by_user(db, current_user, skip, limit)
+
+
+@app.get("/journals/{journal_id}", response_model=schemas.JournalEntry)
+def get_journal_entry(
+    journal_id: int,
+    current_user: Annotated[schemas.User, Depends(get_current_user)],
+    db: Session = Depends(get_db),
+):
+    """
+    Get a journal entry by ID
+    :param journal_id (int): Journal entry ID
+    :param current_user (schemas.User): Current user
+    :param db (Session): Database session
+    :return (schemas.JournalEntry): Journal entry
+    """
+    return commands.get_journal_entry_by_id(db, journal_id, current_user)

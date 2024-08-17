@@ -12,6 +12,7 @@ import Droplet from "@/assets/icons/droplet.svg";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Href, Link } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+import TopNav from "@/components/TopNav";
 
 const ExploreScreen: React.FC = () => {
   const Card = ({
@@ -45,14 +46,7 @@ const ExploreScreen: React.FC = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-blue100">
-      <View className="flex-row justify-between items-center p-4 bg-blue100">
-        <TouchableOpacity>
-          <Droplet height={28} width={28} />
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <User height={28} width={28} />
-        </TouchableOpacity>
-      </View>
+      <TopNav />
 
       <View>
         <CustomText className="text-xl font-semibold text-center text-gray200">

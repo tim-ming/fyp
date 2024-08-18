@@ -7,9 +7,6 @@ import {
   Pressable,
 } from "react-native";
 import CustomText from "@/components/CustomText";
-import User from "@/assets/icons/user.svg";
-import Droplet from "@/assets/icons/droplet.svg";
-import Ionicons from "@expo/vector-icons/Ionicons";
 import { Href, Link } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import TopNav from "@/components/TopNav";
@@ -49,7 +46,7 @@ const ExploreScreen: React.FC = () => {
       <TopNav />
 
       <View>
-        <CustomText className="text-xl font-semibold text-center text-gray200">
+        <CustomText className="text-[24px] font-semibold text-center text-gray200">
           Explore
         </CustomText>
       </View>

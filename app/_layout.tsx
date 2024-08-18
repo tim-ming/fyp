@@ -81,6 +81,23 @@ export default function RootLayout() {
             name="journal/completion"
             options={{ headerShown: false }}
           />
+          <Stack.Screen
+            name="read/[articleId]/chapter/[chapterId]/page/[pageId]"
+            options={({ route, navigation }) => ({
+              headerLeft: () => {
+                const { articleId } = route.params as { articleId: string };
+
+                return (
+                  <Pressable
+                    onPress={() => navigation.navigate('read/[articleId]', { articleId })}
+                    style={{ marginLeft: 16 }}
+                  >
+                    <ChevronLeft width={24} height={24} />
+                  </Pressable>
+                );
+              },
+            })}
+          />
         </Stack>
       </SafeAreaProvider>
     </ThemeProvider>

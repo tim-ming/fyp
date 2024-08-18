@@ -12,7 +12,7 @@ const GuidedJournalStep4: React.FC = () => {
         <CustomText className="text-[20px] font-semibold text-center text-gray200">2 May 2024</CustomText>
       </View>
 
-      <View className="flex-row justify-between items-center mt-6 mb-4 px-2">
+      <View className="flex-row justify-between items-center mt-6 mb-4 px-4">
         <View className="h-1 flex-1 bg-blue200 rounded-full mr-1" />
         <View className="h-1 flex-1 bg-blue200 rounded-full mx-1" />
         <View className="h-1 flex-1 bg-blue200 rounded-full mx-1" />

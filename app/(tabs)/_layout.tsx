@@ -2,7 +2,6 @@ import { Tabs, useSegments } from "expo-router";
 import React from "react";
 import { SafeAreaView, StyleSheet, View } from "react-native";
 
-import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import HomeIcon from "@/assets/icons/home.svg";
 import ExploreIcon from "@/assets/icons/search.svg";
@@ -29,7 +28,6 @@ export default function TabLayout() {
     <SafeAreaView style={styles.container}>
       <Tabs
         screenOptions={{
-          tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
           headerShown: false,
           tabBarShowLabel: false, // Hide labels
           tabBarStyle: {

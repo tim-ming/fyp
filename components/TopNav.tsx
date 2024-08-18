@@ -1,7 +1,5 @@
 import User from "@/assets/icons/user.svg";
-import Droplet from "@/assets/icons/droplet.svg";
-import Plus from "@/assets/icons/plus.svg";
-import CustomText from "@/components/CustomText";
+import DoubleHeart from "@/assets/icons/doubleheart.svg";
 import React from "react";
 import { View, TouchableOpacity, Pressable } from "react-native";
 import { screenStyles } from "@/constants/styles";
@@ -20,12 +18,12 @@ const TopNav: React.FC = () => {
     >
       <Pressable>
         <Link href="/gamification">
-          <Droplet width={ICON_SIZE} height={ICON_SIZE} />
+          <DoubleHeart fill="#535353" width={ICON_SIZE} height={ICON_SIZE} />
         </Link>
       </Pressable>
       <Pressable>
         <Link href="/settings">
-          <User width={ICON_SIZE} height={ICON_SIZE} />
+          <User fill="#535353" width={ICON_SIZE} height={ICON_SIZE} />
         </Link>
       </Pressable>
     </View>

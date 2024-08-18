@@ -27,7 +27,7 @@ module.exports = {
     extend: {
       colors: {
         blue100: "#F0F8FF",
-        blue200: "#3373B0",
+        blue200: "#256CD0",
         gray100: "#8B8B8B",
         gray200: "#676767",
         gray300: "#535353",
@@ -35,6 +35,7 @@ module.exports = {
         black200: "#000000",
         beige200: "#D1CCC8",
         beige300: "#E7E2DE",
+        disabled: "#C4C4C4",
       },
       spacing: {
         12: "48px",

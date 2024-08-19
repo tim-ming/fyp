@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -9,11 +9,14 @@ import {
   StyleProp,
   ViewStyle,
   ScrollView,
+  Platform,
+  Pressable,
+  RefreshControl,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import User from "@/assets/icons/user.svg";
-import Droplet from "@/assets/icons/droplet.svg";
 import Plus from "@/assets/icons/plus.svg";
+import EditPen from "@/assets/icons/edit-pen.svg";
+import Newpen from "@/assets/icons/new-pen.svg";
 import CustomText from "@/components/CustomText";
 import Carousel, {
   CarouselProps,
@@ -21,11 +24,12 @@ import Carousel, {
 } from "react-native-snap-carousel";
 import Card from "@/components/Card";
 import TopNav from "@/components/TopNav";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from "expo-secure-store";
+import { router } from "expo-router";
 
 const daysAfter = (days: number) => (date: Date) =>
   new Date(date.getTime() + days * (24 * 60 * 60 * 1000));
-const yesterday = daysAfter(-1);
-const tomorrow = daysAfter(1);
 
 const _months = [
   "Jan",
@@ -61,37 +65,75 @@ const ICON_SIZE = 28;
 
 const ref = React.createRef<Carousel<any>>();
 
-const renderCard = (date: Date) => (
-  <View
-    style={[styles.mainCard, styles.mainCardHeight, styles.shadow]}
-    className="bg-white flex flex-col items-center justify-end relative"
-  >
-    <CustomText
-      letterSpacing="tighter"
-      className="text-2xl font-medium text-center"
-    >
-      {`${date.getDate()} ${getMonth(date.getMonth())}`}
-    </CustomText>
-    <CustomText className="text-sm text-center mb-6 mt-1">
-      {getDay(date.getDay())}
-    </CustomText>
+const renderCard = (item: JournalEntryDate) => {
+  const handlePress = () => {
+    router.push({
+      pathname: `/journal/entry`,
+      params: {
+        date: `${item.date.getFullYear()}-${(item.date.getMonth() + 1)
+          .toString()
+          .padStart(2, "0")}-${item.date
+          .getDate()
+          .toString()
+          .padStart(2, "0")}`,
+      },
+    });
+  };
 
-    <View className="absolute w-full h-full flex justify-center items-center">
-      <TouchableOpacity>
-        <View
-          className="rounded-full bg-white flex justify-center items-center"
-          style={[styles.shadow, styles.circle]}
-        >
-          <Plus
-            width={ICON_SIZE}
-            height={ICON_SIZE}
-            stroke={"rgba(0, 0, 0, 0.7)"}
-          />
-        </View>
-      </TouchableOpacity>
+  return (
+    <View
+      style={[styles.mainCard, styles.mainCardHeight, styles.shadow]}
+      className="bg-white flex flex-col items-center justify-end relative"
+    >
+      <CustomText
+        letterSpacing="tighter"
+        className="text-2xl font-medium text-center"
+      >
+        {`${item.date.getDate()} ${getMonth(item.date.getMonth())}`}
+      </CustomText>
+      <CustomText className="text-sm text-center mb-6 mt-1">
+        {getDay(item.date.getDay())}
+      </CustomText>
+
+      <View className="absolute w-full h-full flex justify-center items-center">
+        <TouchableOpacity onPress={handlePress}>
+          <View
+            className="rounded-full bg-white flex justify-center items-center"
+            style={[styles.shadow, styles.circle]}
+          >
+            {item.id != -1 ? (
+              <EditPen
+                width={ICON_SIZE}
+                height={ICON_SIZE}
+                stroke={"rgba(0, 0, 0, 0.7)"}
+              />
+            ) : (
+              <Plus
+                width={ICON_SIZE}
+                height={ICON_SIZE}
+                stroke={"rgba(0, 0, 0, 0.7)"}
+              />
+            )}
+          </View>
+        </TouchableOpacity>
+      </View>
     </View>
-  </View>
-);
+  );
+};
+
+type JournalEntry = {
+  id: number;
+  title?: string;
+  body?: string;
+};
+
+type JournalEntryDate = {
+  date: Date;
+} & JournalEntry;
+
+type JournalEntryRaw = {
+  date: string;
+} & JournalEntry;
 
 const { width: viewportWidth, height: viewportHeight } =
   Dimensions.get("window");
@@ -154,20 +196,98 @@ const animatedStyles2 = (
   };
 };
 
+const getJournalEntries = async (): Promise<JournalEntryDate[]> => {
+  const BACKEND_URL = "http://localhost:8000";
+  const token =
+    Platform.OS === "web"
+      ? await AsyncStorage.getItem("access_token")
+      : await SecureStore.getItemAsync("access_token");
+  if (!token) {
+    throw new Error("No token found");
+  }
+  const response = await fetch(`${BACKEND_URL}/journals?limit=30`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch journal entries: ${response.status} ${response.statusText}`
+    );
+  }
+
+  const journals: JournalEntryRaw[] = await response.json();
+  return journals.map((journal) => ({
+    date: new Date(journal.date),
+    id: journal.id,
+  }));
+};
+
+const getJournalEntriesHandler = async () => {
+  // get the last 30 days
+  const today = new Date();
+  const days: JournalEntryDate[] = Array.from({ length: 30 }, (_, i) => ({
+    date: daysAfter(-1 * (29 - i))(today),
+    id: -1,
+  }));
+
+  try {
+    (await getJournalEntries()).forEach((journal) => {
+      console.log(journal);
+      const index = days.findIndex(
+        (day) =>
+          day.date.getDate() === journal.date.getDate() &&
+          day.date.getMonth() === journal.date.getMonth() &&
+          day.date.getFullYear() === journal.date.getFullYear()
+      );
+      if (index !== -1) {
+        days[index] = journal;
+      }
+    });
+  } catch (error) {
+    alert(
+      `Failed to fetch journal entries: ${
+        error instanceof Error ? error.message : String(error)
+      }`
+    );
+  }
+
+  return days;
+};
 const HomeScreen = () => {
   const today = new Date();
-  const data = [
-    yesterday(yesterday(today)),
-    yesterday(today),
-    today,
-    tomorrow(today),
-  ];
+  const [refreshing, setRefreshing] = useState(false);
+  const [data, setData] = useState(
+    Array.from({ length: 30 }, (_, i) => ({
+      date: daysAfter(-1 * (29 - i))(today),
+      id: -1,
+    }))
+  );
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const result = await getJournalEntriesHandler();
+      setData(result);
+    };
+    fetchData();
+  }, []);
+
+  const onRefresh = useCallback(() => {
+    const fetchData = async () => {
+      const result = await getJournalEntriesHandler();
+      setData(result);
+    };
+    fetchData();
+    setRefreshing(true);
+    fetchData().then(() => setRefreshing(false));
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
       <TopNav />
 
-      <ScrollView className="">
+      <ScrollView className="" refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
         <View>
           <CustomText
             letterSpacing="tight"
@@ -184,7 +304,7 @@ const HomeScreen = () => {
             enableSnap={true}
             enableMomentum={true}
             snapToAlignment="center"
-            renderItem={({ item, index }) => renderCard(item)}
+            renderItem={({ item }) => renderCard(item)}
             sliderWidth={wp(100)}
             containerCustomStyle={styles.slider}
             contentContainerCustomStyle={styles.sliderContentContainer}

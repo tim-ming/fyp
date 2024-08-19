@@ -1,7 +1,5 @@
 from typing import List, Optional
 from sqlalchemy.orm import Session
-from sqlalchemy import func
-from datetime import datetime
 from app import models, schemas
 
 
@@ -59,7 +57,7 @@ def get_mood_entries_by_user(
     return (
         db.query(models.MoodEntry)
         .filter(models.MoodEntry.user_id == user.id)
-        .order_by(models.JournalEntry.datetime.desc())
+        .order_by(models.JournalEntry.date.desc())
         .offset(skip)
         .limit(limit)
         .all()
@@ -77,25 +75,20 @@ def upsert_mood_entry(
     :return (models.MoodEntry): New mood entry
     """
 
-    if mood_entry.datetime is None:
-        mood_entry.datetime = datetime.now()
-    entry_date = mood_entry.datetime.date()
-
     db_mood_entry = (
         db.query(models.MoodEntry)
         .filter(models.MoodEntry.user_id == user.id)
-        .filter(func.date(models.MoodEntry.datetime) == entry_date)
+        .filter(models.MoodEntry.date == mood_entry.date)
         .first()
     )
 
     if db_mood_entry:
         # Update existing entry
         db_mood_entry.mood = mood_entry.mood
-        db_mood_entry.datetime = mood_entry.datetime  # Update time as well
     else:
         # Create new entry
         db_mood_entry = models.MoodEntry(
-            mood=mood_entry.mood, user_id=user.id, datetime=mood_entry.datetime
+            mood=mood_entry.mood, user_id=user.id, date=mood_entry.date
         )
         db.add(db_mood_entry)
 
@@ -118,7 +111,7 @@ def get_journal_entries_by_user(
     return (
         db.query(models.JournalEntry)
         .filter(models.JournalEntry.user_id == user.id)
-        .order_by(models.JournalEntry.datetime.desc())
+        .order_by(models.JournalEntry.date.desc())
         .offset(skip)
         .limit(limit)
         .all()
@@ -135,14 +128,10 @@ def upsert_journal_entry(
     :return (models.JournalEntry): New journal entry
     """
 
-    if journal_entry.datetime is None:
-        journal_entry.datetime = datetime.now()
-    entry_date = journal_entry.datetime.date()
-
     db_journal_entry = (
         db.query(models.JournalEntry)
         .filter(models.JournalEntry.user_id == user.id)
-        .filter(func.date(models.JournalEntry.datetime) == entry_date)
+        .filter(models.JournalEntry.date == journal_entry.date)
         .first()
     )
 
@@ -151,7 +140,6 @@ def upsert_journal_entry(
         db_journal_entry.title = journal_entry.title
         db_journal_entry.body = journal_entry.body
         db_journal_entry.image = journal_entry.image
-        db_journal_entry.datetime = journal_entry.datetime  # Update time as well
     else:
         # Create new entry
         db_journal_entry = models.JournalEntry(
@@ -159,7 +147,7 @@ def upsert_journal_entry(
             body=journal_entry.body,
             image=journal_entry.image,
             user_id=user.id,
-            datetime=journal_entry.datetime,
+            date=journal_entry.date,
         )
         db.add(db_journal_entry)
 
@@ -256,7 +244,7 @@ def get_guided_journal_entries_by_user(
     return (
         db.query(models.GuidedJournalEntry)
         .filter(models.GuidedJournalEntry.user_id == user.id)
-        .order_by(models.GuidedJournalEntry.datetime.desc())
+        .order_by(models.GuidedJournalEntry.date.desc())
         .offset(skip)
         .limit(limit)
         .all()
@@ -273,27 +261,22 @@ def upsert_guided_journal_entry(
     :return (models.GuidedJournalEntry): New guided journal entry
     """
 
-    if guided_journal_entry.datetime is None:
-        guided_journal_entry.datetime = datetime.now()
-    entry_date = guided_journal_entry.datetime.date()
-
     db_guided_journal_entry = (
         db.query(models.GuidedJournalEntry)
         .filter(models.GuidedJournalEntry.user_id == user.id)
-        .filter(func.date(models.GuidedJournalEntry.datetime) == entry_date)
+        .filter(models.GuidedJournalEntry.date == guided_journal_entry.date)
         .first()
     )
 
     if db_guided_journal_entry:
         # Update existing entry
         db_guided_journal_entry.body = guided_journal_entry.body
-        db_guided_journal_entry.datetime = guided_journal_entry.datetime  # Update time as well
     else:
         # Create new entry
         db_guided_journal_entry = models.GuidedJournalEntry(
             body=guided_journal_entry.body,
             user_id=user.id,
-            datetime=guided_journal_entry.datetime,
+            date=guided_journal_entry.date,
         )
         db.add(db_guided_journal_entry)
 
@@ -362,3 +345,51 @@ def update_user(db: Session, user: schemas.UserUpdate) -> models.User:
     db.commit()
     db.refresh(db_user)
     return db_user
+
+def get_journal_entry_by_date(
+    db: Session, date: str, user: schemas.User
+) -> Optional[models.JournalEntry]:
+    """
+    Get a journal entry by date
+    :param db (Session): Database session
+    :param date (str): Date
+    :param user (schemas.User): User
+    :return (Optional[models.JournalEntry]): Journal entry if found, None if not found
+    """
+    return (
+        db.query(models.JournalEntry)
+        .filter(models.JournalEntry.user_id == user.id, models.JournalEntry.date == date)
+        .first()
+    )
+
+def get_guided_journal_entry_by_date(
+    db: Session, date: str, user: schemas.User
+) -> Optional[models.GuidedJournalEntry]:
+    """
+    Get a guided journal entry by date
+    :param db (Session): Database session
+    :param date (str): Date
+    :param user (schemas.User): User
+    :return (Optional[models.GuidedJournalEntry]): Guided journal entry if found, None if not found
+    """
+    return (
+        db.query(models.GuidedJournalEntry)
+        .filter(models.GuidedJournalEntry.user_id == user.id, models.GuidedJournalEntry.date == date)
+        .first()
+    )
+
+def get_mood_entry_by_date(
+    db: Session, date: str, user: schemas.User
+) -> Optional[models.MoodEntry]:
+    """
+    Get a mood entry by date
+    :param db (Session): Database session
+    :param date (str): Date
+    :param user (schemas.User): User
+    :return (Optional[models.MoodEntry]): Mood entry if found, None if not found
+    """
+    return (
+        db.query(models.MoodEntry)
+        .filter(models.MoodEntry.user_id == user.id, models.MoodEntry.date == date)
+        .first()
+    )

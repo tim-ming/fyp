@@ -1,15 +1,15 @@
 from sqlalchemy import (
     Boolean,
     Column,
+    DateTime,
     ForeignKey,
     Index,
     Integer,
     SmallInteger,
     String,
-    DateTime,
+    Date
 )
 from sqlalchemy.orm import relationship
-from sqlalchemy.sql import func
 from app.database import Base
 
 
@@ -58,15 +58,15 @@ class MoodEntry(Base):
     __tablename__ = "mood_entries"
 
     id = Column(Integer, primary_key=True)
-    datetime = Column(DateTime(timezone=True), server_default=func.now(), index=True)
+    date = Column(Date, index=True)
     mood = Column(SmallInteger)
     user_id = Column(Integer, ForeignKey("users.id"), index=True)
 
     user = relationship("User", back_populates="mood_entries")
 
     __table_args__ = (
-        Index("ix_mood_entries_datetime_desc", datetime.desc()),
-    )  # Index for datetime in descending order
+        Index("ix_mood_entries_date_desc", date.desc()),
+    )  # Index for date in descending order
 
 
 class JournalEntry(Base):
@@ -77,7 +77,7 @@ class JournalEntry(Base):
     __tablename__ = "journal_entries"
 
     id = Column(Integer, primary_key=True)
-    datetime = Column(DateTime(timezone=True), server_default=func.now(), index=True)
+    date = Column(Date, index=True)
     title = Column(String)
     body = Column(String)
     image = Column(String, nullable=True)
@@ -86,23 +86,23 @@ class JournalEntry(Base):
     user = relationship("User", back_populates="journal_entries")
 
     __table_args__ = (
-        Index("ix_journal_entries_datetime_desc", datetime.desc()),
-    )  # Index for datetime in descending order
+        Index("ix_journal_entries_date_desc", date.desc()),
+    )  # Index for date in descending order
 
 class GuidedJournalEntry(Base):
     """
     Guided Journal Entry Model
     """
 
-    __tablename__ = "journal_entries"
+    __tablename__ = "guided_journal_entries"
 
     id = Column(Integer, primary_key=True)
-    datetime = Column(DateTime(timezone=True), server_default=func.now(), index=True)
+    date = Column(Date, index=True)
     body = Column(String)
     user_id = Column(Integer, ForeignKey("users.id"), index=True)
 
     user = relationship("User", back_populates="guided_journal_entries")
 
     __table_args__ = (
-        Index("ix_guided_journal_entries_datetime_desc", datetime.desc()),
-    )  # Index for datetime in descending order
+        Index("ix_guided_journal_entries_date_desc", date.desc()),
+    )  # Index for date in descending order

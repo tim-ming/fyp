@@ -1,6 +1,6 @@
 from typing import Optional
 from pydantic import BaseModel
-from datetime import datetime
+from datetime import datetime, date
 
 
 class UserBase(BaseModel):
@@ -112,14 +112,14 @@ class MoodEntryBase(BaseModel):
     """
 
     mood: int
+    date: date
 
 
 class MoodEntryCreate(MoodEntryBase):
     """
     Mood Entry Create Schema
     """
-
-    datetime: Optional[datetime] = None  # type: ignore
+    pass
 
 
 class MoodEntry(MoodEntryBase):
@@ -129,7 +129,6 @@ class MoodEntry(MoodEntryBase):
 
     id: int
     user_id: int
-    datetime: datetime
 
     class Config:
         from_attributes = True
@@ -143,14 +142,14 @@ class JournalEntryBase(BaseModel):
     title: str
     body: str
     image: Optional[str] = None
+    date: date
 
 
 class JournalEntryCreate(JournalEntryBase):
     """
     Journal Entry Create Schema
     """
-
-    datetime: Optional[datetime] = None  # type: ignore
+    pass
 
 
 class JournalEntry(JournalEntryBase):
@@ -160,7 +159,6 @@ class JournalEntry(JournalEntryBase):
 
     id: int
     user_id: int
-    datetime: datetime
 
     class Config:
         from_attributes = True
@@ -172,14 +170,14 @@ class GuidedJournalEntryBase(BaseModel):
     """
 
     body: str
+    date: date
 
 
 class GuidedJournalEntryCreate(GuidedJournalEntryBase):
     """
     Guided Journal Entry Create Schema
     """
-
-    datetime: Optional[datetime] = None  # type: ignore
+    pass
 
 
 class GuidedJournalEntry(GuidedJournalEntryBase):
@@ -189,7 +187,6 @@ class GuidedJournalEntry(GuidedJournalEntryBase):
 
     id: int
     user_id: int
-    datetime: datetime
 
     class Config:
         from_attributes = True

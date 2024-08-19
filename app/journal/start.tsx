@@ -16,7 +16,7 @@ const JournalStart: React.FC = () => {
       </View>
 
       <View className="flex-1 justify-end mb-6 mx-2">
-        <Link href="/journal/entry" asChild>
+        <Link href="/journal/entry" asChild push>
           <Pressable className="h-14 bg-blue200 items-center justify-center rounded-full">
             <CustomText className="text-white text-base font-medium">
               Get Started

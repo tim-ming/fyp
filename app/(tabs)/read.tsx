@@ -74,11 +74,14 @@ const ArticlePage = () => {
             <View className="flex-1 justify-center items-center p-4">
               <CustomText
                 letterSpacing="tighter"
-                className="text-[28px] text-gray300 font-medium text-center"
+                className="text-[28px] leading-8 text-gray300 font-medium text-center"
               >
                 {articles[0].title}
               </CustomText>
-              <CustomText className="max-w-[80%] text-[15px] leading-4 text-gray300 mt-6 text-center">
+              <CustomText
+                letterSpacing="tight"
+                className="max-w-[80%] text-[15px] leading-4 text-gray300 mt-6 text-center"
+              >
                 {articles[0].subtitle}
               </CustomText>
             </View>
@@ -94,7 +97,10 @@ const ArticlePage = () => {
         </View>
 
         <View className="mt-10">
-          <CustomText className="px-4 text-3xl font-medium text-gray200">
+          <CustomText
+            letterSpacing="tighter"
+            className="px-4 text-3xl font-medium text-gray200"
+          >
             Popular
           </CustomText>
           <ScrollView

@@ -10,43 +10,18 @@ import CustomText from "@/components/CustomText";
 import { Href, Link } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import TopNav from "@/components/TopNav";
+import Card from "@/components/Card";
 
 const ExploreScreen: React.FC = () => {
-  const Card = ({
-    title,
-    subtitle,
-    href,
-  }: {
-    title: string;
-    subtitle: string;
-    href: Href<string | object>;
-  }) => (
-    <Link href={href} asChild>
-      <Pressable>
-        {({ pressed }) => (
-          <View
-            className={`bg-white rounded-2xl p-4 shadow-2xl h-40 ${
-              pressed ? "scale-95" : "scale-100"
-            }`}
-          >
-            <CustomText className="text-[24px] font-semibold mt-20 ml-1">
-              {title}
-            </CustomText>
-            <CustomText className="text-[14px] text-gray100 ml-1">
-              {subtitle}
-            </CustomText>
-          </View>
-        )}
-      </Pressable>
-    </Link>
-  );
-
   return (
     <SafeAreaView className="flex-1 bg-blue100">
       <TopNav />
 
       <View>
-        <CustomText className="text-[24px] font-semibold text-center text-gray200">
+        <CustomText
+          letterSpacing="tight"
+          className="text-[24px] font-medium text-center text-black200"
+        >
           Explore
         </CustomText>
       </View>
@@ -57,7 +32,7 @@ const ExploreScreen: React.FC = () => {
         placeholderTextColor="#8B8B8B"
       />
 
-      <ScrollView className="px-4">
+      <ScrollView className="px-4 py-4">
         <Card
           title="Journal"
           subtitle="Write about your day."

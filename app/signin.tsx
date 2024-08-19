@@ -18,6 +18,7 @@ import { useRef } from "react";
 import { shadows } from "@/constants/styles";
 import { useState } from "react";
 import Check from "@/assets/icons/check.svg";
+import { router } from "expo-router";
 
 const Checkbox = () => {
   const [checked, setChecked] = useState(false);
@@ -46,16 +47,24 @@ const Checkbox = () => {
 const SignInScreen = () => {
   const emailInputRef = useRef<TextInput>(null);
   const passwordInputRef = useRef<TextInput>(null);
+  const credentialsSignIn = () => {
+    router.push("/understand");
+  };
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View className="flex-1 p-4 pt-20 bg-gray-100">
         <View className="flex flex-col">
-          <CustomText className="text-[40px] leading-10 font-medium text-black200 tracking-tighter">
+          <CustomText className="text-4xl leading-10 font-medium text-black200 tracking-tighter">
             Hello!
           </CustomText>
-          <CustomText className="text-[40px] leading-10 font-medium tracking-tighter">
-            <CustomText className="text-blue200">Login</CustomText>{" "}
-            <CustomText className="text-black200">your account.</CustomText>
+          <CustomText className="text-4xl leading-10 font-medium">
+            <CustomText letterSpacing="tighter" className="text-blue200">
+              Login
+            </CustomText>{" "}
+            <CustomText letterSpacing="tighter" className="text-black200">
+              your account.
+            </CustomText>
           </CustomText>
           <CustomText className="text-base text-gray-500 mt-4 mb-6 tracking-tight">
             Be a better you today.
@@ -92,9 +101,8 @@ const SignInScreen = () => {
                 <Lock
                   width={24}
                   height={24}
-                  strokeWidth={1.5}
                   pointerEvents="none"
-                  className="stroke-gray200 absolute left-4 top-0 h-full w-6 items-center justify-center"
+                  className="fill-gray200 absolute left-4 top-0 h-full w-6 items-center justify-center"
                 />
               </View>
             </Pressable>
@@ -108,7 +116,10 @@ const SignInScreen = () => {
         </Pressable>
 
         <Pressable className="h-14 bg-blue200 items-center justify-center rounded-full">
-          <CustomText className="text-white text-base font-medium">
+          <CustomText
+            className="text-white text-base font-medium"
+            onPress={credentialsSignIn}
+          >
             Sign in
           </CustomText>
         </Pressable>

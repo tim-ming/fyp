@@ -8,6 +8,7 @@ import {
   Dimensions,
   StyleProp,
   ViewStyle,
+  ScrollView,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import User from "@/assets/icons/user.svg";
@@ -18,6 +19,8 @@ import Carousel, {
   CarouselProps,
   getInputRangeFromIndexes,
 } from "react-native-snap-carousel";
+import Card from "@/components/Card";
+import TopNav from "@/components/TopNav";
 
 const daysAfter = (days: number) => (date: Date) =>
   new Date(date.getTime() + days * (24 * 60 * 60 * 1000));
@@ -63,12 +66,15 @@ const renderCard = (date: Date) => (
     style={[styles.mainCard, styles.mainCardHeight, styles.shadow]}
     className="bg-white flex flex-col items-center justify-end relative"
   >
-    <Text className="text-3xl font-semibold text-center">
+    <CustomText
+      letterSpacing="tighter"
+      className="text-2xl font-medium text-center"
+    >
       {`${date.getDate()} ${getMonth(date.getMonth())}`}
-    </Text>
-    <Text className="text-sm text-center mb-5 mt-1">
+    </CustomText>
+    <CustomText className="text-sm text-center mb-6 mt-1">
       {getDay(date.getDay())}
-    </Text>
+    </CustomText>
 
     <View className="absolute w-full h-full flex justify-center items-center">
       <TouchableOpacity>
@@ -112,15 +118,17 @@ const animatedStyles2 = (
   carouselProps: CarouselProps<any>
 ) => {
   return {
-    zIndex: animatedValue.interpolate({
-      inputRange: [-1, -0.5, 0, 0.5, 1],
-      outputRange: [0, 0, 1, 0, 0],
-      extrapolate: 'clamp',
-    }).interpolate({
-      inputRange: [0, 1],
-      outputRange: [0, 1000],
-      extrapolate: 'clamp',
-    }),
+    zIndex: animatedValue
+      .interpolate({
+        inputRange: [-1, -0.5, 0, 0.5, 1],
+        outputRange: [0, 0, 1, 0, 0],
+        extrapolate: "clamp",
+      })
+      .interpolate({
+        inputRange: [0, 1],
+        outputRange: [0, 1000],
+        extrapolate: "clamp",
+      }),
     opacity: animatedValue.interpolate({
       inputRange: [-2, -1, 0, 1, 2],
       outputRange: [0.6, 0.75, 1, 0.75, 0.6],
@@ -157,60 +165,86 @@ const HomeScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View className="flex flex-row justify-between">
-        <TouchableOpacity className="p-4">
-          <Droplet width={ICON_SIZE} height={ICON_SIZE} />
-        </TouchableOpacity>
-        <TouchableOpacity className="p-4">
-          <User width={ICON_SIZE} height={ICON_SIZE} />
-        </TouchableOpacity>
-      </View>
+      <TopNav />
 
-      <View>
-        <CustomText className="font-bold text-2xl text-center">
-          Good Morning, Ning.
-        </CustomText>
-      </View>
+      <ScrollView className="">
+        <View>
+          <CustomText
+            letterSpacing="tight"
+            className="font-medium text-black200 text-[20px] text-center"
+          >
+            Good Morning, Ning.
+          </CustomText>
+        </View>
 
-      <View className="w-full pt-12 flex flex-row justify-center items-center relative">
-        <Carousel
-          data={data}
-          firstItem={data.length - 1}
-          enableSnap={true}
-          enableMomentum={true}
-          snapToAlignment="center"
-          renderItem={({ item, index }) => renderCard(item)}
-          sliderWidth={wp(100)}
-          containerCustomStyle={styles.slider}
-          contentContainerCustomStyle={styles.sliderContentContainer}
-          scrollInterpolator={scrollInterpolator2}
-          itemWidth={styles.mainCard.width}
-          ref={ref}
-          slideInterpolatedStyle={animatedStyles2}
-          useScrollView={true}
-        />
-      </View>
+        <View className="w-full pt-4 flex flex-row justify-center items-center relative">
+          <Carousel
+            data={data}
+            firstItem={data.length - 1}
+            enableSnap={true}
+            enableMomentum={true}
+            snapToAlignment="center"
+            renderItem={({ item, index }) => renderCard(item)}
+            sliderWidth={wp(100)}
+            containerCustomStyle={styles.slider}
+            contentContainerCustomStyle={styles.sliderContentContainer}
+            scrollInterpolator={scrollInterpolator2}
+            itemWidth={styles.mainCard.width}
+            ref={ref}
+            slideInterpolatedStyle={animatedStyles2}
+            useScrollView={true}
+          />
+        </View>
 
-      <View className="w-screen px-5 pt-8">
-        <View style={styles.line} className="h-0.5 w-full rounded-full" />
-      </View>
+        <View className="px-4">
+          <View className="w-full py-6">
+            <View style={styles.line} className="h-0.5 w-full rounded-full" />
+          </View>
 
-      <CustomText className="font-bold px-5 pt-5 text-2xl">
-        Suggestions for you
-      </CustomText>
-      <CustomText className="mt-1 px-5 color-gray mb-3">
-        Based on your day
-      </CustomText>
-
-      <View style={styles.suggestionBox}>
-        <Text style={styles.suggestionTitle}>Relax</Text>
-        <Text style={styles.suggestionDescription}>Unwind out your day.</Text>
-      </View>
-
-      <View style={styles.suggestionBox}>
-        <Text style={styles.suggestionTitle}>Journal</Text>
-        <Text style={styles.suggestionDescription}>Write about your day.</Text>
-      </View>
+          <CustomText letterSpacing="tight" className="font-medium text-2xl">
+            Suggestions for you
+          </CustomText>
+          <CustomText className="text-base mt-1 text-gray300 mb-4">
+            Based on your day
+          </CustomText>
+          <View className="flex-row">
+            <View className="w-1/2">
+              <Card
+                title="Journal"
+                subtitle="Write about your day."
+                justifyContent="flex-start"
+                href="/journal/start"
+              />
+            </View>
+            <View className="w-1/2">
+              <Card
+                title="Writing"
+                href="/guided-journal/start"
+                subtitle="Write about your day."
+                justifyContent="flex-start"
+              />
+            </View>
+          </View>
+          <View className="flex-row">
+            <View className="w-1/2">
+              <Card
+                title="Relax"
+                subtitle="Unwind out your day."
+                href="/guided-journal/start"
+                justifyContent="flex-start"
+              />
+            </View>
+            <View className="w-1/2">
+              <Card
+                title="Reading"
+                subtitle="Feed your mind and imagination."
+                href="/(tabs)/read"
+                justifyContent="flex-start"
+              />
+            </View>
+          </View>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };

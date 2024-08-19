@@ -213,7 +213,10 @@ const SettingsScreen = () => {
         }}
       > */}
       <View className="flex-1 bg-blue100 px-4 py-16 gap-y-7">
-        <CustomText className="text-2xl font-semibold text-black200100">
+        <CustomText
+          letterSpacing="tight"
+          className="text-2xl font-semibold text-black200"
+        >
           Profile
         </CustomText>
         <View className="flex bg-white rounded-2xl" style={shadows.card}>

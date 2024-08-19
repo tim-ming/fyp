@@ -87,8 +87,8 @@ export default function TabLayout() {
             ),
           }}
         />
-        <Tabs.Screen
-          name="add"
+        {/* <Tabs.Screen
+          name="journal"
           options={{
             title: "",
             tabBarIcon: ({ color, focused }) => (
@@ -99,8 +99,9 @@ export default function TabLayout() {
                 <PlusIcon className="stroke-white" />
               </View>
             ),
+            href: "../journal/entry",
           }}
-        />
+        /> */}
         <Tabs.Screen
           name="read"
           options={{

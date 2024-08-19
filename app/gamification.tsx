@@ -7,7 +7,13 @@ import ProgressBar from "@/components/ProgressBar";
 
 const Gamification = () => {
   return (
-    <ScrollView className="flex-1 bg-blue-50 p-4 pt-20">
+    <ScrollView className="flex-1 bg-blue100 px-4 py-16">
+      <CustomText
+        letterSpacing="tight"
+        className="text-2xl font-semibold text-black200 pb-7"
+      >
+        Achievements
+      </CustomText>
       {/* Streak Card */}
       <View
         style={shadows.card}

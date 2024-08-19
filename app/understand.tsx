@@ -77,11 +77,20 @@ const SocialMediaScreen = () => {
     );
   };
 
+  const skip = () => {
+    router.push("/");
+  };
+
   return (
     <View className="flex-1 p-4 bg-gray-100 pt-20">
-      <CustomText className="text-[40px] tracking-tight leading-10 font-medium text-black mb-6">
+      <CustomText
+        letterSpacing="tighter"
+        className="text-4xl leading-10 font-medium text-black mb-6"
+      >
         Help us better{" "}
-        <CustomText className="text-blue200">understand you.</CustomText>
+        <CustomText letterSpacing="tighter" className="text-blue200">
+          understand you.
+        </CustomText>
       </CustomText>
       <CustomText className=" text-gray200 mb-4 leading-5">
         Link your social media accounts, so we can tailor the app's experience
@@ -122,7 +131,9 @@ const SocialMediaScreen = () => {
         className="bg-blue200 rounded-full py-3"
         onPress={handleSkipPress}
       >
-        <CustomText className="text-white text-center text-lg">Skip</CustomText>
+        <CustomText className="text-white text-center text-lg" onPress={skip}>
+          Skip
+        </CustomText>
       </Pressable>
     </View>
   );

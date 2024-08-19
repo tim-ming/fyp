@@ -191,6 +191,7 @@ const HomeScreen = () => {
             scrollInterpolator={scrollInterpolator2}
             itemWidth={styles.mainCard.width}
             ref={ref}
+            // @ts-ignore
             slideInterpolatedStyle={animatedStyles2}
             useScrollView={true}
           />

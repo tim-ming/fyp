@@ -77,15 +77,18 @@ const signIn = async (email: string, password: string): Promise<void> => {
 
 const hasOnboarded = async (): Promise<boolean> => {
   const BACKEND_URL = "http://localhost:8000";
-  const token = await SecureStore.getItemAsync("access_token");
-  const response = await fetch(`${BACKEND_URL}/user/me`, {
+  const token = (Platform.OS === 'web') ? await AsyncStorage.getItem("access_token") : await SecureStore.getItemAsync("access_token");
+  if (!token) {
+    throw new Error("No token found");
+  }
+  const response = await fetch(`${BACKEND_URL}/users/me`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
 
   if (!response.ok) {
-    throw new Error(response.statusText);
+    throw new Error(`Failed to fetch profile: ${response.status} ${response.statusText}`);
   }
 
   const profile : {has_onboarded: boolean} = await response.json();
@@ -223,9 +226,11 @@ const SignInScreen = () => {
 
         <CustomText className="text-center text-gray-500 mt-10">
           Don't have an account?{" "}
+          <Pressable onPress={() => router.push("/signup")}>
           <CustomText className="text-blue200 underline font-medium">
             Sign up
           </CustomText>
+          </Pressable>
         </CustomText>
       </View>
     </TouchableWithoutFeedback>

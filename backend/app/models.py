@@ -30,6 +30,7 @@ class User(Base):
     mood_entries = relationship("MoodEntry", back_populates="user")
     journal_entries = relationship("JournalEntry", back_populates="user")
     social_accounts = relationship("SocialAccount", back_populates="user")
+    guided_journal_entries = relationship("GuidedJournalEntry", back_populates="user")
 
 class SocialAccount(Base):
     """
@@ -86,4 +87,22 @@ class JournalEntry(Base):
 
     __table_args__ = (
         Index("ix_journal_entries_datetime_desc", datetime.desc()),
+    )  # Index for datetime in descending order
+
+class GuidedJournalEntry(Base):
+    """
+    Guided Journal Entry Model
+    """
+
+    __tablename__ = "journal_entries"
+
+    id = Column(Integer, primary_key=True)
+    datetime = Column(DateTime(timezone=True), server_default=func.now(), index=True)
+    body = Column(String)
+    user_id = Column(Integer, ForeignKey("users.id"), index=True)
+
+    user = relationship("User", back_populates="guided_journal_entries")
+
+    __table_args__ = (
+        Index("ix_guided_journal_entries_datetime_desc", datetime.desc()),
     )  # Index for datetime in descending order

@@ -49,14 +49,16 @@ const Checkbox = () => {
 
 const signUp = async (email: string, password: string, name: string): Promise<void> => {
   const BACKEND_URL = "http://localhost:8000";
-
   const response = await fetch(`${BACKEND_URL}/signup`, {
     method: "POST",
     body: JSON.stringify({ email, password, name }),
+    headers: {
+      "Content-Type": "application/json",
+    },
   });
 
   if (!response.ok) {
-    throw new Error(response.statusText);
+    throw new Error(`${response.status} ${response.statusText}`);
   }
 };
 
@@ -68,6 +70,7 @@ const signUpHandler = async (email: string, password: string, name: string) => {
 
   try {
     await signUp(email, password, name);
+    alert("Sign up successful");
     router.push("/signin");
   } catch (error) {
     alert(
@@ -189,9 +192,11 @@ const SignUpScreen = () => {
 
         <CustomText className="text-center text-gray-500 mt-10">
           Already have an account?{" "}
+          <Pressable onPress={() => router.push("/signin")}>
           <CustomText className="text-blue200 underline font-medium">
             Sign in
           </CustomText>
+          </Pressable>
         </CustomText>
       </View>
     </TouchableWithoutFeedback>

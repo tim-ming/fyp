@@ -175,7 +175,7 @@ def get_profile(current_user: Annotated[schemas.User, Depends(get_current_user)]
     return current_user
 
 
-@app.post("/moods", response_model=schemas.MoodEntry)
+@app.post("/mood", response_model=schemas.MoodEntry)
 def post_mood_entry(
     mood_entry: schemas.MoodEntryCreate,
     current_user: Annotated[schemas.User, Depends(get_current_user)],
@@ -191,7 +191,7 @@ def post_mood_entry(
     return commands.upsert_mood_entry(db, mood_entry, current_user)
 
 
-@app.get("/moods", response_model=List[schemas.MoodEntry])
+@app.get("/mood", response_model=List[schemas.MoodEntry])
 def get_mood_entries(
     current_user: Annotated[schemas.User, Depends(get_current_user)],
     skip: int = Query(default=0, ge=0, description="Number of entries to skip"),
@@ -223,7 +223,7 @@ def get_mood_entries(
     return commands.get_mood_entries_by_user(db, current_user, skip, limit)
 
 
-@app.get("/moods/{mood_id}", response_model=schemas.MoodEntry)
+@app.get("/mood/id/{mood_id}", response_model=schemas.MoodEntry)
 def get_mood_entry(
     mood_id: int,
     current_user: Annotated[schemas.User, Depends(get_current_user)],
@@ -287,7 +287,7 @@ def get_journal_entries(
     return commands.get_journal_entries_by_user(db, current_user, skip, limit)
 
 
-@app.get("/journals/{journal_id}", response_model=schemas.JournalEntry)
+@app.get("/journals/id/{journal_id}", response_model=schemas.JournalEntry)
 def get_journal_entry(
     journal_id: int,
     current_user: Annotated[schemas.User, Depends(get_current_user)],
@@ -333,3 +333,127 @@ def patch_user(
     :return (schemas.UserWithoutSensitiveData): Updated user profile
     """
     return commands.update_user(db, user, current_user)
+
+@app.post("/guided-journals", response_model=schemas.GuidedJournalEntry)
+def post_guided_journal_entry(
+    guided_journal_entry: schemas.GuidedJournalEntryCreate,
+    current_user: Annotated[schemas.User, Depends(get_current_user)],
+    db: Session = Depends(get_db),
+):
+    """
+    Create a new guided journal entry
+    :param guided_journal_entry (schemas.GuidedJournalEntryCreate): Guided journal entry data
+    :param current_user (schemas.User): Current user
+    :param db (Session): Database session
+    :return (schemas.GuidedJournalEntry): Created guided journal entry
+    """
+    return commands.upsert_guided_journal_entry(db, guided_journal_entry, current_user)
+
+@app.get("/guided-journals", response_model=List[schemas.GuidedJournalEntry])
+def get_guided_journal_entries(
+    current_user: Annotated[schemas.User, Depends(get_current_user)],
+    skip: int = Query(default=0, ge=0, description="Number of entries to skip"),
+    limit: int = Query(
+        default=100, ge=1, le=1000, description="Number of entries to return"
+    ),
+    db: Session = Depends(get_db),
+):
+    """
+    Get guided journal entries
+    :param current_user (schemas.User): Current user
+    :param skip (int): Number of entries to skip
+    :param limit (int): Number of entries to return
+    :param db (Session): Database session
+    :return (List[schemas.GuidedJournalEntry]): Guided journal entries
+    :raises (HTTPException): If skip or limit values are invalid
+    """
+    if skip < 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Skip value must be non-negative",
+        )
+    if limit < 1 or limit > 1000:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Limit must be between 1 and 1000",
+        )
+
+    return commands.get_guided_journal_entries_by_user(db, current_user, skip, limit)
+
+@app.get("/guided-journals/id/{guided_journal_id}", response_model=schemas.GuidedJournalEntry)
+def get_guided_journal_entry(
+    guided_journal_id: int,
+    current_user: Annotated[schemas.User, Depends(get_current_user)],
+    db: Session = Depends(get_db),
+):
+    """
+    Get a guided journal entry by ID
+    :param guided_journal_id (int): Guided journal entry ID
+    :param current_user (schemas.User): Current user
+    :param db (Session): Database session
+    :return (schemas.GuidedJournalEntry): Guided journal entry
+    """
+    return commands.get_guided_journal_entry_by_id(db, guided_journal_id, current_user)
+
+@app.get("/guided-journals/date/{date}", response_model=schemas.GuidedJournalEntry)
+def get_guided_journal_entries_by_date(
+    date: str,
+    current_user: Annotated[schemas.User, Depends(get_current_user)],
+    db: Session = Depends(get_db),
+):
+    """
+    Get guided journal entries by date
+    :param date (str): Date
+    :param current_user (schemas.User): Current user
+    :param db (Session): Database session
+    :return (List[schemas.GuidedJournalEntry]): Guided journal entries
+    """
+        
+    try:
+        parsed_date = datetime.fromisoformat(date).date()
+    except ValueError:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid date format. Use YYYY-MM-DD.")
+    
+    return commands.get_guided_journal_entries_by_date(db, parsed_date, current_user)
+
+@app.get("journals/date/{date}", response_model=schemas.JournalEntry)
+def get_journal_entries_by_date(
+    date: str,
+    current_user: Annotated[schemas.User, Depends(get_current_user)],
+    db: Session = Depends(get_db),
+):
+    """
+    Get journal entries by date
+    :param date (str): str
+    :param current_user (schemas.User): Current user
+    :param db (Session): Database session
+    :return (List[schemas.JournalEntry]): Journal entries
+    """
+
+    try:
+        parsed_date = datetime.fromisoformat(date).date()
+    except ValueError:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid date format. Use YYYY-MM-DD.")
+    
+    return commands.get_journal_entries_by_date(db, parsed_date, current_user)
+
+@app.get("/mood/date/{date}", response_model=schemas.MoodEntry)
+def get_mood_entries_by_date(
+    date: str,
+    current_user: Annotated[schemas.User, Depends(get_current_user)],
+    db: Session = Depends(get_db),
+):
+    """
+    Get mood entries by date
+    :param date (str): Date
+    :param current_user (schemas.User): Current user
+    :param db (Session): Database session
+    :return (List[schemas.MoodEntry]): Mood entries
+    """
+    
+    try:
+        parsed_date = datetime.fromisoformat(date).date()
+    except ValueError:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid date format. Use YYYY-MM-DD.")
+    
+    return commands.get_mood_entries_by_date(db, parsed_date, current_user)

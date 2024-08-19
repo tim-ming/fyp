@@ -164,3 +164,32 @@ class JournalEntry(JournalEntryBase):
 
     class Config:
         from_attributes = True
+
+
+class GuidedJournalEntryBase(BaseModel):
+    """
+    Base Guided Journal Entry Schema
+    """
+
+    body: str
+
+
+class GuidedJournalEntryCreate(GuidedJournalEntryBase):
+    """
+    Guided Journal Entry Create Schema
+    """
+
+    datetime: Optional[datetime] = None  # type: ignore
+
+
+class GuidedJournalEntry(GuidedJournalEntryBase):
+    """
+    Guided Journal Entry Schema
+    """
+
+    id: int
+    user_id: int
+    datetime: datetime
+
+    class Config:
+        from_attributes = True

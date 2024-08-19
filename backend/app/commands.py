@@ -47,14 +47,14 @@ def update_user(db: Session, user: schemas.User) -> models.User:
 
 def get_mood_entries_by_user(
     db: Session, user: schemas.User, skip: int = 0, limit: int = 100
-) -> list[models.MoodEntry]:
+) -> List[models.MoodEntry]:
     """
     Get mood entries by user
     :param db (Session): Database session
     :param user (schemas.User): User
     :param skip (int): Number of entries to skip
     :param limit (int): Number of entries to return
-    :return (list[models.MoodEntry]): Mood entries
+    :return (List[models.MoodEntry]): Mood entries
     """
     return (
         db.query(models.MoodEntry)
@@ -106,14 +106,14 @@ def upsert_mood_entry(
 
 def get_journal_entries_by_user(
     db: Session, user: schemas.User, skip: int = 0, limit: int = 100
-) -> list[models.JournalEntry]:
+) -> List[models.JournalEntry]:
     """
     Get journal entries by user
     :param db (Session): Database session
     :param user (schemas.User): User
     :param skip (int): Number of entries to skip
     :param limit (int): Number of entries to return
-    :return (list[models.JournalEntry]): Journal entries
+    :return (List[models.JournalEntry]): Journal entries
     """
     return (
         db.query(models.JournalEntry)
@@ -123,7 +123,6 @@ def get_journal_entries_by_user(
         .limit(limit)
         .all()
     )
-
 
 def upsert_journal_entry(
     db: Session, journal_entry: schemas.JournalEntryCreate, user: schemas.User
@@ -194,6 +193,18 @@ def count_journal_entries_by_user(db: Session, user: schemas.User) -> int:
         .count()
     )
 
+def count_guided_journal_entries_by_user(db: Session, user: schemas.User) -> int:
+    """
+    Count guided journal entries by user
+    :param db (Session): Database session
+    :param user (schemas.User): User
+    :return (int): Number of guided journal entries
+    """
+    return (
+        db.query(models.GuidedJournalEntry)
+        .filter(models.GuidedJournalEntry.user_id == user.id)
+        .count()
+    )
 
 def get_mood_entry_by_id(
     db: Session, mood_id: int, user: schemas.User
@@ -230,6 +241,83 @@ def get_journal_entry_by_id(
         .first()
     )
 
+
+def get_guided_journal_entries_by_user(
+    db: Session, user: schemas.User, skip: int = 0, limit: int = 100
+) -> List[models.GuidedJournalEntry]:
+    """
+    Get guided journal entries by user
+    :param db (Session): Database session
+    :param user (schemas.User): User
+    :param skip (int): Number of entries to skip
+    :param limit (int): Number of entries to return
+    :return (List[models.GuidedJournalEntry]): Guided journal entries
+    """
+    return (
+        db.query(models.GuidedJournalEntry)
+        .filter(models.GuidedJournalEntry.user_id == user.id)
+        .order_by(models.GuidedJournalEntry.datetime.desc())
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+
+def upsert_guided_journal_entry(
+    db: Session, guided_journal_entry: schemas.GuidedJournalEntryCreate, user: schemas.User
+) -> models.GuidedJournalEntry:
+    """
+    Update or insert a guided journal entry (depending on whether it has been written for a certain day)
+    :param db (Session): Database session
+    :param guided_journal_entry (schemas.GuidedJournalEntryCreate): Guided journal entry create schema
+    :param user (schemas.User): User
+    :return (models.GuidedJournalEntry): New guided journal entry
+    """
+
+    if guided_journal_entry.datetime is None:
+        guided_journal_entry.datetime = datetime.now()
+    entry_date = guided_journal_entry.datetime.date()
+
+    db_guided_journal_entry = (
+        db.query(models.GuidedJournalEntry)
+        .filter(models.GuidedJournalEntry.user_id == user.id)
+        .filter(func.date(models.GuidedJournalEntry.datetime) == entry_date)
+        .first()
+    )
+
+    if db_guided_journal_entry:
+        # Update existing entry
+        db_guided_journal_entry.body = guided_journal_entry.body
+        db_guided_journal_entry.datetime = guided_journal_entry.datetime  # Update time as well
+    else:
+        # Create new entry
+        db_guided_journal_entry = models.GuidedJournalEntry(
+            body=guided_journal_entry.body,
+            user_id=user.id,
+            datetime=guided_journal_entry.datetime,
+        )
+        db.add(db_guided_journal_entry)
+
+    db.commit()
+    db.refresh(db_guided_journal_entry)
+    return db_guided_journal_entry
+
+def get_guided_journal_entry_by_id(
+    db: Session, guided_journal_id: int, user: schemas.User
+) -> Optional[models.GuidedJournalEntry]:
+    """
+    Get a guided journal entry by ID
+    :param db (Session): Database session
+    :param guided_journal_id (int): Guided journal entry ID
+    :param user (schemas.User): User
+    :return (Optional[models.GuidedJournalEntry]): Guided journal entry if found, None if not found
+    """
+    return (
+        db.query(models.GuidedJournalEntry)
+        .filter(
+            models.GuidedJournalEntry.id == guided_journal_id, models.GuidedJournalEntry.user_id == user.id
+        )
+        .first()
+    )
 
 def create_social_accounts(
     db: Session, social_accounts: List[schemas.SocialAccountCreate], user: schemas.User

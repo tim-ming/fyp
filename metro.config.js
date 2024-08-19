@@ -1,4 +1,5 @@
 const { getDefaultConfig } = require("expo/metro-config");
+const exclusionList = require('metro-config/src/defaults/exclusionList');
 
 module.exports = (() => {
   const config = getDefaultConfig(__dirname);
@@ -13,6 +14,9 @@ module.exports = (() => {
     ...resolver,
     assetExts: resolver.assetExts.filter((ext) => ext !== "svg"),
     sourceExts: [...resolver.sourceExts, "svg"],
+    blockList: exclusionList([
+      /backend\/.*/,
+    ]),
   };
 
   return config;

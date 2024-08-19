@@ -106,8 +106,8 @@ def get_current_user(
     return user
 
 
-@app.post("/login", response_model=schemas.Token)
-def post_login(
+@app.post("/signin", response_model=schemas.Token)
+def post_signin(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: Session = Depends(get_db),
 ):

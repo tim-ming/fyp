@@ -7,6 +7,7 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   StyleSheet,
+  Platform,
 } from "react-native";
 import {} from "nativewind";
 import CustomText from "@/components/CustomText";
@@ -19,6 +20,8 @@ import { shadows } from "@/constants/styles";
 import { useState } from "react";
 import Check from "@/assets/icons/check.svg";
 import { router } from "expo-router";
+import * as SecureStore from "expo-secure-store"
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Checkbox = () => {
   const [checked, setChecked] = useState(false);
@@ -44,13 +47,55 @@ const Checkbox = () => {
   );
 };
 
+const signIn = async (email: string, password: string): Promise<void> => {
+  const BACKEND_URL = "http://localhost:8000";
+  const form = new FormData();
+  form.append('username', email);
+  form.append('password', password);
+
+  const response = await fetch(`${BACKEND_URL}/signin`, {
+    method: "POST",
+    body: form,
+  });
+
+  if (!response.ok) {
+    throw new Error(response.statusText);
+  }
+
+  const data: { access_token: string; token_type: string } =
+    await response.json();
+
+    if (Platform.OS === 'web') {
+      await AsyncStorage.setItem("access_token", data.access_token);
+    } else { // mobile
+      await SecureStore.setItemAsync("access_token", data.access_token);
+    }
+};
+
+const signInHandler = async (email: string, password: string) => {
+  if (!email || !password) {
+    alert("Please enter both email and password");
+    return;
+  }
+
+  try {
+    await signIn(email, password);
+    router.replace("/understand");
+  } catch (error) {
+    alert(
+      `Sign in failed: ${
+        error instanceof Error ? error.message : String(error)
+      }`
+    );
+  }
+};
+
 const SignInScreen = () => {
   const emailInputRef = useRef<TextInput>(null);
   const passwordInputRef = useRef<TextInput>(null);
-  const credentialsSignIn = () => {
-    router.push("/understand");
-  };
-
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View className="flex-1 p-4 pt-20 bg-gray-100">
@@ -78,6 +123,8 @@ const SignInScreen = () => {
                   className="h-14 bg-white text-base rounded-2xl pl-12 pr-4 font-[PlusJakartaSans] placeholder:text-gray100"
                   placeholder="Enter your email address"
                   keyboardType="email-address"
+                  value={email}
+                  onChangeText={setEmail}
                 />
                 <Mail
                   width={24}
@@ -96,6 +143,8 @@ const SignInScreen = () => {
                   ref={passwordInputRef}
                   className="h-14 bg-white text-base rounded-2xl pl-12 pr-4 shadow-[0px_4px_20px_0px_rgba(0,_0,_0,_0.1)] font-[PlusJakartaSans] placeholder:text-gray100"
                   placeholder="Enter your password"
+                  value={password}
+                  onChangeText={setPassword}
                   secureTextEntry
                 />
                 <Lock
@@ -118,8 +167,9 @@ const SignInScreen = () => {
         <Pressable className="h-14 bg-blue200 items-center justify-center rounded-full">
           <CustomText
             className="text-white text-base font-medium"
-            onPress={credentialsSignIn}
-          >
+            onPress={() => {
+              signInHandler(email, password);
+            }}>
             Sign in
           </CustomText>
         </Pressable>

@@ -7,6 +7,7 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   StyleSheet,
+  Platform,
 } from "react-native";
 import {} from "nativewind";
 import CustomText from "@/components/CustomText";
@@ -18,6 +19,9 @@ import { useRef } from "react";
 import { shadows } from "@/constants/styles";
 import { useState } from "react";
 import Check from "@/assets/icons/check.svg";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { router } from "expo-router";
+import * as SecureStore from "expo-secure-store";
 
 const Checkbox = () => {
   const [checked, setChecked] = useState(false);
@@ -43,9 +47,42 @@ const Checkbox = () => {
   );
 };
 
+const signUp = async (email: string, password: string, name: string): Promise<void> => {
+  const BACKEND_URL = "http://localhost:8000";
+
+  const response = await fetch(`${BACKEND_URL}/signup`, {
+    method: "POST",
+    body: JSON.stringify({ email, password, name }),
+  });
+
+  if (!response.ok) {
+    throw new Error(response.statusText);
+  }
+};
+
+const signUpHandler = async (email: string, password: string, name: string) => {
+  if (!email || !password || !name) {
+    alert("Please enter all fields");
+    return;
+  }
+
+  try {
+    await signUp(email, password, name);
+    router.push("/signin");
+  } catch (error) {
+    alert(
+      `Sign up failed: ${
+        error instanceof Error ? error.message : String(error)
+      }`
+    );
+  }
+};
+
 const SignUpScreen = () => {
   const emailInputRef = useRef<TextInput>(null);
   const passwordInputRef = useRef<TextInput>(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View className="flex-1 p-4 pt-20 bg-gray-100">
@@ -69,6 +106,8 @@ const SignUpScreen = () => {
                   className="h-14 bg-white text-base rounded-2xl pl-12 pr-4 font-[PlusJakartaSans] placeholder:text-gray100"
                   placeholder="Enter your email address"
                   keyboardType="email-address"
+                  value={email}
+                  onChangeText={setEmail}
                 />
                 <Mail
                   width={24}
@@ -88,6 +127,8 @@ const SignUpScreen = () => {
                   className="h-14 bg-white text-base rounded-2xl pl-12 pr-4 shadow-[0px_4px_20px_0px_rgba(0,_0,_0,_0.1)] font-[PlusJakartaSans] placeholder:text-gray100"
                   placeholder="Enter your password"
                   secureTextEntry
+                  value={password}
+                  onChangeText={setPassword}
                 />
                 <Lock
                   width={24}
@@ -116,7 +157,9 @@ const SignUpScreen = () => {
           </CustomText>
         </View>
 
-        <Pressable className="h-14 bg-blue200 items-center justify-center rounded-full">
+        <Pressable className="h-14 bg-blue200 items-center justify-center rounded-full" onPress={() => {
+          signUpHandler(email, password, "Yu Kogure");
+        }}>
           <CustomText className="text-white text-base font-medium">
             Sign up
           </CustomText>

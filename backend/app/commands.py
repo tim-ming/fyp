@@ -1,6 +1,7 @@
-from typing import Optional
+from typing import List, Optional
 from sqlalchemy.orm import Session
-
+from sqlalchemy import func
+from datetime import datetime
 from app import models, schemas
 
 
@@ -21,7 +22,9 @@ def create_user(db: Session, user: schemas.UserCreate) -> models.User:
     :param user (schemas.UserCreate): User create schema
     :return (models.User): New user
     """
-    db_user = models.User(email=user.email, name=user.name, hashed_password=user.password)
+    db_user = models.User(
+        email=user.email, name=user.name, hashed_password=user.password
+    )
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
@@ -63,18 +66,39 @@ def get_mood_entries_by_user(
     )
 
 
-def create_mood_entry(
+def upsert_mood_entry(
     db: Session, mood_entry: schemas.MoodEntryCreate, user: schemas.User
 ) -> models.MoodEntry:
     """
-    Create a new mood entry
+    Update or insert a mood entry (depending on whether it has been written for a certain day)
     :param db (Session): Database session
     :param mood_entry (schemas.MoodEntryCreate): Mood entry create schema
     :param user (schemas.User): User
     :return (models.MoodEntry): New mood entry
     """
-    db_mood_entry = models.MoodEntry(mood=mood_entry.mood, user_id=user.id)
-    db.add(db_mood_entry)
+
+    if mood_entry.datetime is None:
+        mood_entry.datetime = datetime.now()
+    entry_date = mood_entry.datetime.date()
+
+    db_mood_entry = (
+        db.query(models.MoodEntry)
+        .filter(models.MoodEntry.user_id == user.id)
+        .filter(func.date(models.MoodEntry.datetime) == entry_date)
+        .first()
+    )
+
+    if db_mood_entry:
+        # Update existing entry
+        db_mood_entry.mood = mood_entry.mood
+        db_mood_entry.datetime = mood_entry.datetime  # Update time as well
+    else:
+        # Create new entry
+        db_mood_entry = models.MoodEntry(
+            mood=mood_entry.mood, user_id=user.id, datetime=mood_entry.datetime
+        )
+        db.add(db_mood_entry)
+
     db.commit()
     db.refresh(db_mood_entry)
     return db_mood_entry
@@ -101,23 +125,45 @@ def get_journal_entries_by_user(
     )
 
 
-def create_journal_entry(
+def upsert_journal_entry(
     db: Session, journal_entry: schemas.JournalEntryCreate, user: schemas.User
 ) -> models.JournalEntry:
     """
-    Create a new journal entry
+    Update or insert a journal entry (depending on whether it has been written for a certain day)
     :param db (Session): Database session
     :param journal_entry (schemas.JournalEntryCreate): Journal entry create schema
     :param user (schemas.User): User
     :return (models.JournalEntry): New journal entry
     """
-    db_journal_entry = models.JournalEntry(
-        title=journal_entry.title,
-        body=journal_entry.body,
-        image=journal_entry.image,
-        user_id=user.id,
+
+    if journal_entry.datetime is None:
+        journal_entry.datetime = datetime.now()
+    entry_date = journal_entry.datetime.date()
+
+    db_journal_entry = (
+        db.query(models.JournalEntry)
+        .filter(models.JournalEntry.user_id == user.id)
+        .filter(func.date(models.JournalEntry.datetime) == entry_date)
+        .first()
     )
-    db.add(db_journal_entry)
+
+    if db_journal_entry:
+        # Update existing entry
+        db_journal_entry.title = journal_entry.title
+        db_journal_entry.body = journal_entry.body
+        db_journal_entry.image = journal_entry.image
+        db_journal_entry.datetime = journal_entry.datetime  # Update time as well
+    else:
+        # Create new entry
+        db_journal_entry = models.JournalEntry(
+            title=journal_entry.title,
+            body=journal_entry.body,
+            image=journal_entry.image,
+            user_id=user.id,
+            datetime=journal_entry.datetime,
+        )
+        db.add(db_journal_entry)
+
     db.commit()
     db.refresh(db_journal_entry)
     return db_journal_entry
@@ -148,7 +194,10 @@ def count_journal_entries_by_user(db: Session, user: schemas.User) -> int:
         .count()
     )
 
-def get_mood_entry_by_id(db: Session, mood_id: int, user: schemas.User) -> Optional[models.MoodEntry]:
+
+def get_mood_entry_by_id(
+    db: Session, mood_id: int, user: schemas.User
+) -> Optional[models.MoodEntry]:
     """
     Get a mood entry by ID
     :param db (Session): Database session
@@ -156,9 +205,16 @@ def get_mood_entry_by_id(db: Session, mood_id: int, user: schemas.User) -> Optio
     :param user (schemas.User): User
     :return (Optional[models.MoodEntry]): Mood entry if found, None if not found
     """
-    return db.query(models.MoodEntry).filter(models.MoodEntry.id == mood_id, models.MoodEntry.user_id == user.id).first()
+    return (
+        db.query(models.MoodEntry)
+        .filter(models.MoodEntry.id == mood_id, models.MoodEntry.user_id == user.id)
+        .first()
+    )
 
-def get_journal_entry_by_id(db: Session, journal_id: int, user: schemas.User) -> Optional[models.JournalEntry]:
+
+def get_journal_entry_by_id(
+    db: Session, journal_id: int, user: schemas.User
+) -> Optional[models.JournalEntry]:
     """
     Get a journal entry by ID
     :param db (Session): Database session
@@ -166,4 +222,55 @@ def get_journal_entry_by_id(db: Session, journal_id: int, user: schemas.User) ->
     :param user (schemas.User): User
     :return (Optional[models.JournalEntry]): Journal entry if found, None if not found
     """
-    return db.query(models.JournalEntry).filter(models.JournalEntry.id == journal_id, models.JournalEntry.user_id == user.id).first()
+    return (
+        db.query(models.JournalEntry)
+        .filter(
+            models.JournalEntry.id == journal_id, models.JournalEntry.user_id == user.id
+        )
+        .first()
+    )
+
+
+def create_social_accounts(
+    db: Session, social_accounts: List[schemas.SocialAccountCreate], user: schemas.User
+) -> List[models.SocialAccount]:
+    """
+    Create social accounts
+    :param db (Session): Database session
+    :param social_accounts (List[schemas.SocialAccountCreate]): Social account create schemas
+    :param user (schemas.User): User
+    :return (List[models.SocialAccount]): New social accounts
+    """
+    db_social_accounts = []
+    for social_account in social_accounts:
+        db_social_account = models.SocialAccount(
+            provider=social_account.provider,
+            provider_user_id=social_account.provider_user_id,
+            access_token=social_account.access_token,
+            refresh_token=social_account.refresh_token,
+            expires_at=social_account.expires_at,
+            user_id=user.id,
+        )
+        db.add(db_social_account)
+        db_social_accounts.append(db_social_account)
+    db.commit()
+    return db_social_accounts
+
+
+def update_user(db: Session, user: schemas.UserUpdate) -> models.User:
+    """
+    Update a user
+    :param db (Session): Database session
+    :param user (schemas.UserUpdate): User update schema
+    :return (models.User): Updated user
+    """
+    db_user = db.query(models.User).filter(models.User.email == user.email).first()
+    if user.name is not None:
+        db_user.name = user.name
+    if user.is_active is not None:
+        db_user.is_active = user.is_active
+    if user.has_onboarded is not None:
+        db_user.has_onboarded = user.has_onboarded
+    db.commit()
+    db.refresh(db_user)
+    return db_user

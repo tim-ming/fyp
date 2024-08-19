@@ -140,11 +140,11 @@ def post_signin(
         algorithm=ALGORITHM,
     )
 
-    return schemas.Token(access_token=access_token, token_type="bearer")
+    return schemas.Token(access_token=access_token, token_type="bearer", expires_in=ACCESS_TOKEN_EXPIRE_MINUTES)
 
 
-@app.post("/register")
-def post_register(user: schemas.UserCreate, db: Session = Depends(get_db)):
+@app.post("/signup")
+def post_signup(user: schemas.UserCreate, db: Session = Depends(get_db)):
     """
     Register a new user
     :param user (schemas.UserCreate): Initial user data
@@ -188,7 +188,7 @@ def post_mood_entry(
     :param db (Session): Database session
     :return (schemas.MoodEntry): Created mood entry
     """
-    return commands.create_mood_entry(db, mood_entry, current_user)
+    return commands.upsert_mood_entry(db, mood_entry, current_user)
 
 
 @app.get("/moods", response_model=List[schemas.MoodEntry])
@@ -252,7 +252,7 @@ def post_journal_entry(
     :param db (Session): Database session
     :return (schemas.JournalEntry): Created journal entry
     """
-    return commands.create_journal_entry(db, journal_entry, current_user)
+    return commands.upsert_journal_entry(db, journal_entry, current_user)
 
 
 @app.get("/journals", response_model=List[schemas.JournalEntry])
@@ -301,3 +301,35 @@ def get_journal_entry(
     :return (schemas.JournalEntry): Journal entry
     """
     return commands.get_journal_entry_by_id(db, journal_id, current_user)
+
+
+@app.post("/social-accounts", response_model=List[schemas.SocialAccount])
+def post_social_accounts(
+    social_accounts: List[schemas.SocialAccountCreate],
+    current_user: Annotated[schemas.User, Depends(get_current_user)],
+    db: Session = Depends(get_db),
+):
+    """
+    Create social accounts
+    :param social_accounts (List[schemas.SocialAccountCreate]): Social account data
+    :param current_user (schemas.User): Current user
+    :param db (Session): Database session
+    :return (List[schemas.SocialAccount]): Created social accounts
+    """
+    
+    return commands.create_social_accounts(db, social_accounts, current_user)
+
+@app.patch("/users/me", response_model=schemas.UserWithoutSensitiveData)
+def patch_user(
+    user: schemas.UserUpdate,
+    current_user: Annotated[schemas.User, Depends(get_current_user)],
+    db: Session = Depends(get_db),
+):
+    """
+    Update user profile
+    :param user (schemas.UserUpdate): Updated user data
+    :param current_user (schemas.User): Current user
+    :param db (Session): Database session
+    :return (schemas.UserWithoutSensitiveData): Updated user profile
+    """
+    return commands.update_user(db, user, current_user)

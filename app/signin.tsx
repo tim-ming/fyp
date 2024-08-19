@@ -62,15 +62,35 @@ const signIn = async (email: string, password: string): Promise<void> => {
     throw new Error(response.statusText);
   }
 
-  const data: { access_token: string; token_type: string } =
+  const data: { access_token: string; token_type: string; expires_in: number } =
     await response.json();
 
+    const expiresAt = new Date(Date.now() + data.expires_in * 60 * 1000).toISOString();
     if (Platform.OS === 'web') {
       await AsyncStorage.setItem("access_token", data.access_token);
+      await AsyncStorage.setItem("expires_at", expiresAt);
     } else { // mobile
       await SecureStore.setItemAsync("access_token", data.access_token);
+      await SecureStore.setItemAsync("expires_at", expiresAt);
     }
 };
+
+const hasOnboarded = async (): Promise<boolean> => {
+  const BACKEND_URL = "http://localhost:8000";
+  const token = await SecureStore.getItemAsync("access_token");
+  const response = await fetch(`${BACKEND_URL}/user/me`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(response.statusText);
+  }
+
+  const profile : {has_onboarded: boolean} = await response.json();
+  return profile.has_onboarded;
+}
 
 const signInHandler = async (email: string, password: string) => {
   if (!email || !password) {
@@ -80,7 +100,12 @@ const signInHandler = async (email: string, password: string) => {
 
   try {
     await signIn(email, password);
-    router.replace("/understand");
+    const onboarded = await hasOnboarded();
+    if (onboarded) {
+      router.push('/(tabs)');
+    } else {
+      router.push('/understand');
+    }
   } catch (error) {
     alert(
       `Sign in failed: ${

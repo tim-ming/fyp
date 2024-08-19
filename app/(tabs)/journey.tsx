@@ -186,40 +186,75 @@ const JourneyScreen = () => {
             </View>
           </View>
         </View>
-
-        <View className="bg-white rounded-2xl p-6">
-          <View className="justify-between flex-row mb-5">
-            <CustomText className="font-medium text-base text-black200">
-              May
-            </CustomText>
-            <CustomText className="font-medium text-base text-gray300">
-              2024
-            </CustomText>
-          </View>
-          {/* Grid calendar */}
-          <View className="justify-center items-center">
-            <View className="flex flex-wrap flex-row items-center">
-              {monthData.map(({ journals, mood }, i) => {
-                const isEndOfRow = (i + 1) % 7 === 0;
-                return (
-                  <View
-                    key={i}
-                    className={`aspect-square items-center justify-center`}
-                    style={{
-                      width: `calc(1/7*100% - 3px)`,
-                      marginRight: isEndOfRow ? 0 : 3,
-                      marginBottom: 3,
-                    }}
-                  >
-                    {currentDay === i + 1 ? (
-                      <View
-                        className={`w-full h-full items-center justify-center rounded-[6px] border-[2px] p-[2px] border-blue200`}
-                      >
+        <View className="mb-4">
+          <CustomText className="text-center mb-1 text-[20px] font-medium">
+            Calendar
+          </CustomText>
+          <CustomText className="text-center text-sm text-gray-500 mb-4">
+            Journals and mood history
+          </CustomText>
+          <View className="bg-white rounded-2xl p-6">
+            <View className="justify-between flex-row mb-5">
+              <CustomText className="font-medium text-base text-black200">
+                May
+              </CustomText>
+              <CustomText className="font-medium text-base text-gray300">
+                2024
+              </CustomText>
+            </View>
+            {/* Grid calendar */}
+            <View className="justify-center items-center">
+              <View className="flex flex-wrap flex-row items-center">
+                {monthData.map(({ journals, mood }, i) => {
+                  const isEndOfRow = (i + 1) % 7 === 0;
+                  return (
+                    <View
+                      key={i}
+                      className={`aspect-square items-center justify-center`}
+                      style={{
+                        width: `calc(1/7*100% - 3px)`,
+                        marginRight: isEndOfRow ? 0 : 3,
+                        marginBottom: 3,
+                      }}
+                    >
+                      {currentDay === i + 1 ? (
+                        <View
+                          className={`w-full h-full items-center justify-center rounded-[6px] border-[2px] p-[2px] border-blue200`}
+                        >
+                          <View
+                            className={`w-full h-full items-center justify-center rounded-[4px]`}
+                            style={{
+                              backgroundColor:
+                                i < 28 ? interpolateColor(mood) : Colors.gray0,
+                            }}
+                          >
+                            <CustomText className="text-white font-medium text-base leading-4 mb-[6px]">
+                              {i + 1}
+                            </CustomText>
+                            <View className="flex-row">
+                              {journals > 0 ? (
+                                Array.from({ length: journals }).map((_, j) => (
+                                  <View
+                                    key={j}
+                                    className={`w-1 h-1 bg-white rounded-full ${
+                                      j > 0 ? "ml-[2px]" : ""
+                                    }`}
+                                  />
+                                ))
+                              ) : (
+                                <View
+                                  className={`w-1 h-1  rounded-full border-[1px] border-white`}
+                                />
+                              )}
+                            </View>
+                          </View>
+                        </View>
+                      ) : (
                         <View
                           className={`w-full h-full items-center justify-center rounded-[4px]`}
                           style={{
                             backgroundColor:
-                              i < 28 ? interpolateColor(mood) : Colors.gray0,
+                              i < 28 ? interpolateColor(mood) : Colors.gray100,
                           }}
                         >
                           <CustomText className="text-white font-medium text-base leading-4 mb-[6px]">
@@ -242,48 +277,20 @@ const JourneyScreen = () => {
                             )}
                           </View>
                         </View>
-                      </View>
-                    ) : (
-                      <View
-                        className={`w-full h-full items-center justify-center rounded-[4px]`}
-                        style={{
-                          backgroundColor:
-                            i < 28 ? interpolateColor(mood) : Colors.gray100,
-                        }}
-                      >
-                        <CustomText className="text-white font-medium text-base leading-4 mb-[6px]">
-                          {i + 1}
-                        </CustomText>
-                        <View className="flex-row">
-                          {journals > 0 ? (
-                            Array.from({ length: journals }).map((_, j) => (
-                              <View
-                                key={j}
-                                className={`w-1 h-1 bg-white rounded-full ${
-                                  j > 0 ? "ml-[2px]" : ""
-                                }`}
-                              />
-                            ))
-                          ) : (
-                            <View
-                              className={`w-1 h-1  rounded-full border-[1px] border-white`}
-                            />
-                          )}
-                        </View>
-                      </View>
-                    )}
-                  </View>
-                );
-              })}
+                      )}
+                    </View>
+                  );
+                })}
+              </View>
             </View>
+            <View className="h-px bg-gray0 w-full my-4" />
+            <Pressable className="flex-row justify-end">
+              <CustomText className="text-blue200 font-medium mr-1">
+                View all days
+              </CustomText>
+              <ChevronRight className="stroke-blue200" width={20} height={20} />
+            </Pressable>
           </View>
-          <View className="h-px bg-gray0 w-full my-4" />
-          <Pressable className="flex-row justify-end">
-            <CustomText className="text-blue200 font-medium mr-1">
-              View all days
-            </CustomText>
-            <ChevronRight className="stroke-blue200" width={20} height={20} />
-          </Pressable>
         </View>
       </View>
     </ScrollView>

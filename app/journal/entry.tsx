@@ -8,6 +8,7 @@ import { useRoute, RouteProp } from "@react-navigation/native";
 import Plus from "@/assets/icons/plus.svg";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as SecureStore from "expo-secure-store";
+import { Colors } from "@/constants/Colors";
 
 type JournalEntry = {
   date: string;
@@ -176,10 +177,10 @@ const JournalEntry: React.FC = () => {
       </View>
 
       <TextInput
-        className="font-medium mt-14 px-4 text-gray-800 text-base h-[30px] rounded-md"
-        placeholder="Lovely Day"
+        className="font-semibold tracking-tighter mt-14 px-4 text-black100 font-[PlusJakartaSans] text-base h-[36px] rounded-md"
+        placeholder="Title"
         multiline
-        placeholderTextColor="#000000"
+        placeholderTextColor={Colors.gray100}
         style={{ fontSize: 28 }}
         value={journalEntry.title}
         onChangeText={(text) =>
@@ -188,10 +189,10 @@ const JournalEntry: React.FC = () => {
       />
 
       <TextInput
-        className="font-normal px-4 py-1 text-gray-800 text-base flex-grow rounded-md"
+        className="font-normal px-4 py-1 tracking-tight text-gray300 font-[PlusJakartaSans] text-base flex-grow rounded-md"
         placeholder="Today was a lovely day..."
         multiline
-        placeholderTextColor="#535353"
+        placeholderTextColor={Colors.gray100}
         style={{ fontSize: 16 }}
         value={journalEntry.body}
         onChangeText={(text) =>

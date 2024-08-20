@@ -1,7 +1,7 @@
-import React from 'react';
-import { View, Pressable } from 'react-native';
-import { Link } from 'expo-router';
-import CustomText from '@/components/CustomText';
+import React from "react";
+import { View, Pressable } from "react-native";
+import { Link } from "expo-router";
+import CustomText from "@/components/CustomText";
 
 const GuidedWritingComplete: React.FC = () => {
   return (
@@ -14,7 +14,7 @@ const GuidedWritingComplete: React.FC = () => {
           Recorded on
         </CustomText>
         <CustomText className="text-[20px] font-medium text-gray300 mt-3 text-center">
-          2 May 2024
+          21 Aug 2024
         </CustomText>
       </View>
 

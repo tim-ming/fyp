@@ -97,9 +97,21 @@ const interpolateColor = (value: number): string => {
 
 const JourneyScreen = () => {
   // Mood data for the week
-  const moodData = [0.9, 0.6, 0.4, 0.2, 0.7, 0.1, 0.8];
+  const [moodData, setMoodData] = useState<number[]>([]);
+
+  // Step 3: Create a function to set the state randomly
+  const setRandomMoodData = () => {
+    const randomMoodData = Array.from({ length: 7 }, () => Math.random());
+    setMoodData(randomMoodData);
+  };
+
+  // Step 4: Use useEffect to call the function when the component mounts
+  useEffect(() => {
+    setRandomMoodData();
+  }, []);
+
   const dayLabels = ["M", "T", "W", "T", "F", "S", "S"];
-  const currentDay = 20;
+  const currentDay = 21;
 
   // Generate data for the month
   const [monthData, setMonthData] = useState<
@@ -108,8 +120,8 @@ const JourneyScreen = () => {
 
   useEffect(() => {
     setMonthData(
-      Array.from({ length: 31 }, () => ({
-        journals: Math.floor(Math.random() * 5), // Random number of journals between 0 and 4
+      Array.from({ length: 31 }, (_, i) => ({
+        journals: currentDay > i ? Math.floor(Math.random() * 5) : 0, // Random number of journals between 0 and 4
         mood: Math.random(), // Random mood value between 0 and 1
       }))
     );
@@ -122,11 +134,13 @@ const JourneyScreen = () => {
   // Handle left chevron click
   const handleLeftChevronClick = () => {
     setStartDate(subDays(startDate, 7));
+    setRandomMoodData();
   };
 
   // Handle right chevron click
   const handleRightChevronClick = () => {
     setStartDate(addDays(startDate, 7));
+    setRandomMoodData();
   };
 
   return (
@@ -196,7 +210,7 @@ const JourneyScreen = () => {
           <View className="bg-white rounded-2xl p-6">
             <View className="justify-between flex-row mb-5">
               <CustomText className="font-medium text-base text-black200">
-                May
+                Aug
               </CustomText>
               <CustomText className="font-medium text-base text-gray300">
                 2024
@@ -225,7 +239,9 @@ const JourneyScreen = () => {
                             className={`w-full h-full items-center justify-center rounded-[4px]`}
                             style={{
                               backgroundColor:
-                                i < 28 ? interpolateColor(mood) : Colors.gray0,
+                                i < currentDay
+                                  ? interpolateColor(mood)
+                                  : Colors.gray0,
                             }}
                           >
                             <CustomText className="text-white font-medium text-base leading-4 mb-[6px]">
@@ -254,7 +270,9 @@ const JourneyScreen = () => {
                           className={`w-full h-full items-center justify-center rounded-[4px]`}
                           style={{
                             backgroundColor:
-                              i < 28 ? interpolateColor(mood) : Colors.gray100,
+                              i < currentDay
+                                ? interpolateColor(mood)
+                                : Colors.gray100,
                           }}
                         >
                           <CustomText className="text-white font-medium text-base leading-4 mb-[6px]">

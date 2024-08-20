@@ -73,6 +73,9 @@ export default function RootLayout() {
               animation: "slide_from_right", // Specifies the slide animation
             }}
           />
+          <Stack.Screen name="signin" options={{ headerShown: false }} />
+          <Stack.Screen name="signup" options={{ headerShown: false }} />
+          <Stack.Screen name="understand" options={{ headerShown: false }} />
           <Stack.Screen
             name="guided-journal/completion"
             options={{ headerShown: false }}
@@ -89,7 +92,9 @@ export default function RootLayout() {
 
                 return (
                   <Pressable
-                    onPress={() => navigation.navigate('read/[articleId]', { articleId })}
+                    onPress={() =>
+                      navigation.navigate("read/[articleId]", { articleId })
+                    }
                     style={{ marginLeft: 16 }}
                   >
                     <ChevronLeft width={24} height={24} />

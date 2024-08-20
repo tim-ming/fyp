@@ -92,12 +92,12 @@ const SocialMediaScreen = () => {
           understand you.
         </CustomText>
       </CustomText>
-      <CustomText className=" text-gray200 mb-4 leading-5">
+      <CustomText className="text-base text-gray300 mb-4 leading-5">
         Link your social media accounts, so we can tailor the app's experience
         unique to you.
       </CustomText>
 
-      <CustomText className=" text-gray200 mb-8">
+      <CustomText className=" text-gray100 mb-8">
         It's optional: You control what information you want to share with us.
       </CustomText>
       <View className="flex flex-row flex-wrap -m-2 justify-around mb-5">

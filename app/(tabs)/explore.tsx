@@ -37,21 +37,25 @@ const ExploreScreen: React.FC = () => {
           title="Journal"
           subtitle="Write about your day."
           href="/journal/start"
+          icon="book"
         />
         <Card
           title="Guided Writing"
           subtitle="Discover your hidden thoughts."
           href="/guided-journal/start"
+          icon="bookandpen"
         />
         <Card
           title="Relax"
           subtitle="Unwind out your day."
           href="/guided-journal/start"
+          icon="dove"
         />
         <Card
           title="Reading"
           subtitle="Feed your mind and imagination."
           href="/(tabs)/read"
+          icon="bookopen"
         />
       </ScrollView>
     </SafeAreaView>

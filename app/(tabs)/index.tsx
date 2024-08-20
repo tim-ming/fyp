@@ -26,7 +26,10 @@ import Card from "@/components/Card";
 import TopNav from "@/components/TopNav";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as SecureStore from "expo-secure-store";
-import { router } from "expo-router";
+import { Href, Link, router } from "expo-router";
+import { shadows } from "@/constants/styles";
+import { Colors } from "@/constants/Colors";
+import { Image } from "expo-image";
 
 const daysAfter = (days: number) => (date: Date) =>
   new Date(date.getTime() + days * (24 * 60 * 60 * 1000));
@@ -255,6 +258,53 @@ const getJournalEntriesHandler = async () => {
 
   return days;
 };
+
+interface CardProps {
+  title: string;
+  href: Href<string | object>;
+  icon?: "book" | "dove" | "bookopen" | "bookandpen";
+}
+
+const SuggestedCard: React.FC<CardProps> = ({ title, href, icon }) => {
+  let imageSource;
+  switch (icon) {
+    case "book":
+      imageSource = require("@/assets/images/book.png");
+      break;
+    case "dove":
+      imageSource = require("@/assets/images/dove.png");
+      break;
+    case "bookopen":
+      imageSource = require("@/assets/images/bookopen.png");
+      break;
+    case "bookandpen":
+      imageSource = require("@/assets/images/bookandpen.png");
+      break;
+    default:
+      imageSource = null;
+  }
+
+  return (
+    <Link href={href} asChild>
+      <Pressable>
+        {({ pressed }) => (
+          <View
+            style={[
+              styles.card,
+              { transform: [{ scale: pressed ? 0.95 : 1 }] },
+            ]}
+          >
+            {imageSource && <Image source={imageSource} style={styles.image} />}
+            <CustomText letterSpacing="tight" style={styles.title}>
+              {title}
+            </CustomText>
+          </View>
+        )}
+      </Pressable>
+    </Link>
+  );
+};
+
 const HomeScreen = () => {
   const today = new Date();
   const [refreshing, setRefreshing] = useState(false);
@@ -287,7 +337,12 @@ const HomeScreen = () => {
     <SafeAreaView style={styles.container}>
       <TopNav />
 
-      <ScrollView className="" refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
+      <ScrollView
+        className=""
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         <View>
           <CustomText
             letterSpacing="tight"
@@ -330,38 +385,30 @@ const HomeScreen = () => {
           </CustomText>
           <View className="flex-row">
             <View className="w-1/2">
-              <Card
+              <SuggestedCard
                 title="Journal"
-                subtitle="Write about your day."
-                justifyContent="flex-start"
                 href="/journal/start"
+                icon="book"
               />
             </View>
             <View className="w-1/2">
-              <Card
-                title="Writing"
+              <SuggestedCard
+                title="Write"
                 href="/guided-journal/start"
-                subtitle="Write about your day."
-                justifyContent="flex-start"
+                icon="bookandpen"
               />
             </View>
           </View>
           <View className="flex-row">
             <View className="w-1/2">
-              <Card
+              <SuggestedCard
                 title="Relax"
-                subtitle="Unwind out your day."
                 href="/guided-journal/start"
-                justifyContent="flex-start"
+                icon="dove"
               />
             </View>
             <View className="w-1/2">
-              <Card
-                title="Reading"
-                subtitle="Feed your mind and imagination."
-                href="/(tabs)/read"
-                justifyContent="flex-start"
-              />
+              <SuggestedCard title="Read" href="/(tabs)/read" icon="bookopen" />
             </View>
           </View>
         </View>
@@ -371,6 +418,31 @@ const HomeScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  card: {
+    backgroundColor: "white",
+    borderRadius: 20, // rounded-2xl
+    padding: 20, // p-5
+    width: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+
+    ...shadows.card,
+  },
+  title: {
+    fontSize: 20, // text-[24px]
+    fontWeight: "500", // font-semibold
+  },
+  subtitle: {
+    fontSize: 14, // text-[14px]
+    color: Colors.gray200,
+    marginTop: 4,
+  },
+  image: {
+    width: 100, // Adjust the size as needed
+    height: 100, // Adjust the size as needed
+    marginBottom: 8, // Add some margin below the image
+    opacity: 0.6, // Adjust the opacity as needed
+  },
   slider: {
     marginTop: 15,
     overflow: "visible", // for custom animations

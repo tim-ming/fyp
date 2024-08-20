@@ -10,7 +10,7 @@ const SocialMediaScreen = () => {
   const router = useRouter();
 
   const handleSkipPress = () => {
-    router.push("/settings");
+    router.push("/");
   };
 
   interface Platform {

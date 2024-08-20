@@ -47,7 +47,11 @@ const Checkbox = () => {
   );
 };
 
-const signUp = async (email: string, password: string, name: string): Promise<void> => {
+const signUp = async (
+  email: string,
+  password: string,
+  name: string
+): Promise<void> => {
   const BACKEND_URL = "http://localhost:8000";
   const response = await fetch(`${BACKEND_URL}/signup`, {
     method: "POST",
@@ -90,12 +94,16 @@ const SignUpScreen = () => {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View className="flex-1 p-4 pt-20 bg-gray-100">
         <View className="flex flex-col">
-          <CustomText className="text-[40px] leading-10 font-medium text-black200 tracking-tighter">
+          <CustomText className="text-4xl leading-10 font-medium text-black200 tracking-tighter">
             Hello!
           </CustomText>
-          <CustomText className="text-[40px] leading-[48px] font-medium tracking-tighter">
-            <CustomText className="text-blue200">Create</CustomText>{" "}
-            <CustomText className="text-black200">an account.</CustomText>
+          <CustomText className="text-4xl leading-10 font-medium">
+            <CustomText letterSpacing="tighter" className="text-blue200">
+              Create
+            </CustomText>{" "}
+            <CustomText letterSpacing="tighter" className="text-black200">
+              an account.
+            </CustomText>
           </CustomText>
           <CustomText className="text-base text-gray-500 mt-4 mb-6 tracking-tight">
             Be a better you today.
@@ -136,9 +144,8 @@ const SignUpScreen = () => {
                 <Lock
                   width={24}
                   height={24}
-                  strokeWidth={1.5}
                   pointerEvents="none"
-                  className="stroke-gray200 absolute left-4 top-0 h-full w-6 items-center justify-center"
+                  className="fill-gray200 absolute left-4 top-0 h-full w-6 items-center justify-center"
                 />
               </View>
             </Pressable>
@@ -160,9 +167,12 @@ const SignUpScreen = () => {
           </CustomText>
         </View>
 
-        <Pressable className="h-14 bg-blue200 items-center justify-center rounded-full" onPress={() => {
-          signUpHandler(email, password, "Yu Kogure");
-        }}>
+        <Pressable
+          className="h-14 bg-blue200 items-center justify-center rounded-full"
+          onPress={() => {
+            signUpHandler(email, password, "Yu Kogure");
+          }}
+        >
           <CustomText className="text-white text-base font-medium">
             Sign up
           </CustomText>
@@ -193,9 +203,9 @@ const SignUpScreen = () => {
         <CustomText className="text-center text-gray-500 mt-10">
           Already have an account?{" "}
           <Pressable onPress={() => router.push("/signin")}>
-          <CustomText className="text-blue200 underline font-medium">
-            Sign in
-          </CustomText>
+            <CustomText className="text-blue200 underline font-medium">
+              Sign in
+            </CustomText>
           </Pressable>
         </CustomText>
       </View>

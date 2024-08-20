@@ -136,7 +136,7 @@ const JourneyScreen = () => {
 
       <View className="mb-8 px-4">
         <View className="mb-8">
-          <CustomText className="text-center text-2xl font-semibold mb-4">
+          <CustomText className="text-center text-2xl font-medium mb-4">
             Journey
           </CustomText>
 

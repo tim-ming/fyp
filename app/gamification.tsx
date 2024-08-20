@@ -4,8 +4,72 @@ import { View, ScrollView } from "react-native";
 import CustomText from "@/components/CustomText";
 import { Colors } from "@/constants/Colors";
 import ProgressBar from "@/components/ProgressBar";
+import { Image } from "expo-image";
 
 const Gamification = () => {
+  // Step 1: Create an array of badge data objects with descriptions
+  const badges = [
+    {
+      title: "Newbie Journalist",
+      progress: 9,
+      total: 10,
+      description: "Write @ Journals.",
+    },
+    {
+      title: "Typewriter",
+      progress: 9,
+      total: 40,
+      description: "Write @ Journals.",
+    },
+    {
+      title: "Pro Journalist",
+      progress: 9,
+      total: 200,
+      description: "Write @ Journals.",
+    },
+    {
+      title: "Baby Reader",
+      progress: 9,
+      total: 10,
+      description: "Complete @ articles.",
+    },
+    {
+      title: "Story Teller",
+      progress: 6,
+      total: 200,
+      description: "Write @ Guided Journals.",
+    },
+    {
+      title: "Avid Reader",
+      progress: 135,
+      total: 200,
+      description: "Read @ pages of articles.",
+    },
+    {
+      title: "New realm",
+      progress: 0,
+      total: 5,
+      description: "Complete @ Meditations.",
+    },
+    {
+      title: "Sage",
+      progress: 0,
+      total: 25,
+      description: "Complete all Meditations.",
+    },
+  ];
+
+  // Step 2: Calculate the progress percentage for each badge
+  const badgesWithProgress = badges.map((badge) => ({
+    ...badge,
+    progressPercentage: badge.progress / badge.total,
+  }));
+
+  // Step 3: Sort the array by progress percentage
+  const sortedBadges = badgesWithProgress.sort(
+    (a, b) => b.progressPercentage - a.progressPercentage
+  );
+
   return (
     <ScrollView className="flex-1 bg-blue100 px-4 py-16">
       <CustomText
@@ -17,16 +81,20 @@ const Gamification = () => {
       {/* Streak Card */}
       <View
         style={shadows.card}
-        className="bg-white rounded-2xl shadow-lg p-6 mb-6"
+        className="bg-white rounded-2xl items-center justify-center shadow-lg p-6 mb-6"
       >
-        <CustomText className="text-5xl font-bold text-center">7</CustomText>
+        <Image
+          source={require("@/assets/images/doubleheart.png")}
+          className="w-28 h-28 opacity-80"
+        />
+        <CustomText className="text-6xl font-bold text-center">7</CustomText>
         <CustomText
           letterSpacing="tight"
-          className="text-[20px] font-medium text-center text-gray300"
+          className="text-base font-medium text-center text-gray300"
         >
           Days streak
         </CustomText>
-        <View className="items-center justify-center mt-4">
+        <View className="items-center justify-center">
           <CustomText className="text-sm max-w-[50%] leading-4 text-center text-gray200 mt-2">
             Your streak started on 25 Apr this year.
           </CustomText>
@@ -35,14 +103,15 @@ const Gamification = () => {
 
       {/* Badges List */}
       <View>
-        {/* Newbie Journalist Badge */}
-        <BadgeCard title="Newbie Journalist" progress={6} total={10} />
-
-        {/* Emotional Journalist Badge */}
-        <BadgeCard title="Emotional Journalist" progress={6} total={40} />
-
-        {/* Pro Journalist Badge */}
-        <BadgeCard title="Pro Journalist" progress={6} total={200} />
+        {sortedBadges.map((badge, index) => (
+          <BadgeCard
+            key={index}
+            title={badge.title}
+            progress={badge.progress}
+            total={badge.total}
+            description={badge.description}
+          />
+        ))}
       </View>
     </ScrollView>
   );
@@ -52,10 +121,20 @@ interface BadgeCardProps {
   title: string;
   progress: number;
   total: number;
+  description: string;
 }
 
-const BadgeCard: React.FC<BadgeCardProps> = ({ title, progress, total }) => {
+const BadgeCard: React.FC<BadgeCardProps> = ({
+  title,
+  progress,
+  total,
+  description,
+}) => {
   const progressPercentage = progress / total;
+
+  // Function to replace "@" with the total value
+  const getDescription = (description: string, total: number) =>
+    description.replace("@", total.toString());
 
   return (
     <View
@@ -70,7 +149,7 @@ const BadgeCard: React.FC<BadgeCardProps> = ({ title, progress, total }) => {
           {title}
         </CustomText>
         <CustomText className="text-sm text-gray-500">
-          Write {total} Journals.
+          {getDescription(description, total)}
         </CustomText>
       </View>
 

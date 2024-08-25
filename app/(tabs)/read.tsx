@@ -1,53 +1,52 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, Pressable, ScrollView } from "react-native";
-import { Href, useRouter } from "expo-router";
+import React, { useCallback, useEffect, useState } from "react";
+import { View, Pressable, ScrollView } from "react-native";
+import { Href, useFocusEffect, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import TopNav from "@/components/TopNav";
 import CustomText from "@/components/CustomText";
 import { shadows } from "@/constants/styles";
+import articlesData from "@/assets/articles/articles.json";
+import { loadChapterProgress, clearAllData } from "@/utils/progressStorage";
 
 const ArticlePage = () => {
-  const [articles, setArticles] = useState<
-    { id: string; title: string; subtitle: string; progress: string }[]
-  >([
-    {
-      id: "1",
-      title: "Tackling Unhelpful Thoughts",
-      subtitle:
-        "Strategies to challenge and reframe negative thought patterns.",
-      progress: "1 / 3",
-    },
-    {
-      id: "2",
-      title: "Understanding Anxiety",
-      subtitle: "Recognize the symptoms and triggers of anxiety.",
-      progress: "0 / 4",
-    },
-    {
-      id: "3",
-      title: "Introduction to CBT",
-      subtitle: "Learn about Cognitive Behavioral Therapy and how it helps.",
-      progress: "2 / 4",
-    },
-    {
-      id: "4",
-      title: "Coping Mechanisms for Depression",
-      subtitle: "Practical ways to manage and reduce symptoms of depression.",
-      progress: "1 / 4",
-    },
-    {
-      id: "5",
-      title: "Mindfulness and Relaxation",
-      subtitle: "Incorporate mindfulness techniques into your daily routine.",
-      progress: "3 / 5",
-    },
-  ]);
-
   const router = useRouter();
 
-  useEffect(() => {
-    // use dummy value for now
-  }, []);
+  const [articles, setArticles] = useState(
+    articlesData.articles.map((article) => ({
+      id: article.id,
+      title: article.title,
+      subtitle: article.subtitle,
+      chapters: article.chapters,
+      progress: "0",
+    }))
+  );
+
+  const fetchProgress = async () => {
+    const updatedArticles = await Promise.all(
+      articles.map(async (article) => {
+        const progress = await loadChapterProgress(article.id);
+
+        const chapterProgress = progress
+          ? Object.entries(progress).filter(
+              ([key, value]) =>
+                key !== "lastReadChapterId" && key !== "lastReadPageId" && value
+            ).length
+          : 0;
+
+        return { ...article, progress: chapterProgress.toString() };
+      })
+    );
+
+    updatedArticles.sort((a, b) => parseInt(b.progress) - parseInt(a.progress));
+
+    setArticles(updatedArticles);
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchProgress();
+    }, [])
+  );
 
   return (
     <SafeAreaView className="flex-1 bg-blue100">
@@ -90,7 +89,7 @@ const ArticlePage = () => {
             </View>
             <View className="absolute top-4 right-4">
               <CustomText className="text-sm text-gray100">
-                {articles[0].progress}
+                {articles[0].progress} / {articles[0].chapters.length}
               </CustomText>
             </View>
           </Pressable>
@@ -128,7 +127,7 @@ const ArticlePage = () => {
                 </View>
                 <View className="absolute top-4 right-4">
                   <CustomText className="text-sm text-gray100">
-                    {article.progress}
+                    {article.progress} / {article.chapters.length}
                   </CustomText>
                 </View>
               </Pressable>

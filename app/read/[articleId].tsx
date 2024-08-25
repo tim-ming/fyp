@@ -1,182 +1,51 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { View, Pressable, ScrollView } from "react-native";
-import { Href, useRouter, useLocalSearchParams } from "expo-router";
+import {
+  Href,
+  useRouter,
+  useLocalSearchParams,
+  useFocusEffect,
+} from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Check from "@/assets/icons/check.svg";
 import CustomText from "@/components/CustomText";
 import ChevronRight from "@/assets/icons/chevron-right.svg";
+import articlesData from "@/assets/articles/articles.json";
+import { loadChapterProgress } from "@/utils/progressStorage";
 
 const ArticleProgressPage = () => {
   const router = useRouter();
   const { articleId } = useLocalSearchParams();
 
-  const dummyChapters = {
-    "1": {
-      title: "Tackling Unhelpful Thoughts",
-      subtitle: "Learn to identify and challenge negative thought patterns.",
-      progress: "1 / 3",
-      chapters: [
-        {
-          title: "Understanding Unhelpful Thoughts",
-          description:
-            "Learn about common cognitive distortions and how they affect your thinking.",
-          done: true,
-        },
-        {
-          title: "Challenging Negative Thoughts",
-          description:
-            "Techniques to challenge and reframe negative thought patterns.",
-          done: false,
-        },
-        {
-          title: "Building Positive Thought Habits",
-          description:
-            "Developing habits that promote positive thinking and resilience.",
-          done: false,
-        },
-      ],
-    },
-    "2": {
-      title: "Understanding Anxiety",
-      subtitle: "Recognize and manage symptoms and triggers of anxiety.",
-      progress: "0 / 4",
-      chapters: [
-        {
-          title: "Recognizing Anxiety Symptoms",
-          description:
-            "How to identify the physical and emotional signs of anxiety.",
-          done: false,
-        },
-        {
-          title: "Managing Anxiety Triggers",
-          description:
-            "Strategies to manage and reduce anxiety triggers in daily life.",
-          done: false,
-        },
-        {
-          title: "Relaxation Techniques for Anxiety",
-          description:
-            "Learn relaxation techniques to reduce anxiety symptoms.",
-          done: false,
-        },
-        {
-          title: "Relaxation Techniques for Anxiety",
-          description:
-            "Learn relaxation techniques to reduce anxiety symptoms.",
-          done: false,
-        },
-      ],
-    },
-    "3": {
-      title: "Introduction to CBT",
-      subtitle: "A comprehensive guide to Cognitive Behavioral Therapy.",
-      progress: "2 / 4",
-      chapters: [
-        {
-          title: "Introduction to CBT",
-          description:
-            "An overview of Cognitive Behavioral Therapy and its benefits.",
-          done: true,
-        },
-        {
-          title: "CBT Techniques for Anxiety",
-          description: "Specific CBT techniques to manage anxiety.",
-          done: true,
-        },
-        {
-          title: "CBT Techniques for Depression",
-          description: "Using CBT to manage and reduce symptoms of depression.",
-          done: false,
-        },
-        {
-          title: "CBT Techniques for Depression",
-          description: "Using CBT to manage and reduce symptoms of depression.",
-          done: false,
-        },
-      ],
-    },
-    "4": {
-      title: "Coping Mechanisms for Depression",
-      subtitle: "Effective strategies for managing and reducing depression.",
-      progress: "1 / 4",
-      chapters: [
-        {
-          title: "Identifying Depression Symptoms",
-          description: "Understanding the signs and symptoms of depression.",
-          done: true,
-        },
-        {
-          title: "Coping Strategies for Depression",
-          description: "Effective coping mechanisms for managing depression.",
-          done: false,
-        },
-        {
-          title: "Seeking Help for Depression",
-          description: "When and how to seek professional help for depression.",
-          done: false,
-        },
-        {
-          title: "Coping Strategies for Depression",
-          description: "Effective coping mechanisms for managing depression.",
-          done: false,
-        },
-      ],
-    },
-    "5": {
-      title: "Mindfulness and Relaxation",
-      subtitle:
-        "Incorporate mindfulness into your daily routine for better mental health.",
-      progress: "3 / 5",
-      chapters: [
-        {
-          title: "Introduction to Mindfulness",
-          description: "Learn the basics of mindfulness and its benefits.",
-          done: true,
-        },
-        {
-          title: "Mindfulness for Anxiety",
-          description: "How to use mindfulness techniques to manage anxiety.",
-          done: true,
-        },
-        {
-          title: "Mindfulness for Anxiety",
-          description: "How to use mindfulness techniques to manage anxiety.",
-          done: true,
-        },
-        {
-          title: "Mindfulness for Depression",
-          description:
-            "Using mindfulness practices to alleviate depression symptoms.",
-          done: false,
-        },
-        {
-          title: "Mindfulness for Depression",
-          description:
-            "Using mindfulness practices to alleviate depression symptoms.",
-          done: false,
-        },
-      ],
-    },
+  const article = articlesData.articles.find(
+    (article) => article.id === articleId
+  );
+  const title = article?.title || "";
+  const description = article?.description || "";
+  const chapters = article?.chapters || [];
+
+  const [progress, setProgress] = useState<Record<string, boolean | string>>(
+    {}
+  );
+
+  const getChapterToGo = () => {
+    return progress.lastReadChapterId ? progress.lastReadChapterId : "1";
   };
 
-  const [title, setTitle] = useState<string>("");
-  const [subtitle, setSubtitle] = useState<string>("");
-  const [chapters, setChapters] = useState<
-    { title: string; description: string; done: boolean }[]
-  >([]);
-  const [progress, setProgress] = useState<string>("");
+  const getPageToGo = () => {
+    return progress.lastReadPageId ? progress.lastReadPageId : "1";
+  };
 
-  useEffect(() => {
-    const articleDetails =
-      dummyChapters[articleId as keyof typeof dummyChapters];
+  const fetchProgress = async () => {
+    const chapterProgress = await loadChapterProgress(articleId as string);
+    setProgress(chapterProgress || {});
+  };
 
-    if (articleDetails) {
-      setChapters(articleDetails.chapters);
-      setTitle(articleDetails.title);
-      setSubtitle(articleDetails.subtitle);
-      setProgress(articleDetails.progress);
-    }
-  }, [articleId]);
+  useFocusEffect(
+    useCallback(() => {
+      fetchProgress();
+    }, [])
+  );
 
   return (
     <SafeAreaView className="flex-1 bg-blue100">
@@ -188,14 +57,21 @@ const ArticleProgressPage = () => {
           {title}
         </CustomText>
         <CustomText className="text-base leading-5 text-gray300 mt-[25px]">
-          {subtitle}
+          {description}
         </CustomText>
         <View className="flex-row justify-between items-center mt-[34px]">
-          <CustomText className="text-gray300 text-base">{`${progress} lessons read`}</CustomText>
+          <CustomText className="text-gray300 text-base">{`${
+            Object.entries(progress).filter(
+              ([key, value]) =>
+                key !== "lastReadChapterId" && key !== "lastReadPageId" && value
+            ).length
+          } lessons read`}</CustomText>
           <Pressable
-            onPress={() =>
-              router.push(`/read/${articleId}/chapter/1/page/1` as Href<string>)
-            }
+            onPress={() => {
+              router.push(
+                `/read/${articleId}/chapter/${getChapterToGo()}/page/${getPageToGo()}` as Href<string>
+              );
+            }}
           >
             <View className="flex-row items-center gap-1">
               <CustomText className="text-blue200 text-base">
@@ -236,14 +112,12 @@ const ArticleProgressPage = () => {
                 {chapter.title}
               </CustomText>
               <CustomText className="text-base  leading-5  text-gray200 text-center">
-                {chapter.description}
+                {chapter.subtitle}
               </CustomText>
             </View>
-            {chapter.done && (
+            {progress[(index + 1).toString()] && (
               <View className="absolute top-5 right-5">
-                <Check width={24} height={24}>
-                  ✔
-                </Check>
+                <Check width={24} height={24} />
               </View>
             )}
           </Pressable>

@@ -71,7 +71,7 @@ def process_svg_files(input_files, output_dir):
 if __name__ == "__main__":
     INPUT_DIR = "../assets/icons/"
     OUTPUT_DIR = "./svgparser_output"
-    if len(sys.argv) < 3:
+    if len(sys.argv) < 2:
         print("Usage: python svgparser.py <input_file1> <input_file2> ...")
         sys.exit(1)
 

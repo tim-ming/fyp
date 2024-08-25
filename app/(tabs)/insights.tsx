@@ -144,14 +144,13 @@ const JourneyScreen = () => {
   };
 
   return (
-    <ScrollView className="bg-blue-50 flex-1">
+    <ScrollView className="bg-blue100 flex-1">
       <TopNav />
-      {/* Journey Section */}
 
       <View className="mb-8 px-4">
         <View className="mb-8">
           <CustomText className="text-center text-2xl font-medium mb-4">
-            Journey
+            Insights
           </CustomText>
 
           <View className="bg-white rounded-2xl p-6 shadow-2xl">

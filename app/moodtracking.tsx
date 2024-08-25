@@ -8,6 +8,7 @@ import HeartIcon from "@/assets/icons/heart.svg";
 import MoonIcon from "@/assets/icons/moon.svg";
 import { shadows } from "@/constants/styles";
 import { router } from "expo-router";
+import { getStatus } from "@/constants/globals";
 
 interface MoodSliderSectionProps {
   label: string;
@@ -72,14 +73,6 @@ export default function MoodScreen() {
   const [feeling, setFeeling] = useState(0.5);
   const [eating, setEating] = useState(0.5);
   const [sleeping, setSleeping] = useState(0.5);
-
-  const getStatus = (value: number) => {
-    if (value < 0.2) return "horrible";
-    if (value < 0.4) return "bad";
-    if (value < 0.6) return "fine";
-    if (value < 0.85) return "well";
-    return "excellent";
-  };
 
   const submit = () => {
     router.push("/");

@@ -6,7 +6,8 @@ import { useColorScheme } from "@/hooks/useColorScheme";
 import HomeIcon from "@/assets/icons/home.svg";
 import ExploreIcon from "@/assets/icons/search.svg";
 import ReadIcon from "@/assets/icons/book-open.svg";
-import JourneyIcon from "@/assets/icons/calendar.svg";
+import VaultIcon from "@/assets/icons/archive.svg";
+import InsightsIcon from "@/assets/icons/chart.svg";
 import PlusIcon from "@/assets/icons/plus.svg";
 import { usePathname } from "expo-router";
 import CustomText from "@/components/CustomText";
@@ -102,16 +103,17 @@ export default function TabLayout() {
             href: "../journal/entry",
           }}
         /> */}
+
         <Tabs.Screen
-          name="read"
+          name="vault"
           options={{
-            title: "Read",
+            title: "Vault",
             tabBarIcon: ({ color, focused }) => (
               <View className="items-center">
-                <ReadIcon
+                <VaultIcon
                   width={28}
                   height={28}
-                  className={`${
+                  className={`stroke-[1px] ${
                     focused ? `stroke-blue200` : `stroke-gray300`
                   } `}
                 />
@@ -120,19 +122,19 @@ export default function TabLayout() {
                     focused ? `text-blue200` : `text-gray300`
                   } text-sm font-medium`}
                 >
-                  Read
+                  Vault
                 </CustomText>
               </View>
             ),
           }}
         />
         <Tabs.Screen
-          name="journey"
+          name="insights"
           options={{
-            title: "Journey",
+            title: "Insights",
             tabBarIcon: ({ color, focused }) => (
               <View className="items-center">
-                <JourneyIcon
+                <InsightsIcon
                   width={28}
                   height={28}
                   className={`${
@@ -144,7 +146,7 @@ export default function TabLayout() {
                     focused ? `text-blue200` : `text-gray300`
                   } text-sm font-medium`}
                 >
-                  Journey
+                  Insights
                 </CustomText>
               </View>
             ),

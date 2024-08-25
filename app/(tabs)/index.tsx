@@ -30,39 +30,8 @@ import { Href, Link, router } from "expo-router";
 import { shadows } from "@/constants/styles";
 import { Colors } from "@/constants/Colors";
 import { Image } from "expo-image";
-
-const daysAfter = (days: number) => (date: Date) =>
-  new Date(date.getTime() + days * (24 * 60 * 60 * 1000));
-
-const _months = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-];
-const getMonth = (month: number) =>
-  month >= 0 && month < 12 ? _months[month] : "???";
-
-const _days = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-  "Sunday",
-];
-const getDay = (day: number) =>
-  (day >= 0 && day < 7 ? _days[day] : "???").toUpperCase();
+import { daysAfter } from "@/constants/globals";
+import { getMonth, getDay } from "date-fns";
 
 const ICON_SIZE = 28;
 
@@ -408,7 +377,7 @@ const HomeScreen = () => {
               />
             </View>
             <View className="w-1/2">
-              <SuggestedCard title="Read" href="/(tabs)/read" icon="bookopen" />
+              <SuggestedCard title="Read" href="/read" icon="bookopen" />
             </View>
           </View>
         </View>

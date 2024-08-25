@@ -9,6 +9,7 @@ import Plus from "@/assets/icons/plus.svg";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as SecureStore from "expo-secure-store";
 import { Colors } from "@/constants/Colors";
+import { getDay, getMonth } from "date-fns";
 
 type JournalEntry = {
   date: string;
@@ -16,35 +17,6 @@ type JournalEntry = {
   title: string;
   body: string;
 };
-
-const _months = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-];
-const getMonth = (month: number) =>
-  month >= 0 && month < 12 ? _months[month] : "???";
-
-const _days = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-  "Sunday",
-];
-const getDay = (day: number) => (day >= 0 && day < 7 ? _days[day] : "???");
 
 const getJournalEntry = async (state: JournalEntry): Promise<JournalEntry> => {
   const BACKEND_URL = "http://localhost:8000";

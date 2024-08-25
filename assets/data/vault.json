@@ -1,0 +1,53 @@
+[
+  {
+    "date": "2024-08-25",
+    "data": [
+      {
+        "type": "journal",
+        "data": {
+          "title": "React Native is the best",
+          "content": "Can't get over how good it is"
+        },
+        "created": "2024-08-25T00:00:00.000Z"
+      },
+      {
+        "type": "guidedWriting",
+        "data": {
+          "content": "I can't stop overthinking about my..."
+        },
+        "created": "2024-08-25T00:00:00.000Z"
+      },
+      {
+        "type": "tracking",
+        "data": {
+          "mood": 0.8,
+          "sleep": 0.7,
+          "diet": 0.6
+        },
+        "created": "2024-08-25T00:00:00.000Z"
+      },
+      {
+        "type": "journal",
+        "data": {
+          "title": "Lovely Day",
+          "content": "I had a great day today"
+        },
+        "created": "2024-08-25T00:00:00.000Z"
+      }
+    ]
+  },
+  {
+    "date": "2024-08-24",
+    "data": [
+      {
+        "type": "tracking",
+        "data": {
+          "mood": 0.9,
+          "sleep": 0.8,
+          "diet": 0.7
+        },
+        "created": "2024-08-24T00:00:00.000Z"
+      }
+    ]
+  }
+]

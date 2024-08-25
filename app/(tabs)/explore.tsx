@@ -54,7 +54,7 @@ const ExploreScreen: React.FC = () => {
         <Card
           title="Reading"
           subtitle="Feed your mind and imagination."
-          href="/(tabs)/read"
+          href="/read"
           icon="bookopen"
         />
       </ScrollView>

@@ -37,6 +37,10 @@ module.exports = {
         black200: "#000000",
         beige200: "#D1CCC8",
         beige300: "#E7E2DE",
+        red300: "#BF0000",
+        orange300: "#CD6000",
+        clay300: "#B68500",
+        limegreen300: "#8D9700",
         disabled: "#C4C4C4",
       },
       spacing: {

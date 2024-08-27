@@ -20,8 +20,8 @@ import { shadows } from "@/constants/styles";
 import { useState } from "react";
 import Check from "@/assets/icons/check.svg";
 import { router } from "expo-router";
-import * as SecureStore from "expo-secure-store"
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from "expo-secure-store";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Checkbox = () => {
   const [checked, setChecked] = useState(false);
@@ -50,8 +50,8 @@ const Checkbox = () => {
 const signIn = async (email: string, password: string): Promise<void> => {
   const BACKEND_URL = "http://localhost:8000";
   const form = new FormData();
-  form.append('username', email);
-  form.append('password', password);
+  form.append("username", email);
+  form.append("password", password);
 
   const response = await fetch(`${BACKEND_URL}/signin`, {
     method: "POST",
@@ -65,19 +65,28 @@ const signIn = async (email: string, password: string): Promise<void> => {
   const data: { access_token: string; token_type: string; expires_in: number } =
     await response.json();
 
-    const expiresAt = new Date(Date.now() + data.expires_in * 60 * 1000).toISOString();
-    if (Platform.OS === 'web') {
-      await AsyncStorage.setItem("access_token", data.access_token);
-      await AsyncStorage.setItem("expires_at", expiresAt);
-    } else { // mobile
-      await SecureStore.setItemAsync("access_token", data.access_token);
-      await SecureStore.setItemAsync("expires_at", expiresAt);
-    }
+  const expiresAt = new Date(
+    Date.now() + data.expires_in * 60 * 1000
+  ).toISOString();
+  if (Platform.OS === "web") {
+    await AsyncStorage.setItem("access_token", data.access_token);
+    await AsyncStorage.setItem("expires_at", expiresAt);
+  } else {
+    // mobile
+    await SecureStore.setItemAsync("access_token", data.access_token);
+    await SecureStore.setItemAsync("expires_at", expiresAt);
+  }
 };
 
-const hasOnboarded = async (): Promise<boolean> => {
+const getProfile = async (): Promise<{
+  has_onboarded: boolean;
+  is_therapist: boolean;
+}> => {
   const BACKEND_URL = "http://localhost:8000";
-  const token = (Platform.OS === 'web') ? await AsyncStorage.getItem("access_token") : await SecureStore.getItemAsync("access_token");
+  const token =
+    Platform.OS === "web"
+      ? await AsyncStorage.getItem("access_token")
+      : await SecureStore.getItemAsync("access_token");
   if (!token) {
     throw new Error("No token found");
   }
@@ -88,12 +97,15 @@ const hasOnboarded = async (): Promise<boolean> => {
   });
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch profile: ${response.status} ${response.statusText}`);
+    throw new Error(
+      `Failed to fetch profile: ${response.status} ${response.statusText}`
+    );
   }
 
-  const profile : {has_onboarded: boolean} = await response.json();
-  return profile.has_onboarded;
-}
+  const profile: { has_onboarded: boolean; is_therapist: boolean } =
+    await response.json();
+  return profile;
+};
 
 const signInHandler = async (email: string, password: string) => {
   if (!email || !password) {
@@ -103,11 +115,17 @@ const signInHandler = async (email: string, password: string) => {
 
   try {
     await signIn(email, password);
-    const onboarded = await hasOnboarded();
-    if (onboarded) {
-      router.push('/(tabs)');
+    const profile = await getProfile();
+    const onboarded = profile.has_onboarded;
+    const isTherapist = profile.is_therapist;
+    if (isTherapist) {
+      router.push("/therapist/dashboard");
     } else {
-      router.push('/understand');
+      if (onboarded) {
+        router.push("/(tabs)");
+      } else {
+        router.push("/understand");
+      }
     }
   } catch (error) {
     alert(
@@ -123,7 +141,7 @@ const SignInScreen = () => {
   const passwordInputRef = useRef<TextInput>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View className="flex-1 p-4 pt-20 bg-gray-100">
@@ -197,7 +215,8 @@ const SignInScreen = () => {
             className="text-white text-base font-medium"
             onPress={() => {
               signInHandler(email, password);
-            }}>
+            }}
+          >
             Sign in
           </CustomText>
         </Pressable>
@@ -227,9 +246,9 @@ const SignInScreen = () => {
         <CustomText className="text-center text-gray-500 mt-10">
           Don't have an account?{" "}
           <Pressable onPress={() => router.push("/signup")}>
-          <CustomText className="text-blue200 underline font-medium">
-            Sign up
-          </CustomText>
+            <CustomText className="text-blue200 underline font-medium">
+              Sign up
+            </CustomText>
           </Pressable>
         </CustomText>
       </View>

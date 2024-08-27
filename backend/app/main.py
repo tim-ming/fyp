@@ -454,3 +454,110 @@ def get_guided_journal_entries(
         )
 
     return commands.get_guided_journal_entries_by_user(db, current_user, skip, limit)
+
+@app.post("/assign-therapist/{therapist_id}")
+def assign_therapist(
+    therapist_id: int,
+    current_user: Annotated[schemas.User, Depends(get_current_user)],
+    db: Session = Depends(get_db),
+):
+    """
+    Assign a therapist to a user
+    :param therapist_id (int): Therapist ID
+    :param current_user (schemas.User): Current user
+    :param db (Session): Database session
+    :return (dict): Success message
+    :raises (HTTPException): If current user is a therapist
+    """
+    _therapist = commands.get_user_by_id(db, therapist_id)
+    if _therapist is None or not _therapist.is_therapist:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Given ID is not a therapist ID"
+        )
+
+    if current_user.is_therapist:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Therapists cannot have therapists"
+        )
+    
+    if current_user.therapist_id is not None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User already has a therapist assigned"
+        )
+
+    commands.assign_therapist_to_patient(db, current_user, therapist_id)
+    return {"detail": "Therapist assigned"}
+
+@app.delete("/unassign-therapist")
+def unassign_therapist(
+    current_user: Annotated[schemas.User, Depends(get_current_user)],
+    db: Session = Depends(get_db),
+):
+    """
+    Unassign a therapist from a user
+    :param current_user (schemas.User): Current user
+    :param db (Session): Database session
+    :return (dict): Success message
+    :raises (HTTPException): If current user is not assigned a therapist
+    """
+    if current_user.is_therapist:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Therapists cannot have therapists"
+        )
+    
+    if current_user.therapist_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User does not have a therapist assigned"
+        )
+    
+    commands.remove_therapist_from_patient(db, current_user)
+    return {"detail": "Therapist unassigned"}
+
+@app.get("/therapist", response_model=schemas.UserWithoutSensitiveData)
+def get_therapist(
+    current_user: Annotated[schemas.User, Depends(get_current_user)],
+    db: Session = Depends(get_db),
+):
+    """
+    Get therapist assigned to a user
+    :param current_user (schemas.User): Current user
+    :param db (Session): Database session
+    :return (schemas.UserWithoutSensitiveData): Therapist
+    """
+    if current_user.is_therapist:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Therapists cannot have therapists"
+        )
+    
+    if current_user.therapist_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User does not have a therapist assigned"
+        )
+    
+    return commands.get_therapist_by_patient(db, current_user)
+
+@app.get("/patients", response_model=List[schemas.UserWithoutSensitiveData])
+def get_patients(
+    current_user: Annotated[schemas.User, Depends(get_current_user)],
+    db: Session = Depends(get_db),
+):
+    """
+    Get patients assigned to a therapist
+    :param current_user (schemas.User): Current user
+    :param db (Session): Database session
+    :return (List[schemas.UserWithoutSensitiveData]): Patients
+    """
+    if not current_user.is_therapist:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Only therapists can view patients"
+        )
+
+    return commands.get_patients_by_therapist(db, current_user)

@@ -26,7 +26,10 @@ class User(Base):
     hashed_password = Column(String)
     is_active = Column(Boolean, default=True)
     has_onboarded = Column(Boolean, default=False)
+    is_therapist = Column(Boolean, default=False)
+    therapist_id = Column(Integer, ForeignKey("users.id"), nullable=True)
 
+    therapist = relationship("User", remote_side=[id], backref="patients") 
     mood_entries = relationship("MoodEntry", back_populates="user")
     journal_entries = relationship("JournalEntry", back_populates="user")
     social_accounts = relationship("SocialAccount", back_populates="user")

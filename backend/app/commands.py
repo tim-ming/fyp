@@ -12,6 +12,14 @@ def get_user_by_email(db: Session, email: str) -> Optional[models.User]:
     """
     return db.query(models.User).filter(models.User.email == email).first()
 
+def get_user_by_id(db: Session, user_id: int) -> Optional[models.User]:
+    """
+    Get user by ID
+    :param db (Session): Database session
+    :param user_id (int): User ID
+    :return (Optional[models.User]): User if found, None if not found
+    """
+    return db.query(models.User).filter(models.User.id == user_id).first()
 
 def create_user(db: Session, user: schemas.UserCreate) -> models.User:
     """
@@ -21,7 +29,7 @@ def create_user(db: Session, user: schemas.UserCreate) -> models.User:
     :return (models.User): New user
     """
     db_user = models.User(
-        email=user.email, name=user.name, hashed_password=user.password
+        email=user.email, name=user.name, hashed_password=user.password, is_therapist=user.is_therapist
     )
     db.add(db_user)
     db.commit()
@@ -393,3 +401,54 @@ def get_mood_entry_by_date(
         .filter(models.MoodEntry.user_id == user.id, models.MoodEntry.date == date)
         .first()
     )
+
+def assign_therapist_to_patient(
+    db: Session, patient: schemas.User, therapist_id: int) -> models.User:
+    """
+    Assign a therapist to a patient
+    :param db (Session): Database session
+    :param patient (schemas.User): Patient
+    :param therapist_id (int): Therapist ID
+    :return (models.User): Updated patient
+    """
+    db_patient = db.query(models.User).filter(models.User.email == patient.email).first()
+    db_patient.therapist_id = therapist_id
+    db.commit()
+    db.refresh(db_patient)
+    return db_patient
+
+def remove_therapist_from_patient(
+    db: Session, patient: schemas.User) -> models.User:
+    """
+    Remove a therapist from a patient
+    :param db (Session): Database session
+    :param patient (schemas.User): Patient
+    :return (models.User): Updated patient
+    """
+    db_patient = db.query(models.User).filter(models.User.email == patient.email).first()
+    db_patient.therapist_id = None
+    db.commit()
+    db.refresh(db_patient)
+    return db_patient
+
+def get_therapist_by_patient(
+    db: Session, patient: schemas.User) -> Optional[models.User]:
+    """
+    Get a therapist by patient
+    :param db (Session): Database session
+    :param patient (schemas.User): Patient
+    :return (Optional[models.User]): Therapist if found, None if not found
+    """
+    return db.query(models.User).filter(models.User.id == patient.therapist_id).first()
+
+def get_patients_by_therapist(
+    db: Session, therapist: schemas.User) -> List[models.User]:
+    """
+    Get patients by therapist
+    :param db (Session): Database session
+    :param therapist (schemas.User): Therapist
+    :param skip (int): Number of entries to skip
+    :param limit (int): Number of entries to return
+    :return (List[models.User]): Patients
+    """
+    return db.query(models.User).filter(models.User.therapist_id == therapist.id).all()

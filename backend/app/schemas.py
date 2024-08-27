@@ -18,6 +18,7 @@ class UserCreate(UserBase):
 
     name: str
     password: str
+    is_therapist: Optional[bool] = False
 
 class UserUpdate(UserBase):
     """
@@ -38,6 +39,9 @@ class User(UserBase):
     hashed_password: str
     is_active: bool
     has_onboarded: bool
+    is_therapist: bool
+    therapist_id: Optional[int] = None
+    patients: Optional[list["UserWithoutSensitiveData"]] = []
 
     class Config:
         from_attributes = True
@@ -52,6 +56,8 @@ class UserWithoutSensitiveData(UserBase):
     name: str
     is_active: bool
     has_onboarded: bool
+    is_therapist: bool
+    therapist_id: Optional[int] = None
 
     class Config:
         from_attributes = True

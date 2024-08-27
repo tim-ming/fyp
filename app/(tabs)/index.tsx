@@ -168,6 +168,31 @@ const animatedStyles2 = (
   };
 };
 
+const getUsername = async (): Promise<string> => {
+  const BACKEND_URL = "http://localhost:8000";
+  const token =
+    Platform.OS === "web"
+      ? await AsyncStorage.getItem("access_token")
+      : await SecureStore.getItemAsync("access_token");
+  if (!token) {
+    throw new Error("No token found");
+  }
+  const response = await fetch(`${BACKEND_URL}/users/me`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch username: ${response.status} ${response.statusText}`
+    );
+  }
+
+  const profile: { name: string } = await response.json();
+  return profile.name;
+};
+
 const getJournalEntries = async (): Promise<JournalEntryDate[]> => {
   const BACKEND_URL = "http://localhost:8000";
   const token =
@@ -283,10 +308,13 @@ const HomeScreen = () => {
       id: -1,
     }))
   );
+  const [username, setUsername] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
       const result = await getJournalEntriesHandler();
+      const name = await getUsername();
+      setUsername(name);
       setData(result);
     };
     fetchData();
@@ -303,7 +331,7 @@ const HomeScreen = () => {
   }, []);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} className="bg-blue100">
       <TopNav />
 
       <ScrollView
@@ -315,9 +343,9 @@ const HomeScreen = () => {
         <View>
           <CustomText
             letterSpacing="tight"
-            className="font-medium text-black200 text-[20px] text-center"
+            className="font-medium text-black200 text-[24px] text-center"
           >
-            Good Morning, Ning.
+            {`Good Morning, ${username}`}.
           </CustomText>
         </View>
 
@@ -421,7 +449,6 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: "#E7F1FB",
   },
   scaledCard: {
     transform: "scale(0.7)",

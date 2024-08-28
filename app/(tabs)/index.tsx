@@ -31,7 +31,7 @@ import { shadows } from "@/constants/styles";
 import { Colors } from "@/constants/Colors";
 import { Image } from "expo-image";
 import { daysAfter } from "@/constants/globals";
-import { getMonth, getDay } from "date-fns";
+import { getMonth, getDay, format, isToday, isYesterday } from "date-fns";
 
 const ICON_SIZE = 28;
 
@@ -61,10 +61,14 @@ const renderCard = (item: JournalEntryDate) => {
         letterSpacing="tighter"
         className="text-2xl font-medium text-center"
       >
-        {`${item.date.getDate()} ${getMonth(item.date.getMonth())}`}
+        {format(item.date, "dd MMM")}
       </CustomText>
       <CustomText className="text-sm text-center mb-6 mt-1">
-        {getDay(item.date.getDay())}
+        {isToday(item.date)
+          ? "Today"
+          : isYesterday(item.date)
+          ? "Yesterday"
+          : format(item.date, "EEEE")}
       </CustomText>
 
       <View className="absolute w-full h-full flex justify-center items-center">

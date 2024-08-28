@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -12,8 +12,23 @@ import CustomText from "@/components/CustomText";
 import ChevronLeft from "@/assets/icons/chevron-left.svg";
 import ChevronRight from "@/assets/icons/chevron-right.svg";
 import TopNav from "@/components/TopNav";
-import { format, addDays, subDays } from "date-fns";
+import {
+  format,
+  addDays,
+  subDays,
+  startOfToday,
+  getDaysInMonth,
+  getDay,
+  eachDayOfInterval,
+  isSameDay,
+  startOfMonth,
+  endOfMonth,
+} from "date-fns";
 import { Colors } from "@/constants/Colors";
+
+const TODAY = startOfToday();
+
+type DummyData = { journal: number; date: Date; mood: number };
 
 const interpolateColor = (value: number): string => {
   // Ensure value is between 0 and 1
@@ -94,24 +109,66 @@ const interpolateColor = (value: number): string => {
   const toHex = (component: number) => component.toString(16).padStart(2, "0");
   return `#${toHex(newR)}${toHex(newG)}${toHex(newB)}`;
 };
+const dummyMoodData: DummyData[] = [
+  { journal: 2, date: subDays(TODAY, 0), mood: 0.2 },
+  { journal: 1, date: subDays(TODAY, 1), mood: 0.4 },
+  { journal: 1, date: subDays(TODAY, 2), mood: 0.6 },
+  { journal: 0, date: subDays(TODAY, 4), mood: 0.9 },
+  { journal: 0, date: subDays(TODAY, 5), mood: 0.7 },
+  { journal: 2, date: subDays(TODAY, 6), mood: 0.5 },
+  { journal: 1, date: subDays(TODAY, 7), mood: 0.2 },
+  { journal: 3, date: subDays(TODAY, 8), mood: 0.4 },
+  { journal: 1, date: subDays(TODAY, 9), mood: 0.6 },
+  { journal: 1, date: subDays(TODAY, 10), mood: 0.8 },
+  { journal: 2, date: subDays(TODAY, 11), mood: 0.9 },
+  { journal: 1, date: subDays(TODAY, 12), mood: 0.7 },
+  { journal: 0, date: subDays(TODAY, 14), mood: 0.9 },
+  { journal: 1, date: subDays(TODAY, 15), mood: 0.7 },
+  { journal: 0, date: subDays(TODAY, 16), mood: 0.5 },
+  { journal: 0, date: subDays(TODAY, 17), mood: 0.2 },
+  { journal: 2, date: subDays(TODAY, 18), mood: 0.4 },
+  { journal: 0, date: subDays(TODAY, 19), mood: 0.6 },
+];
 
-const JourneyScreen = () => {
-  // Mood data for the week
-  const [moodData, setMoodData] = useState<number[]>([]);
+const getMoodData =
+  (data: DummyData[]) => (startDate: Date) => (endDate: Date) => {
+    const allDates = eachDayOfInterval({ start: startDate, end: endDate });
 
-  // Step 3: Create a function to set the state randomly
-  const setRandomMoodData = () => {
-    const randomMoodData = Array.from({ length: 7 }, () => Math.random());
-    setMoodData(randomMoodData);
+    const filteredData = allDates.map((date) => {
+      const found = data.find((d) => isSameDay(d.date, date));
+      return found ? found : { journal: 0, date, mood: 0 };
+    });
+
+    return filteredData;
   };
 
-  // Step 4: Use useEffect to call the function when the component mounts
-  useEffect(() => {
-    setRandomMoodData();
-  }, []);
+const correctDateToMonday = (date: Date) => {
+  const dayOfWeek = getDay(date);
+  if (dayOfWeek !== 1) {
+    return subDays(date, (dayOfWeek + 6) % 7);
+  }
+  return date;
+};
+
+const getMonthMoodData = (date: Date): DummyData[] => {
+  return getMoodData(dummyMoodData)(startOfMonth(date))(endOfMonth(date));
+};
+
+const getWeekMoodData = (startDate: Date): DummyData[] => {
+  // Check if the first day is not Monday (getDay returns 1 for Monday)
+  const correctedStartDate = correctDateToMonday(startDate);
+
+  const endDate = addDays(correctedStartDate, 7);
+  return getMoodData(dummyMoodData)(correctedStartDate)(endDate);
+};
+
+const JourneyScreen = () => {
+  // Mood data for the week'
+
+  const daysInMonth = getDaysInMonth(TODAY);
+  const [moodData, setMoodData] = useState<number[]>([]);
 
   const dayLabels = ["M", "T", "W", "T", "F", "S", "S"];
-  const currentDay = 21;
 
   // Generate data for the month
   const [monthData, setMonthData] = useState<
@@ -120,27 +177,30 @@ const JourneyScreen = () => {
 
   useEffect(() => {
     setMonthData(
-      Array.from({ length: 31 }, (_, i) => ({
-        journals: currentDay > i ? Math.floor(Math.random() * 5) : 0, // Random number of journals between 0 and 4
-        mood: Math.random(), // Random mood value between 0 and 1
+      getMonthMoodData(TODAY).map((d) => ({
+        journals: d.journal,
+        mood: d.mood,
       }))
     );
+    setMoodData(getWeekMoodData(startDate).map((d) => d.mood));
   }, []);
 
   // State for date range
-  const [startDate, setStartDate] = useState(new Date(2023, 3, 28)); // Initial start date
-  const endDate = addDays(startDate, 7); // End date is 7 days after start date
+  const [startDate, setStartDate] = useState(TODAY); // Set start date to TODAY
+  const endDate = useMemo(() => addDays(startDate, 7), [startDate]); // End date is 7 days after start date
 
   // Handle left chevron click
   const handleLeftChevronClick = () => {
-    setStartDate(subDays(startDate, 7));
-    setRandomMoodData();
+    const newDate = subDays(startDate, 7);
+    setStartDate(newDate);
+    setMoodData(getWeekMoodData(newDate).map((d) => d.mood));
   };
 
   // Handle right chevron click
   const handleRightChevronClick = () => {
-    setStartDate(addDays(startDate, 7));
-    setRandomMoodData();
+    const newDate = addDays(startDate, 7);
+    setStartDate(newDate);
+    setMoodData(getWeekMoodData(newDate).map((d) => d.mood));
   };
 
   return (
@@ -230,7 +290,7 @@ const JourneyScreen = () => {
                         marginBottom: 3,
                       }}
                     >
-                      {currentDay === i + 1 ? (
+                      {TODAY.getDate() === i + 1 ? (
                         <View
                           className={`w-full h-full items-center justify-center rounded-[6px] border-[2px] p-[2px] border-blue200`}
                         >
@@ -238,7 +298,7 @@ const JourneyScreen = () => {
                             className={`w-full h-full items-center justify-center rounded-[4px]`}
                             style={{
                               backgroundColor:
-                                i < currentDay
+                                i < TODAY.getDate()
                                   ? interpolateColor(mood)
                                   : Colors.gray0,
                             }}
@@ -269,7 +329,7 @@ const JourneyScreen = () => {
                           className={`w-full h-full items-center justify-center rounded-[4px]`}
                           style={{
                             backgroundColor:
-                              i < currentDay
+                              i < TODAY.getDate()
                                 ? interpolateColor(mood)
                                 : Colors.gray100,
                           }}

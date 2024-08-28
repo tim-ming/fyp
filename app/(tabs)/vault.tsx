@@ -131,43 +131,41 @@ export default function VaultScreen() {
       <TopNav />
       <View className="mb-8 px-4">
         {data.map((section, sectionIndex) => (
-          <>
-            <View key={section.date}>
-              {/* Date Section */}
-              <CustomText className="text-lg font-semibold mb-4">
-                {formatDateHeader(section.date)}
-              </CustomText>
+          <View key={sectionIndex}>
+            {/* Date Section */}
+            <CustomText className="text-lg font-semibold mb-4">
+              {formatDateHeader(section.date)}
+            </CustomText>
 
-              {/* Render Cards */}
-              {section.data.map((item, index) => {
-                const isLastItem = index === section.data.length - 1;
-                return (
-                  <View key={index} className={isLastItem ? `mb-0` : `mb-1`}>
-                    {(() => {
-                      switch (item.type) {
-                        case "journal":
-                          return <JournalCard data={item.data as Journal} />;
-                        case "guidedWriting":
-                          return (
-                            <GuidedWritingCard
-                              data={item.data as GuidedWriting}
-                            />
-                          );
-                        case "tracking":
-                          return <TrackingCard data={item.data as Tracking} />;
-                        default:
-                          return null;
-                      }
-                    })()}
-                  </View>
-                );
-              })}
-            </View>
+            {/* Render Cards */}
+            {section.data.map((item, index) => {
+              const isLastItem = index === section.data.length - 1;
+              return (
+                <View key={index} className={isLastItem ? `mb-0` : `mb-1`}>
+                  {(() => {
+                    switch (item.type) {
+                      case "journal":
+                        return <JournalCard data={item.data as Journal} />;
+                      case "guidedWriting":
+                        return (
+                          <GuidedWritingCard
+                            data={item.data as GuidedWriting}
+                          />
+                        );
+                      case "tracking":
+                        return <TrackingCard data={item.data as Tracking} />;
+                      default:
+                        return null;
+                    }
+                  })()}
+                </View>
+              );
+            })}
             {/* Render horizontal bar if it's not the last section */}
             {sectionIndex < data.length - 1 && (
               <View className="h-[1px] bg-gray50 my-5" />
             )}
-          </>
+          </View>
         ))}
       </View>
     </ScrollView>

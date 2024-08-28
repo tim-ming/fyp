@@ -8,14 +8,14 @@ export const getStatus = (value: number) => {
   return "excellent";
 };
 
-export const daysAfter = (days: number) => (date: Date) => addDays(date, days);
+// export const daysAfter = (days: number) => (date: Date) => addDays(date, days);
 
-export const getMonth = (month: number) => {
-  const date = new Date(2021, month, 1); // Using a fixed year and day
-  return format(date, "MMM");
-};
+// export const getMonth = (month: number) => {
+//   const date = new Date(2021, month, 1); // Using a fixed year and day
+//   return format(date, "MMM");
+// };
 
-export const getDay = (day: number) => {
-  const date = new Date(2021, 0, day + 3); // Using a fixed year and month, adding 3 to align with the day of the week
-  return format(date, "EEEE").toUpperCase();
-};
+// export const getDay = (day: number) => {
+//   const date = new Date(2021, 0, day + 3); // Using a fixed year and month, adding 3 to align with the day of the week
+//   return format(date, "EEEE").toUpperCase();
+// };

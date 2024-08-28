@@ -30,8 +30,15 @@ import { Href, Link, router } from "expo-router";
 import { shadows } from "@/constants/styles";
 import { Colors } from "@/constants/Colors";
 import { Image } from "expo-image";
-import { daysAfter } from "@/constants/globals";
-import { getMonth, getDay, format, isToday, isYesterday } from "date-fns";
+import {
+  getMonth,
+  getDay,
+  format,
+  isToday,
+  isYesterday,
+  subDays,
+  addDays,
+} from "date-fns";
 
 const ICON_SIZE = 28;
 
@@ -229,7 +236,7 @@ const getJournalEntriesHandler = async () => {
   // get the last 30 days
   const today = new Date();
   const days: JournalEntryDate[] = Array.from({ length: 30 }, (_, i) => ({
-    date: daysAfter(-1 * (29 - i))(today),
+    date: addDays(today, -1 * (29 - i)),
     id: -1,
   }));
 
@@ -308,7 +315,7 @@ const HomeScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [data, setData] = useState(
     Array.from({ length: 30 }, (_, i) => ({
-      date: daysAfter(-1 * (29 - i))(today),
+      date: addDays(today, -1 * (29 - i)),
       id: -1,
     }))
   );
@@ -349,7 +356,7 @@ const HomeScreen = () => {
             letterSpacing="tight"
             className="font-medium text-black200 text-[24px] text-center"
           >
-            {`Good Morning, ${username}`}.
+            {`Good Morning, ${username ? username : "User"}`}.
           </CustomText>
         </View>
 

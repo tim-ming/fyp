@@ -50,8 +50,6 @@ const ArticlePage = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-blue100">
-      <TopNav />
-
       <View>
         <CustomText
           letterSpacing="tight"

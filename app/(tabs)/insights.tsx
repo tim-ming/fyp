@@ -116,17 +116,17 @@ const dummyMoodData: DummyData[] = [
   { journal: 0, date: subDays(TODAY, 4), mood: 0.9 },
   { journal: 0, date: subDays(TODAY, 5), mood: 0.7 },
   { journal: 2, date: subDays(TODAY, 6), mood: 0.5 },
-  { journal: 1, date: subDays(TODAY, 7), mood: 0.2 },
+  { journal: 1, date: subDays(TODAY, 7), mood: 0.1 },
   { journal: 3, date: subDays(TODAY, 8), mood: 0.4 },
-  { journal: 1, date: subDays(TODAY, 9), mood: 0.6 },
-  { journal: 1, date: subDays(TODAY, 10), mood: 0.8 },
-  { journal: 2, date: subDays(TODAY, 11), mood: 0.9 },
-  { journal: 1, date: subDays(TODAY, 12), mood: 0.7 },
-  { journal: 0, date: subDays(TODAY, 14), mood: 0.9 },
-  { journal: 1, date: subDays(TODAY, 15), mood: 0.7 },
-  { journal: 0, date: subDays(TODAY, 16), mood: 0.5 },
+  { journal: 1, date: subDays(TODAY, 9), mood: 0.5 },
+  { journal: 1, date: subDays(TODAY, 10), mood: 0.2 },
+  { journal: 2, date: subDays(TODAY, 11), mood: 0.6 },
+  { journal: 1, date: subDays(TODAY, 12), mood: 0.8 },
+  { journal: 0, date: subDays(TODAY, 14), mood: 0.1 },
+  { journal: 1, date: subDays(TODAY, 15), mood: 0.5 },
+  { journal: 0, date: subDays(TODAY, 16), mood: 0.4 },
   { journal: 0, date: subDays(TODAY, 17), mood: 0.2 },
-  { journal: 2, date: subDays(TODAY, 18), mood: 0.4 },
+  { journal: 2, date: subDays(TODAY, 18), mood: 0.2 },
   { journal: 0, date: subDays(TODAY, 19), mood: 0.6 },
 ];
 
@@ -158,7 +158,7 @@ const getWeekMoodData = (startDate: Date): DummyData[] => {
   // Check if the first day is not Monday (getDay returns 1 for Monday)
   const correctedStartDate = correctDateToMonday(startDate);
 
-  const endDate = addDays(correctedStartDate, 7);
+  const endDate = addDays(correctedStartDate, 6);
   return getMoodData(dummyMoodData)(correctedStartDate)(endDate);
 };
 
@@ -186,8 +186,8 @@ const JourneyScreen = () => {
   }, []);
 
   // State for date range
-  const [startDate, setStartDate] = useState(TODAY); // Set start date to TODAY
-  const endDate = useMemo(() => addDays(startDate, 7), [startDate]); // End date is 7 days after start date
+  const [startDate, setStartDate] = useState(correctDateToMonday(TODAY)); // Set start date to TODAY
+  const endDate = useMemo(() => addDays(startDate, 6), [startDate]); // End date is 6 days after start date
 
   // Handle left chevron click
   const handleLeftChevronClick = () => {
@@ -269,10 +269,10 @@ const JourneyScreen = () => {
           <View className="bg-white rounded-2xl p-6">
             <View className="justify-between flex-row mb-5">
               <CustomText className="font-medium text-base text-black200">
-                Aug
+                {format(TODAY, "MMM")}
               </CustomText>
               <CustomText className="font-medium text-base text-gray300">
-                2024
+                {format(TODAY, "yyyy")}
               </CustomText>
             </View>
             {/* Grid calendar */}

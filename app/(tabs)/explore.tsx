@@ -48,7 +48,7 @@ const ExploreScreen: React.FC = () => {
         <Card
           title="Relax"
           subtitle="Unwind out your day."
-          href="/guided-journal/start"
+          href="/relax"
           icon="dove"
         />
         <Card

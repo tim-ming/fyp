@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 
 export const TOKEN_TYPE = "bearer";
 
-const BLANK_STORE: Store = {
+const INITIAL_STATE: Store = {
   token: null,
   user: null,
 };
@@ -19,6 +19,7 @@ type Store = {
 type Action = {
   setToken: (token: Token) => void;
   setUser: (user: User) => void;
+  reset: () => void;
 };
 
 // if run into ios/android issues refer here
@@ -26,9 +27,10 @@ type Action = {
 export const useAuth = create<Store & Action>()(
   persist(
     (set, get) => ({
-      ...BLANK_STORE,
+      ...INITIAL_STATE,
       setToken: (token) => set({ token }),
       setUser: (user) => set({ user }),
+      reset: () => set(INITIAL_STATE),
     }),
     {
       name: "yummystorage",

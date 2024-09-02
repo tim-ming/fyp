@@ -11,8 +11,9 @@ import Support from "@/assets/icons/support.svg";
 import UserHeart from "@/assets/icons/user-heart.svg";
 import CustomText from "@/components/CustomText";
 import { shadows } from "@/constants/styles";
+import { useAuth } from "@/state/state";
 import { Image } from "expo-image";
-import { Href, useRouter } from "expo-router";
+import { Href, router } from "expo-router";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Pressable, ScrollView, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -187,11 +188,15 @@ const Passcode: React.FC = () => {
 };
 
 const SettingsScreen = () => {
-  const router = useRouter();
-
   const insets = useSafeAreaInsets();
   const handlePress = (screen: Href<string>) => {
     router.push(screen);
+  };
+  const auth = useAuth();
+
+  const logout = () => {
+    auth.reset();
+    router.push("/signin");
   };
 
   return (
@@ -401,7 +406,7 @@ const SettingsScreen = () => {
         <View className="flex bg-white rounded-2xl" style={shadows.card}>
           <Pressable
             className="flex-row justify-between items-center py-3 px-4"
-            onPress={() => handlePress("/settings/helplines")}
+            onPress={() => logout()}
           >
             <View className="flex-row items-center gap-3">
               <Logout

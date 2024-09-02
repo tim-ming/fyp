@@ -1,44 +1,30 @@
+import EditPen from "@/assets/icons/edit-pen.svg";
+import Plus from "@/assets/icons/plus.svg";
+import CustomText from "@/components/CustomText";
+import TopNav from "@/components/TopNav";
+import { Colors } from "@/constants/Colors";
+import { BACKEND_URL, getToken } from "@/constants/globals";
+import { shadows } from "@/constants/styles";
+import { addDays, format, isToday, isYesterday } from "date-fns";
+import { Image } from "expo-image";
+import { Href, Link, router } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
   Animated,
   Dimensions,
-  StyleProp,
-  ViewStyle,
-  ScrollView,
   Platform,
   Pressable,
   RefreshControl,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Plus from "@/assets/icons/plus.svg";
-import EditPen from "@/assets/icons/edit-pen.svg";
-import Newpen from "@/assets/icons/new-pen.svg";
-import CustomText from "@/components/CustomText";
 import Carousel, {
   CarouselProps,
   getInputRangeFromIndexes,
 } from "react-native-snap-carousel";
-import Card from "@/components/Card";
-import TopNav from "@/components/TopNav";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as SecureStore from "expo-secure-store";
-import { Href, Link, router } from "expo-router";
-import { shadows } from "@/constants/styles";
-import { Colors } from "@/constants/Colors";
-import { Image } from "expo-image";
-import {
-  getMonth,
-  getDay,
-  format,
-  isToday,
-  isYesterday,
-  subDays,
-  addDays,
-} from "date-fns";
 
 const ICON_SIZE = 28;
 
@@ -180,11 +166,7 @@ const animatedStyles2 = (
 };
 
 const getUsername = async (): Promise<string> => {
-  const BACKEND_URL = "http://localhost:8000";
-  const token =
-    Platform.OS === "web"
-      ? await AsyncStorage.getItem("access_token")
-      : await SecureStore.getItemAsync("access_token");
+  const token = getToken();
   if (!token) {
     throw new Error("No token found");
   }
@@ -205,11 +187,7 @@ const getUsername = async (): Promise<string> => {
 };
 
 const getJournalEntries = async (): Promise<JournalEntryDate[]> => {
-  const BACKEND_URL = "http://localhost:8000";
-  const token =
-    Platform.OS === "web"
-      ? await AsyncStorage.getItem("access_token")
-      : await SecureStore.getItemAsync("access_token");
+  const token = getToken();
   if (!token) {
     throw new Error("No token found");
   }
@@ -233,7 +211,6 @@ const getJournalEntries = async (): Promise<JournalEntryDate[]> => {
 };
 
 const getJournalEntriesHandler = async () => {
-  // get the last 30 days
   const today = new Date();
   const days: JournalEntryDate[] = Array.from({ length: 30 }, (_, i) => ({
     date: addDays(today, -1 * (29 - i)),

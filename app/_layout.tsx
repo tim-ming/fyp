@@ -17,7 +17,7 @@ import {
   SafeAreaProvider,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import TopNav from "@/components/TopNav";
+
 NativeWindStyleSheet.setOutput({
   default: "native",
 });

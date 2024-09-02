@@ -1,12 +1,11 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { View, Pressable, ScrollView } from "react-native";
-import { Href, useFocusEffect, useRouter } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
-import TopNav from "@/components/TopNav";
+import articlesData from "@/assets/articles/articles.json";
 import CustomText from "@/components/CustomText";
 import { shadows } from "@/constants/styles";
-import articlesData from "@/assets/articles/articles.json";
-import { loadChapterProgress, clearAllData } from "@/utils/progressStorage";
+import { loadChapterProgress } from "@/utils/progressStorage";
+import { useFocusEffect, useRouter } from "expo-router";
+import React, { useCallback, useState } from "react";
+import { Pressable, ScrollView, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const ArticlePage = () => {
   const router = useRouter();

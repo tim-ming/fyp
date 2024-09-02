@@ -1,30 +1,22 @@
-import React from "react";
-import {
-  View,
-  TextInput,
-  Pressable,
-  Image,
-  Keyboard,
-  TouchableWithoutFeedback,
-  StyleSheet,
-  Platform,
-} from "react-native";
-import {} from "nativewind";
-import CustomText from "@/components/CustomText";
+import { getUser, postSignin } from "@/api/api";
+import Apple from "@/assets/icons/apple.svg";
+import Check from "@/assets/icons/check.svg";
+import Google from "@/assets/icons/google.svg";
 import Lock from "@/assets/icons/lock.svg";
 import Mail from "@/assets/icons/mail.svg";
-import Apple from "@/assets/icons/apple.svg";
-import Google from "@/assets/icons/google.svg";
-import { useRef } from "react";
+import CustomText from "@/components/CustomText";
 import { shadows } from "@/constants/styles";
-import { useState } from "react";
-import Check from "@/assets/icons/check.svg";
-import { router } from "expo-router";
-import * as SecureStore from "expo-secure-store";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { BACKEND_URL, getToken, setToken } from "@/constants/globals";
-import { getUser, postSignin } from "@/api/api";
 import { useAuth } from "@/state/state";
+import { router } from "expo-router";
+import {} from "nativewind";
+import React, { useRef, useState } from "react";
+import {
+  Keyboard,
+  Pressable,
+  TextInput,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
 
 const Checkbox = () => {
   const [checked, setChecked] = useState(false);
@@ -64,10 +56,10 @@ const SignInScreen = () => {
     }
 
     try {
-      const token = (await postSignin(email, password)).access_token;
+      const token = await postSignin(email, password);
       auth.setToken(token);
 
-      const user = await getUser(token);
+      const user = await getUser();
       auth.setUser(user);
 
       const onboarded = user.has_onboarded;

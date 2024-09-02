@@ -1,5 +1,6 @@
-import { BACKEND_URL, setToken } from "@/constants/globals";
-import { Token, User } from "@/types/models";
+import { BACKEND_URL } from "@/constants/globals";
+import { useAuth } from "@/state/state";
+import { JournalEntry, JournalEntryCreate, Token, User } from "@/types/models";
 
 const handleNotOk = async (response: Response) => {
   if (!response.ok) {
@@ -10,10 +11,12 @@ const handleNotOk = async (response: Response) => {
   }
 };
 
-export const getUser = async (token: string): Promise<User> => {
+export const getUser = async (): Promise<User> => {
+  const { token } = useAuth.getState();
+
   const response = await fetch(`${BACKEND_URL}/users/me`, {
     headers: {
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${token?.access_token}`,
     },
   });
 
@@ -21,6 +24,49 @@ export const getUser = async (token: string): Promise<User> => {
 
   const profile = (await response.json()) as User;
   return profile;
+};
+
+export const getJournalEntry = async (date: string): Promise<JournalEntry> => {
+  const { token } = useAuth.getState();
+
+  const response = await fetch(
+    `${BACKEND_URL}/journals/date/${encodeURIComponent(date)}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token?.access_token}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch journal entries: ${response.status} ${response.statusText}`
+    );
+  }
+
+  const data: JournalEntry = await response.json();
+  return data;
+};
+
+export const getJournalEntries = async (
+  limit = 30
+): Promise<JournalEntry[]> => {
+  const { token } = useAuth.getState();
+
+  const response = await fetch(`${BACKEND_URL}/journals?limit=${limit}`, {
+    headers: {
+      Authorization: `Bearer ${token?.access_token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch journal entries: ${response.status} ${response.statusText}`
+    );
+  }
+
+  const journals: JournalEntry[] = await response.json();
+  return journals;
 };
 
 export const postSignup = async (
@@ -35,8 +81,6 @@ export const postSignup = async (
       "Content-Type": "application/json",
     },
   });
-
-  await handleNotOk(response);
 
   return response.json();
 };
@@ -57,9 +101,31 @@ export const postSignin = async (
   await handleNotOk(response);
 
   const data: Token = await response.json();
+
+  // TODO: Do we need to change this?
   const expiresAt = new Date(Date.now() + data.expires_in * 60 * 1000);
 
-  setToken(data, expiresAt);
+  useAuth.getState().setToken(data);
 
+  return data;
+};
+
+export const postJournalEntry = async (
+  journal: JournalEntryCreate
+): Promise<JournalEntry> => {
+  const { token } = useAuth.getState();
+
+  const response = await fetch(`${BACKEND_URL}/journals`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token?.access_token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(journal),
+  });
+
+  await handleNotOk(response);
+
+  const data: JournalEntry = await response.json();
   return data;
 };

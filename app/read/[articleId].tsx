@@ -1,17 +1,17 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { View, Pressable, ScrollView } from "react-native";
+import articlesData from "@/assets/articles/articles.json";
+import Check from "@/assets/icons/check.svg";
+import ChevronRight from "@/assets/icons/chevron-right.svg";
+import CustomText from "@/components/CustomText";
+import { loadChapterProgress } from "@/utils/progressStorage";
 import {
   Href,
-  useRouter,
-  useLocalSearchParams,
   useFocusEffect,
+  useLocalSearchParams,
+  useRouter,
 } from "expo-router";
+import React, { useCallback, useState } from "react";
+import { Pressable, ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Check from "@/assets/icons/check.svg";
-import CustomText from "@/components/CustomText";
-import ChevronRight from "@/assets/icons/chevron-right.svg";
-import articlesData from "@/assets/articles/articles.json";
-import { loadChapterProgress } from "@/utils/progressStorage";
 
 const ArticleProgressPage = () => {
   const router = useRouter();

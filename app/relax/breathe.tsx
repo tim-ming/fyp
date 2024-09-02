@@ -1,17 +1,17 @@
-import React, { useEffect, useRef, useState } from "react";
-import {
-  View,
-  Animated,
-  Easing,
-  TouchableWithoutFeedback,
-  Pressable,
-} from "react-native";
+import CustomText from "@/components/CustomText";
 import ProgressBar from "@/components/ProgressBar";
 import { Colors } from "@/constants/Colors";
-import CustomText from "@/components/CustomText";
-import { format } from "date-fns";
 import { sleep } from "@/utils/helpers";
+import { format } from "date-fns";
 import { router } from "expo-router";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  Animated,
+  Easing,
+  Pressable,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
 
 const RING_SIZES = [168, 168, 168, 168, 168, 168, 168, 168, 168, 168];
 const Animation = {

@@ -1,13 +1,14 @@
+import { getJournalEntries } from "@/api/api";
 import EditPen from "@/assets/icons/edit-pen.svg";
 import Plus from "@/assets/icons/plus.svg";
 import CustomText from "@/components/CustomText";
 import TopNav from "@/components/TopNav";
 import { Colors } from "@/constants/Colors";
-import { BACKEND_URL } from "@/constants/globals";
 import { shadows } from "@/constants/styles";
-import { useAuth } from "@/state/state";
-import { SToken } from "@/types/globals";
-import { addDays, format, isToday, isYesterday } from "date-fns";
+import { useAuth, useHydration } from "@/state/state";
+import { JournalEntry } from "@/types/models";
+import { capitalizeFirstLetter, getDayOfWeek } from "@/utils/helpers";
+import { addDays, format, isSameDay, isToday, isYesterday } from "date-fns";
 import { Image } from "expo-image";
 import { Href, Link, router } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
@@ -26,18 +27,23 @@ import Carousel, {
   getInputRangeFromIndexes,
 } from "react-native-snap-carousel";
 
+type JournalEntryCard = {
+  journal: JournalEntry | null;
+  date: Date;
+};
+
 const ICON_SIZE = 28;
 
 const ref = React.createRef<Carousel<any>>();
 
-const renderCard = (item: JournalEntryDate) => {
+const renderCard = (journal: JournalEntryCard) => {
   const handlePress = () => {
     router.push({
       pathname: `/journal/entry`,
       params: {
-        date: `${item.date.getFullYear()}-${(item.date.getMonth() + 1)
+        date: `${journal.date.getFullYear()}-${(journal.date.getMonth() + 1)
           .toString()
-          .padStart(2, "0")}-${item.date
+          .padStart(2, "0")}-${journal.date
           .getDate()
           .toString()
           .padStart(2, "0")}`,
@@ -54,14 +60,10 @@ const renderCard = (item: JournalEntryDate) => {
         letterSpacing="tighter"
         className="text-2xl font-medium text-center"
       >
-        {format(item.date, "dd MMM")}
+        {format(journal.date, "dd MMM")}
       </CustomText>
       <CustomText className="text-sm text-center mb-6 mt-1">
-        {isToday(item.date)
-          ? "Today"
-          : isYesterday(item.date)
-          ? "Yesterday"
-          : format(item.date, "EEEE")}
+        {capitalizeFirstLetter(getDayOfWeek(journal.date.toISOString()))}
       </CustomText>
 
       <View className="absolute w-full h-full flex justify-center items-center">
@@ -70,7 +72,7 @@ const renderCard = (item: JournalEntryDate) => {
             className="rounded-full bg-white flex justify-center items-center"
             style={[styles.shadow, styles.circle]}
           >
-            {item.id != -1 ? (
+            {journal ? (
               <EditPen
                 width={ICON_SIZE}
                 height={ICON_SIZE}
@@ -89,20 +91,6 @@ const renderCard = (item: JournalEntryDate) => {
     </View>
   );
 };
-
-type JournalEntry = {
-  id: number;
-  title?: string;
-  body?: string;
-};
-
-type JournalEntryDate = {
-  date: Date;
-} & JournalEntry;
-
-type JournalEntryRaw = {
-  date: string;
-} & JournalEntry;
 
 const { width: viewportWidth, height: viewportHeight } =
   Dimensions.get("window");
@@ -165,47 +153,16 @@ const animatedStyles2 = (
   };
 };
 
-const getJournalEntries = async (
-  token: SToken
-): Promise<JournalEntryDate[]> => {
-  const response = await fetch(`${BACKEND_URL}/journals?limit=30`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(
-      `Failed to fetch journal entries: ${response.status} ${response.statusText}`
-    );
-  }
-
-  const journals: JournalEntryRaw[] = await response.json();
-  return journals.map((journal) => ({
-    date: new Date(journal.date),
-    id: journal.id,
-  }));
-};
-
-const getJournalEntriesHandler = (journalEntries: JournalEntryDate[]) => {
+const getJournalEntriesHandler = (journalEntries: JournalEntry[]) => {
   const today = new Date();
-  const days: JournalEntryDate[] = Array.from({ length: 30 }, (_, i) => ({
-    date: addDays(today, -1 * (29 - i)),
-    id: -1,
+  const days: JournalEntryCard[] = Array.from({ length: 30 }, (_, i) =>
+    addDays(today, -1 * (29 - i))
+  ).map((d) => ({
+    date: d,
+    journal: journalEntries.find(({ date }) => isSameDay(d, date)) || null,
   }));
 
-  journalEntries.forEach((journal) => {
-    console.log(journal);
-    const index = days.findIndex(
-      (day) =>
-        day.date.getDate() === journal.date.getDate() &&
-        day.date.getMonth() === journal.date.getMonth() &&
-        day.date.getFullYear() === journal.date.getFullYear()
-    );
-    if (index !== -1) {
-      days[index] = journal;
-    }
-  });
+  console.log(days);
 
   return days;
 };
@@ -259,35 +216,33 @@ const SuggestedCard: React.FC<CardProps> = ({ title, href, icon }) => {
 const HomeScreen = () => {
   const today = new Date();
   const [refreshing, setRefreshing] = useState(false);
-  const [data, setData] = useState(
-    Array.from({ length: 30 }, (_, i) => ({
-      date: addDays(today, -1 * (29 - i)),
-      id: -1,
-    }))
-  );
+  const [journals, setJournals] = useState<JournalEntryCard[]>([]);
   const auth = useAuth();
-
+  const isHydrated = useHydration();
   useEffect(() => {
+    if (!isHydrated) {
+      return;
+    }
     const fetchData = async () => {
-      getJournalEntries(auth.token)
+      getJournalEntries()
         .then((journalEntries) =>
-          setData(getJournalEntriesHandler(journalEntries))
+          setJournals(getJournalEntriesHandler(journalEntries))
         )
         .catch((error) => {
-          console.error("Error fetching data:", error);
+          console.error(error);
         });
     };
     fetchData();
-  }, []);
+  }, [isHydrated]);
 
   const onRefresh = useCallback(() => {
     const fetchData = async () => {
-      getJournalEntries(auth.token)
+      getJournalEntries()
         .then((journalEntries) =>
-          setData(getJournalEntriesHandler(journalEntries))
+          setJournals(getJournalEntriesHandler(journalEntries))
         )
         .catch((error) => {
-          console.error("Error fetching data:", error);
+          console.error(error);
         });
     };
     fetchData();
@@ -310,14 +265,14 @@ const HomeScreen = () => {
             letterSpacing="tight"
             className="font-medium text-black200 text-[24px] text-center"
           >
-            {`Good Morning, ${auth.user.name ? auth.user.name : "User"}`}.
+            {`Good Morning${auth.user && ", " + auth.user.name}`}.
           </CustomText>
         </View>
 
         <View className="w-full pt-4 flex flex-row justify-center items-center relative">
           <Carousel
-            data={data}
-            firstItem={data.length - 1}
+            data={journals}
+            firstItem={journals.length - 1}
             enableSnap={true}
             enableMomentum={true}
             snapToAlignment="center"

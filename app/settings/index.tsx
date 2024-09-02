@@ -1,23 +1,21 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { View, Pressable, ScrollView, TextInput } from "react-native";
-import { Href, useRouter } from "expo-router";
-import Notification from "@/assets/icons/notification.svg";
-import Link from "@/assets/icons/link.svg";
-import Data from "@/assets/icons/data.svg";
-import Moon from "@/assets/icons/moon.svg";
-import UserHeart from "@/assets/icons/user-heart.svg";
-import Lock from "@/assets/icons/lock.svg";
-import Support from "@/assets/icons/support.svg";
-import Question from "@/assets/icons/question.svg";
-import Feedback from "@/assets/icons/feedback.svg";
-import Logout from "@/assets/icons/logout.svg";
 import ChevronRight from "@/assets/icons/chevron-right.svg";
-import { shadows } from "@/constants/styles";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Data from "@/assets/icons/data.svg";
+import Feedback from "@/assets/icons/feedback.svg";
+import Link from "@/assets/icons/link.svg";
+import Lock from "@/assets/icons/lock.svg";
+import Logout from "@/assets/icons/logout.svg";
+import Moon from "@/assets/icons/moon.svg";
+import Notification from "@/assets/icons/notification.svg";
+import Question from "@/assets/icons/question.svg";
+import Support from "@/assets/icons/support.svg";
+import UserHeart from "@/assets/icons/user-heart.svg";
 import CustomText from "@/components/CustomText";
-import BackButton from "@/components/Back";
-import BackButtonWrapper from "@/components/Back";
+import { shadows } from "@/constants/styles";
 import { Image } from "expo-image";
+import { Href, useRouter } from "expo-router";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Pressable, ScrollView, TextInput, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const Passcode: React.FC = () => {
   const length = 4;
@@ -219,6 +217,8 @@ const SettingsScreen = () => {
         >
           Profile
         </CustomText>
+
+        {/* 
         <View className="flex bg-white rounded-2xl" style={shadows.card}>
           <Pressable
             className="flex-row justify-between items-center py-5 px-4"
@@ -240,9 +240,10 @@ const SettingsScreen = () => {
             </View>
             <ChevronRight className="stroke-gray300" />
           </Pressable>
-        </View>
-        <View className="gap-y-3">
-          {/* Profile Section */}
+        </View> */}
+
+        {/* Profile Section */}
+        {/* <View className="gap-y-3">
           <CustomText
             letterSpacing="tight"
             className="text-xl font-medium text-black200 ml-4"
@@ -289,10 +290,10 @@ const SettingsScreen = () => {
               <ChevronRight className="stroke-gray300" />
             </Pressable>
           </View>
-        </View>
+        </View> */}
 
-        <View className="gap-y-3">
-          {/* Personalisation Section */}
+        {/* Personalisation Section */}
+        {/* <View className="gap-y-3">
           <CustomText
             letterSpacing="tight"
             className="text-xl font-medium text-black200 ml-4"
@@ -342,10 +343,10 @@ const SettingsScreen = () => {
               </Pressable>
             </View>
           </View>
-        </View>
+        </View> */}
 
-        <View className="gap-y-3">
-          {/* Help & Support Section */}
+        {/* Help & Support Section */}
+        {/* <View className="gap-y-3">
           <CustomText
             letterSpacing="tight"
             className="text-xl font-medium text-black200 ml-4"
@@ -395,7 +396,7 @@ const SettingsScreen = () => {
               </Pressable>
             </View>
           </View>
-        </View>
+        </View> */}
 
         <View className="flex bg-white rounded-2xl" style={shadows.card}>
           <Pressable

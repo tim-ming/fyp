@@ -1,134 +1,84 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, TextInput, Pressable, Platform } from "react-native";
-import { Link, router } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
-import CustomText from "@/components/CustomText";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import { useRoute, RouteProp } from "@react-navigation/native";
+import { getJournalEntry, postJournalEntry } from "@/api/api";
 import Plus from "@/assets/icons/plus.svg";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as SecureStore from "expo-secure-store";
+import CustomText from "@/components/CustomText";
 import { Colors } from "@/constants/Colors";
-import { getDay, getMonth } from "date-fns";
-import { BACKEND_URL, getToken } from "@/constants/globals";
+import { useHydration } from "@/state/state";
+import { JournalEntry, JournalEntryCreate } from "@/types/models";
+import { capitalizeFirstLetter, getDayOfWeek } from "@/utils/helpers";
+import { useRoute } from "@react-navigation/native";
+import { format, getDay, getMonth } from "date-fns";
+import { router } from "expo-router";
+import React, { useEffect, useState } from "react";
+import { Pressable, TextInput, View } from "react-native";
 
-type JournalEntry = {
-  date: string;
-  image?: string;
+type JournalInput = {
   title: string;
   body: string;
+  image?: string | null;
 };
 
-const getJournalEntry = async (state: JournalEntry): Promise<JournalEntry> => {
-  const token = getToken();
-  if (!token) {
-    throw new Error("No token found");
-  }
-
-  const response = await fetch(
-    `${BACKEND_URL}/journals/date/${encodeURIComponent(state.date)}`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-
-  if (!response.ok) {
-    throw new Error(
-      `Failed to fetch journal entries: ${response.status} ${response.statusText}`
-    );
-  }
-
-  const data: JournalEntry = await response.json();
-  return data;
+const BASE_JOURNAL_ENTRY: JournalInput = {
+  title: "",
+  body: "",
+  image: null,
 };
 
-const getJournalEntryHandler = async (state: JournalEntry) => {
+const getJournalEntryHandler = async (date: string) => {
   try {
-    const data = await getJournalEntry(state);
+    const data = await getJournalEntry(date);
     console.log(data);
     return data;
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
-  return state;
 };
 
-const postJournalEntry = async (state: JournalEntry): Promise<JournalEntry> => {
-  const BACKEND_URL = "http://localhost:8000";
-  const token =
-    Platform.OS === "web"
-      ? await AsyncStorage.getItem("access_token")
-      : await SecureStore.getItemAsync("access_token");
-  if (!token) {
-    throw new Error("No token found");
-  }
-  const response = await fetch(`${BACKEND_URL}/journals`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-
-    body: JSON.stringify(state),
-  });
-
-  if (!response.ok) {
-    throw new Error(
-      `Failed to create journal entry: ${response.status} ${response.statusText}`
-    );
-  }
-
-  const data: JournalEntry = await response.json();
-  return data;
-};
-
-const postJournalEntryHandler = async (state: JournalEntry) => {
+const postJournalEntryHandler = async (journal: JournalInput) => {
   try {
-    const data = await postJournalEntry(state);
+    const data = await postJournalEntry({
+      ...journal,
+      date: new Date(),
+    } as JournalEntryCreate);
     console.log(data);
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
   router.push("/journal/completion");
-  return state;
+  return journal;
 };
 
-const JournalEntry: React.FC = () => {
+const Entry: React.FC = () => {
   const today = new Date();
-  const { date } = (useRoute().params as { date: string }) || {};
+  const { date } =
+    (useRoute().params as { date: string }) || format(today, "yyyy-MM-dd");
 
-  const [journalEntry, setJournalEntry] = useState<JournalEntry>({
-    date:
-      date ||
-      `${today.getFullYear()}-${(today.getMonth() + 1)
-        .toString()
-        .padStart(2, "0")}-${today.getDate().toString().padStart(2, "0")}`,
-    title: "",
-    body: "",
-  });
+  const [journalEntry, setJournalEntry] =
+    useState<JournalInput>(BASE_JOURNAL_ENTRY);
 
-  const dateObj = new Date(journalEntry.date);
+  const dateObj = new Date(date);
+  const isHydrated = useHydration();
 
   useEffect(() => {
+    if (!isHydrated) {
+      return;
+    }
     const fetchData = async () => {
-      const data = await getJournalEntryHandler(journalEntry);
-      setJournalEntry(data);
+      const data = await getJournalEntryHandler(date);
+      if (data) {
+        setJournalEntry(data);
+      }
     };
     fetchData();
-  }, []);
+  }, [isHydrated]);
 
   return (
     <View className="flex-1 justify-between bg-blue100 px-2 pt-12">
       <View>
         <CustomText className="text-[16px] font-semibold text-center text-gray200">
-          {getDay(dateObj.getDay())}
+          {capitalizeFirstLetter(getDayOfWeek(dateObj.toISOString()))}
         </CustomText>
         <CustomText className="text-[20px] font-semibold text-center text-gray200">
-          {`${dateObj.getDate()} ${getMonth(
-            dateObj.getMonth()
-          )} ${dateObj.getFullYear()}`}
+          {format(dateObj, "dd MMM yyyy")}
         </CustomText>
       </View>
 
@@ -185,4 +135,4 @@ const JournalEntry: React.FC = () => {
   );
 };
 
-export default JournalEntry;
+export default Entry;

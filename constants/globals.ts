@@ -14,19 +14,19 @@ export const getStatus = (value: number) => {
 
 export const BACKEND_URL = "http://localhost:8000";
 
-export const getToken = async () =>
-  Platform.OS === "web"
-    ? await AsyncStorage.getItem("access_token")
-    : // AsyncStorage claims to work for iOS and Android too, can be tested later
-      await SecureStore.getItemAsync("access_token");
+// export const getToken = async () =>
+//   Platform.OS === "web"
+//     ? await AsyncStorage.getItem("access_token")
+//     : // AsyncStorage claims to work for iOS and Android too, can be tested later
+//       await SecureStore.getItemAsync("access_token");
 
-export const setToken = async (data: Token, expiresAt: Date) => {
-  if (Platform.OS === "web") {
-    await AsyncStorage.setItem("access_token", data.access_token);
-    await AsyncStorage.setItem("expires_at", expiresAt.toISOString());
-  } else {
-    // mobile
-    await SecureStore.setItemAsync("access_token", data.access_token);
-    await SecureStore.setItemAsync("expires_at", expiresAt.toISOString());
-  }
-};
+// export const setToken = async (data: Token, expiresAt: Date) => {
+//   if (Platform.OS === "web") {
+//     await AsyncStorage.setItem("access_token", data.access_token);
+//     await AsyncStorage.setItem("expires_at", expiresAt.toISOString());
+//   } else {
+//     // mobile
+//     await SecureStore.setItemAsync("access_token", data.access_token);
+//     await SecureStore.setItemAsync("expires_at", expiresAt.toISOString());
+//   }
+// };

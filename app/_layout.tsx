@@ -17,8 +17,7 @@ import {
   SafeAreaProvider,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import { useAuth } from "@/state/state";
-import { getToken } from "@/constants/globals";
+import { useAuth, useHydration } from "@/state/state";
 import { getUser } from "@/api/api";
 
 NativeWindStyleSheet.setOutput({
@@ -34,18 +33,22 @@ export default function RootLayout() {
     PlusJakartaSans: require("../assets/fonts/PlusJakartaSans.ttf"),
   });
   const auth = useAuth();
+  const isHydrated = useHydration();
 
   useEffect(() => {
+    if (!isHydrated) {
+      return;
+    }
     const fetchData = async () => {
       try {
         if (auth.user) return;
-        const token = auth.token || (await getToken());
+        const token = auth.token;
         if (!token) {
           throw new Error("No token found");
         }
         auth.setToken(token);
 
-        const user = await getUser(token);
+        const user = await getUser();
         if (!user) {
           throw new Error("No user found");
         }
@@ -55,9 +58,12 @@ export default function RootLayout() {
         router.push("/signin");
       }
     };
-    console.log("fetch");
     fetchData();
-  });
+  }, [isHydrated]);
+
+  useEffect(() => {
+    console.log(auth);
+  }, [auth]);
 
   useEffect(() => {
     if (loaded) {

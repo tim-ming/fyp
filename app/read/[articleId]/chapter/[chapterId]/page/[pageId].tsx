@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from "react";
-import { View, Pressable, ScrollView } from "react-native";
-import { useRouter, useLocalSearchParams, Href } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
-import CustomText from "@/components/CustomText";
+import articlesData from "@/assets/articles/articles.json";
 import ArrowLeft from "@/assets/icons/arrow-left.svg";
 import ArrowRight from "@/assets/icons/arrow-right.svg";
-import articlesData from "@/assets/articles/articles.json";
+import CustomText from "@/components/CustomText";
 import {
   loadChapterProgress,
   saveChapterProgress,
 } from "@/utils/progressStorage";
+import { Href, useLocalSearchParams, useRouter } from "expo-router";
+import React, { useEffect } from "react";
+import { Pressable, ScrollView, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const ReadingPage = () => {
   const router = useRouter();

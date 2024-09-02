@@ -1,12 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { View, FlatList, Pressable, Platform } from "react-native";
-import { useRouter } from "expo-router";
 import CustomText from "@/components/CustomText";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { shadows } from "@/constants/styles";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as SecureStore from "expo-secure-store";
-import { BACKEND_URL, getToken } from "@/constants/globals";
+import { useAuth } from "@/state/state";
+import { useRouter } from "expo-router";
+import React, { useState } from "react";
+import { FlatList, Pressable, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const allPatientsData = [
   { id: "00001", name: "Kok Tim Ming", risk: "Severe" },
@@ -31,41 +29,12 @@ const PAGE_SIZE = 6;
 const PatientsList = () => {
   const router = useRouter();
 
-  const [username, setUsername] = useState("");
+  const auth = useAuth();
+
   const [visiblePatients, setVisiblePatients] = useState(
     allPatientsData.slice(0, PAGE_SIZE)
   );
   const [showLess, setShowLess] = useState(false);
-
-  const getUsername = async (): Promise<string> => {
-    const token = getToken();
-    if (!token) {
-      throw new Error("No token found");
-    }
-    const response = await fetch(`${BACKEND_URL}/users/me`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(
-        `Failed to fetch username: ${response.status} ${response.statusText}`
-      );
-    }
-
-    const profile: { name: string } = await response.json();
-    return profile.name;
-  };
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const name = await getUsername();
-      setUsername(name);
-    };
-
-    fetchData();
-  }, []);
 
   const togglePatientsVisibility = () => {
     if (showLess) {
@@ -126,7 +95,7 @@ const PatientsList = () => {
           Hi,
           <CustomText className="text-2xl font-medium text-black">
             {" "}
-            {`Dr. ${username}`}.
+            {`Dr. ${auth.user?.name}`}.
           </CustomText>
         </CustomText>
         <View className="flex-row justify-between mt-4">

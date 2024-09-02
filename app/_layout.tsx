@@ -17,6 +17,9 @@ import {
   SafeAreaProvider,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
+import { useAuth } from "@/state/state";
+import { getToken } from "@/constants/globals";
+import { getUser } from "@/api/api";
 
 NativeWindStyleSheet.setOutput({
   default: "native",
@@ -29,6 +32,31 @@ export default function RootLayout() {
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
     PlusJakartaSans: require("../assets/fonts/PlusJakartaSans.ttf"),
+  });
+  const auth = useAuth();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        if (auth.user) return;
+        const token = auth.token || (await getToken());
+        if (!token) {
+          throw new Error("No token found");
+        }
+        auth.setToken(token);
+
+        const user = await getUser(token);
+        if (!user) {
+          throw new Error("No user found");
+        }
+        auth.setUser(user);
+      } catch (error) {
+        console.log("Redirecting to /signin,", error);
+        router.push("/signin");
+      }
+    };
+    console.log("fetch");
+    fetchData();
   });
 
   useEffect(() => {
@@ -67,7 +95,7 @@ export default function RootLayout() {
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="+not-found" />
           <Stack.Screen
-            name="settings"
+            name="settings/index"
             options={{
               presentation: "modal", // Makes it slide in from the right
               animation: "slide_from_right", // Specifies the slide animation
@@ -76,7 +104,7 @@ export default function RootLayout() {
           <Stack.Screen name="signin" options={{ headerShown: false }} />
           <Stack.Screen name="signup" options={{ headerShown: false }} />
           <Stack.Screen name="understand" options={{ headerShown: false }} />
-          <Stack.Screen name="relax" />
+          <Stack.Screen name="relax/index" />
           <Stack.Screen name="relax/breathe" options={{ headerShown: false }} />
           <Stack.Screen
             name="guided-journal/completion"

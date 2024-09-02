@@ -3,8 +3,10 @@ import Plus from "@/assets/icons/plus.svg";
 import CustomText from "@/components/CustomText";
 import TopNav from "@/components/TopNav";
 import { Colors } from "@/constants/Colors";
-import { BACKEND_URL, getToken } from "@/constants/globals";
+import { BACKEND_URL } from "@/constants/globals";
 import { shadows } from "@/constants/styles";
+import { useAuth } from "@/state/state";
+import { SToken } from "@/types/globals";
 import { addDays, format, isToday, isYesterday } from "date-fns";
 import { Image } from "expo-image";
 import { Href, Link, router } from "expo-router";
@@ -12,12 +14,10 @@ import React, { useCallback, useEffect, useState } from "react";
 import {
   Animated,
   Dimensions,
-  Platform,
   Pressable,
   RefreshControl,
   ScrollView,
   StyleSheet,
-  TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -65,7 +65,7 @@ const renderCard = (item: JournalEntryDate) => {
       </CustomText>
 
       <View className="absolute w-full h-full flex justify-center items-center">
-        <TouchableOpacity onPress={handlePress}>
+        <Pressable onPress={handlePress}>
           <View
             className="rounded-full bg-white flex justify-center items-center"
             style={[styles.shadow, styles.circle]}
@@ -84,7 +84,7 @@ const renderCard = (item: JournalEntryDate) => {
               />
             )}
           </View>
-        </TouchableOpacity>
+        </Pressable>
       </View>
     </View>
   );
@@ -165,32 +165,9 @@ const animatedStyles2 = (
   };
 };
 
-const getUsername = async (): Promise<string> => {
-  const token = getToken();
-  if (!token) {
-    throw new Error("No token found");
-  }
-  const response = await fetch(`${BACKEND_URL}/users/me`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(
-      `Failed to fetch username: ${response.status} ${response.statusText}`
-    );
-  }
-
-  const profile: { name: string } = await response.json();
-  return profile.name;
-};
-
-const getJournalEntries = async (): Promise<JournalEntryDate[]> => {
-  const token = getToken();
-  if (!token) {
-    throw new Error("No token found");
-  }
+const getJournalEntries = async (
+  token: SToken
+): Promise<JournalEntryDate[]> => {
   const response = await fetch(`${BACKEND_URL}/journals?limit=30`, {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -210,33 +187,25 @@ const getJournalEntries = async (): Promise<JournalEntryDate[]> => {
   }));
 };
 
-const getJournalEntriesHandler = async () => {
+const getJournalEntriesHandler = (journalEntries: JournalEntryDate[]) => {
   const today = new Date();
   const days: JournalEntryDate[] = Array.from({ length: 30 }, (_, i) => ({
     date: addDays(today, -1 * (29 - i)),
     id: -1,
   }));
 
-  try {
-    (await getJournalEntries()).forEach((journal) => {
-      console.log(journal);
-      const index = days.findIndex(
-        (day) =>
-          day.date.getDate() === journal.date.getDate() &&
-          day.date.getMonth() === journal.date.getMonth() &&
-          day.date.getFullYear() === journal.date.getFullYear()
-      );
-      if (index !== -1) {
-        days[index] = journal;
-      }
-    });
-  } catch (error) {
-    alert(
-      `Failed to fetch journal entries: ${
-        error instanceof Error ? error.message : String(error)
-      }`
+  journalEntries.forEach((journal) => {
+    console.log(journal);
+    const index = days.findIndex(
+      (day) =>
+        day.date.getDate() === journal.date.getDate() &&
+        day.date.getMonth() === journal.date.getMonth() &&
+        day.date.getFullYear() === journal.date.getFullYear()
     );
-  }
+    if (index !== -1) {
+      days[index] = journal;
+    }
+  });
 
   return days;
 };
@@ -296,22 +265,30 @@ const HomeScreen = () => {
       id: -1,
     }))
   );
-  const [username, setUsername] = useState("");
+  const auth = useAuth();
 
   useEffect(() => {
     const fetchData = async () => {
-      const result = await getJournalEntriesHandler();
-      const name = await getUsername();
-      setUsername(name);
-      setData(result);
+      getJournalEntries(auth.token)
+        .then((journalEntries) =>
+          setData(getJournalEntriesHandler(journalEntries))
+        )
+        .catch((error) => {
+          console.error("Error fetching data:", error);
+        });
     };
     fetchData();
   }, []);
 
   const onRefresh = useCallback(() => {
     const fetchData = async () => {
-      const result = await getJournalEntriesHandler();
-      setData(result);
+      getJournalEntries(auth.token)
+        .then((journalEntries) =>
+          setData(getJournalEntriesHandler(journalEntries))
+        )
+        .catch((error) => {
+          console.error("Error fetching data:", error);
+        });
     };
     fetchData();
     setRefreshing(true);
@@ -333,7 +310,7 @@ const HomeScreen = () => {
             letterSpacing="tight"
             className="font-medium text-black200 text-[24px] text-center"
           >
-            {`Good Morning, ${username ? username : "User"}`}.
+            {`Good Morning, ${auth.user.name ? auth.user.name : "User"}`}.
           </CustomText>
         </View>
 

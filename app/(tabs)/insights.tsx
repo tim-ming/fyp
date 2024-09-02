@@ -1,30 +1,23 @@
-import React, { useEffect, useMemo, useState } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  Pressable,
-} from "react-native";
-import { Link } from "expo-router";
-import ProgressBar from "@/components/ProgressBar";
-import CustomText from "@/components/CustomText";
 import ChevronLeft from "@/assets/icons/chevron-left.svg";
 import ChevronRight from "@/assets/icons/chevron-right.svg";
+import CustomText from "@/components/CustomText";
+import ProgressBar from "@/components/ProgressBar";
 import TopNav from "@/components/TopNav";
+import { Colors } from "@/constants/Colors";
 import {
-  format,
   addDays,
-  subDays,
-  startOfToday,
-  getDaysInMonth,
-  getDay,
   eachDayOfInterval,
+  endOfMonth,
+  format,
+  getDay,
+  getDaysInMonth,
   isSameDay,
   startOfMonth,
-  endOfMonth,
+  startOfToday,
+  subDays,
 } from "date-fns";
-import { Colors } from "@/constants/Colors";
+import React, { useEffect, useMemo, useState } from "react";
+import { Pressable, ScrollView, View } from "react-native";
 
 const TODAY = startOfToday();
 
@@ -215,9 +208,9 @@ const JourneyScreen = () => {
 
           <View className="bg-white rounded-2xl p-6 shadow-2xl">
             <View className="flex-row justify-between items-center mb-6">
-              <TouchableOpacity onPress={handleLeftChevronClick}>
+              <Pressable onPress={handleLeftChevronClick}>
                 <ChevronLeft width={24} height={24} />
-              </TouchableOpacity>
+              </Pressable>
               <View className="">
                 <CustomText
                   letterSpacing="tight"
@@ -229,9 +222,9 @@ const JourneyScreen = () => {
                   Mood
                 </CustomText>
               </View>
-              <TouchableOpacity onPress={handleRightChevronClick}>
+              <Pressable onPress={handleRightChevronClick}>
                 <ChevronRight width={24} height={24} />
-              </TouchableOpacity>
+              </Pressable>
             </View>
 
             <View className="flex flex-row w-full justify-center items-center">

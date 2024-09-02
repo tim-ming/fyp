@@ -1,14 +1,14 @@
-import React, { useState } from "react";
-import { View, TouchableOpacity, Pressable } from "react-native";
-import { Slider } from "@miblanchard/react-native-slider";
-import CustomText from "@/components/CustomText";
-import { Colors } from "@/constants/Colors";
 import EatIcon from "@/assets/icons/eat.svg";
 import HeartIcon from "@/assets/icons/heart.svg";
 import MoonIcon from "@/assets/icons/moon.svg";
-import { shadows } from "@/constants/styles";
-import { router } from "expo-router";
+import CustomText from "@/components/CustomText";
+import { Colors } from "@/constants/Colors";
 import { getStatus } from "@/constants/globals";
+import { shadows } from "@/constants/styles";
+import { Slider } from "@miblanchard/react-native-slider";
+import { router } from "expo-router";
+import React, { useState } from "react";
+import { Pressable, View } from "react-native";
 
 interface MoodSliderSectionProps {
   label: string;

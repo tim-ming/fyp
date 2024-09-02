@@ -22,6 +22,7 @@ import Check from "@/assets/icons/check.svg";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
+import { postSignup } from "@/api/api";
 
 const Checkbox = () => {
   const [checked, setChecked] = useState(false);
@@ -47,42 +48,20 @@ const Checkbox = () => {
   );
 };
 
-const signUp = async (
-  email: string,
-  password: string,
-  name: string
-): Promise<void> => {
-  const BACKEND_URL = "http://localhost:8000";
-  const response = await fetch(`${BACKEND_URL}/signup`, {
-    method: "POST",
-    body: JSON.stringify({ email, password, name }),
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(`${response.status} ${response.statusText}`);
-  }
-};
-
 const signUpHandler = async (email: string, password: string, name: string) => {
   if (!email || !password || !name) {
     alert("Please enter all fields");
     return;
   }
 
-  try {
-    await signUp(email, password, name);
-    alert("Sign up successful");
-    router.push("/signin");
-  } catch (error) {
-    alert(
-      `Sign up failed: ${
-        error instanceof Error ? error.message : String(error)
-      }`
-    );
-  }
+  postSignup(email, password, name)
+    .then((response) => {
+      console.log(response);
+      router.push("/signin");
+    })
+    .catch((error) => {
+      console.error(error);
+    });
 };
 
 const SignUpScreen = () => {
@@ -110,7 +89,10 @@ const SignUpScreen = () => {
           </CustomText>
 
           <View className="flex flex-col gap-3">
-            <Pressable onPress={() => emailInputRef.current?.focus()}>
+            <Pressable
+              onPress={() => emailInputRef.current?.focus()}
+              tabIndex={-1}
+            >
               <View className="relative">
                 <TextInput
                   style={shadows.card}
@@ -130,7 +112,10 @@ const SignUpScreen = () => {
               </View>
             </Pressable>
 
-            <Pressable onPress={() => passwordInputRef.current?.focus()}>
+            <Pressable
+              onPress={() => passwordInputRef.current?.focus()}
+              tabIndex={-1}
+            >
               <View className="relative">
                 <TextInput
                   style={shadows.card}

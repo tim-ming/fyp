@@ -10,6 +10,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as SecureStore from "expo-secure-store";
 import { Colors } from "@/constants/Colors";
 import { getDay, getMonth } from "date-fns";
+import { BACKEND_URL, getToken } from "@/constants/globals";
 
 type JournalEntry = {
   date: string;
@@ -19,11 +20,7 @@ type JournalEntry = {
 };
 
 const getJournalEntry = async (state: JournalEntry): Promise<JournalEntry> => {
-  const BACKEND_URL = "http://localhost:8000";
-  const token =
-    Platform.OS === "web"
-      ? await AsyncStorage.getItem("access_token")
-      : await SecureStore.getItemAsync("access_token");
+  const token = getToken();
   if (!token) {
     throw new Error("No token found");
   }

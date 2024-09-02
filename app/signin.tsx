@@ -22,6 +22,9 @@ import Check from "@/assets/icons/check.svg";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { BACKEND_URL, getToken, setToken } from "@/constants/globals";
+import { getUser, postSignin } from "@/api/api";
+import { useAuth } from "@/state/state";
 
 const Checkbox = () => {
   const [checked, setChecked] = useState(false);
@@ -47,101 +50,42 @@ const Checkbox = () => {
   );
 };
 
-const signIn = async (email: string, password: string): Promise<void> => {
-  const BACKEND_URL = "http://localhost:8000";
-  const form = new FormData();
-  form.append("username", email);
-  form.append("password", password);
-
-  const response = await fetch(`${BACKEND_URL}/signin`, {
-    method: "POST",
-    body: form,
-  });
-
-  if (!response.ok) {
-    throw new Error(response.statusText);
-  }
-
-  const data: { access_token: string; token_type: string; expires_in: number } =
-    await response.json();
-
-  const expiresAt = new Date(
-    Date.now() + data.expires_in * 60 * 1000
-  ).toISOString();
-  if (Platform.OS === "web") {
-    await AsyncStorage.setItem("access_token", data.access_token);
-    await AsyncStorage.setItem("expires_at", expiresAt);
-  } else {
-    // mobile
-    await SecureStore.setItemAsync("access_token", data.access_token);
-    await SecureStore.setItemAsync("expires_at", expiresAt);
-  }
-};
-
-const getProfile = async (): Promise<{
-  has_onboarded: boolean;
-  is_therapist: boolean;
-}> => {
-  const BACKEND_URL = "http://localhost:8000";
-  const token =
-    Platform.OS === "web"
-      ? await AsyncStorage.getItem("access_token")
-      : await SecureStore.getItemAsync("access_token");
-  if (!token) {
-    throw new Error("No token found");
-  }
-  const response = await fetch(`${BACKEND_URL}/users/me`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(
-      `Failed to fetch profile: ${response.status} ${response.statusText}`
-    );
-  }
-
-  const profile: { has_onboarded: boolean; is_therapist: boolean } =
-    await response.json();
-  return profile;
-};
-
-const signInHandler = async (email: string, password: string) => {
-  if (!email || !password) {
-    alert("Please enter both email and password");
-    return;
-  }
-
-  try {
-    await signIn(email, password);
-    const profile = await getProfile();
-    const onboarded = profile.has_onboarded;
-    const isTherapist = profile.is_therapist;
-    if (isTherapist) {
-      router.push("/therapist/dashboard");
-    } else {
-      if (onboarded) {
-        router.push("/(tabs)");
-      } else {
-        router.push("/understand");
-      }
-    }
-  } catch (error) {
-    alert(
-      `Sign in failed: ${
-        error instanceof Error ? error.message : String(error)
-      }`
-    );
-  }
-};
-
 const SignInScreen = () => {
   const emailInputRef = useRef<TextInput>(null);
   const passwordInputRef = useRef<TextInput>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const auth = useAuth();
 
+  const signInHandler = async (email: string, password: string) => {
+    if (!email || !password) {
+      alert("Please enter both email and password");
+      return;
+    }
+
+    try {
+      const token = (await postSignin(email, password)).access_token;
+      auth.setToken(token);
+
+      const user = await getUser(token);
+      auth.setUser(user);
+
+      const onboarded = user.has_onboarded;
+      const isTherapist = user.is_therapist;
+
+      if (isTherapist) {
+        router.push("/therapist/dashboard");
+      } else {
+        if (onboarded) {
+          router.push("/(tabs)");
+        } else {
+          router.push("/understand");
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View className="flex-1 p-4 pt-20 bg-gray-100">
@@ -162,7 +106,10 @@ const SignInScreen = () => {
           </CustomText>
 
           <View className="flex flex-col gap-3">
-            <Pressable onPress={() => emailInputRef.current?.focus()}>
+            <Pressable
+              onPress={() => emailInputRef.current?.focus()}
+              tabIndex={-1}
+            >
               <View className="relative">
                 <TextInput
                   style={shadows.card}
@@ -182,7 +129,10 @@ const SignInScreen = () => {
               </View>
             </Pressable>
 
-            <Pressable onPress={() => passwordInputRef.current?.focus()}>
+            <Pressable
+              onPress={() => passwordInputRef.current?.focus()}
+              tabIndex={-1}
+            >
               <View className="relative">
                 <TextInput
                   style={shadows.card}
@@ -210,13 +160,13 @@ const SignInScreen = () => {
           </CustomText>
         </Pressable>
 
-        <Pressable className="h-14 bg-blue200 items-center justify-center rounded-full">
-          <CustomText
-            className="text-white text-base font-medium"
-            onPress={() => {
-              signInHandler(email, password);
-            }}
-          >
+        <Pressable
+          onPress={() => {
+            signInHandler(email, password);
+          }}
+          className="h-14 bg-blue200 items-center justify-center rounded-full"
+        >
+          <CustomText className="text-white text-base font-medium">
             Sign in
           </CustomText>
         </Pressable>

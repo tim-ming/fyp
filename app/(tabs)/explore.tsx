@@ -1,16 +1,9 @@
-import React from "react";
-import {
-  View,
-  TextInput,
-  ScrollView,
-  TouchableOpacity,
-  Pressable,
-} from "react-native";
-import CustomText from "@/components/CustomText";
-import { Href, Link } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
-import TopNav from "@/components/TopNav";
 import Card from "@/components/Card";
+import CustomText from "@/components/CustomText";
+import TopNav from "@/components/TopNav";
+import React from "react";
+import { ScrollView, TextInput, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const ExploreScreen: React.FC = () => {
   return (

@@ -1,9 +1,9 @@
-import User from "@/assets/icons/user.svg";
 import DoubleHeart from "@/assets/icons/doubleheart.svg";
-import React from "react";
-import { View, TouchableOpacity, Pressable } from "react-native";
+import User from "@/assets/icons/user.svg";
 import { screenStyles } from "@/constants/styles";
 import { Link } from "expo-router";
+import React from "react";
+import { Pressable, View } from "react-native";
 
 const ICON_SIZE = 28;
 

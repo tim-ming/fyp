@@ -2,16 +2,14 @@ import { Tabs, useSegments } from "expo-router";
 import React from "react";
 import { SafeAreaView, StyleSheet, View } from "react-native";
 
-import { useColorScheme } from "@/hooks/useColorScheme";
-import HomeIcon from "@/assets/icons/home.svg";
-import ExploreIcon from "@/assets/icons/search.svg";
-import ReadIcon from "@/assets/icons/book-open.svg";
 import VaultIcon from "@/assets/icons/archive.svg";
 import InsightsIcon from "@/assets/icons/chart.svg";
-import PlusIcon from "@/assets/icons/plus.svg";
-import { usePathname } from "expo-router";
+import HomeIcon from "@/assets/icons/home.svg";
+import ExploreIcon from "@/assets/icons/search.svg";
 import CustomText from "@/components/CustomText";
 import { shadows } from "@/constants/styles";
+import { useColorScheme } from "@/hooks/useColorScheme";
+import { usePathname } from "expo-router";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();

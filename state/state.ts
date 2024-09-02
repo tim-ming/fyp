@@ -1,9 +1,27 @@
+import { User } from "@/types/models";
 import { create } from "zustand";
 
 type Store = {
-  token: string;
+  token: string | null;
+  user: User;
 };
 
-const useAuth = create<Store>()((set) => ({
-  token: "",
+type Action = {
+  setToken: (token: string) => void;
+  setUser: (user: User) => void;
+};
+
+export const useAuth = create<Store & Action>()((set) => ({
+  token: null,
+  user: {
+    id: 0,
+    email: "",
+    name: "",
+    hashedPassword: "",
+    isActive: false,
+    hasOnboarded: false,
+    isTherapist: false,
+  },
+  setToken: (token) => set({ token }),
+  setUser: (user) => set({ user }),
 }));

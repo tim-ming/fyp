@@ -6,6 +6,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { shadows } from "@/constants/styles";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as SecureStore from "expo-secure-store";
+import { BACKEND_URL, getToken } from "@/constants/globals";
 
 const allPatientsData = [
   { id: "00001", name: "Kok Tim Ming", risk: "Severe" },
@@ -37,11 +38,7 @@ const PatientsList = () => {
   const [showLess, setShowLess] = useState(false);
 
   const getUsername = async (): Promise<string> => {
-    const BACKEND_URL = "http://localhost:8000";
-    const token =
-      Platform.OS === "web"
-        ? await AsyncStorage.getItem("access_token")
-        : await SecureStore.getItemAsync("access_token");
+    const token = getToken();
     if (!token) {
       throw new Error("No token found");
     }

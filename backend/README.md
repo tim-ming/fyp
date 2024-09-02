@@ -9,8 +9,8 @@ DB_NAME = 'mcs01'
 TOKEN_SECRET_KEY = 'mcs01-is-awesome'
 ```
 
-3. `run docker-composeup -d`
-4. go back to `backend/`
-5. run `poetry install`
-6. `poetry shell`
-7. `python3 run.py`
+1. `docker-composeup -d`
+2. go back to `backend/`
+3. `poetry install`
+4. `poetry shell`
+5. `python3 run.py`

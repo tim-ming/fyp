@@ -1,12 +1,19 @@
+import React, { useState, useRef } from "react";
+import { View, FlatList, Pressable } from "react-native";
+import { useRouter } from "expo-router";
 import CustomText from "@/components/CustomText";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { shadows } from "@/constants/styles";
 import { useAuth } from "@/state/state";
-import { useRouter } from "expo-router";
-import React, { useState } from "react";
-import { FlatList, Pressable, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
-const allPatientsData = [
+type Patient = {
+  id: string;
+  name: string;
+  risk: string;
+};
+
+const allPatientsData: Patient[] = [
   { id: "00001", name: "Kok Tim Ming", risk: "Severe" },
   { id: "00002", name: "Thian Ren Ning", risk: "Moderately Severe" },
   { id: "00003", name: "Chai Wai Jin", risk: "Moderate" },
@@ -26,23 +33,91 @@ const allPatientsData = [
 
 const PAGE_SIZE = 6;
 
-const PatientsList = () => {
-  const router = useRouter();
+const severityOrder = [
+  "Severe",
+  "Moderately Severe",
+  "Moderate",
+  "Mild",
+  "None",
+  "Unknown",
+];
 
+const PatientsList: React.FC = () => {
+  const router = useRouter();
   const auth = useAuth();
 
-  const [visiblePatients, setVisiblePatients] = useState(
-    allPatientsData.slice(0, PAGE_SIZE)
-  );
   const [showLess, setShowLess] = useState(false);
+  const [sortConfig, setSortConfig] = useState<{
+    key: keyof Patient;
+    direction: "ascending" | "descending" | null;
+  }>({
+    key: "risk",
+    direction: "ascending",
+  });
+
+  const sortedDataCache = useRef<{
+    [key: string]: Patient[];
+  }>({});
+
+  const getSortedData = (
+    key: keyof Patient,
+    direction: "ascending" | "descending"
+  ) => {
+    const cacheKey = `${key}-${direction}`;
+    if (sortedDataCache.current[cacheKey]) {
+      return sortedDataCache.current[cacheKey];
+    }
+
+    const sortedData = [...allPatientsData].sort((a, b) => {
+      if (key === "risk") {
+        const aIndex = severityOrder.indexOf(a.risk);
+        const bIndex = severityOrder.indexOf(b.risk);
+        return direction === "ascending" ? aIndex - bIndex : bIndex - aIndex;
+      } else {
+        if (a[key] < b[key]) {
+          return direction === "ascending" ? -1 : 1;
+        }
+        if (a[key] > b[key]) {
+          return direction === "ascending" ? 1 : -1;
+        }
+        return 0;
+      }
+    });
+
+    sortedDataCache.current[cacheKey] = sortedData;
+    return sortedData;
+  };
+
+  const [visiblePatients, setVisiblePatients] = useState<Patient[]>(
+    getSortedData("risk", "ascending").slice(0, PAGE_SIZE)
+  );
+
+  const handleSort = (
+    key: keyof Patient,
+    direction: "ascending" | "descending"
+  ) => {
+    if (sortConfig.key === key && sortConfig.direction === direction) {
+      return;
+    }
+
+    setSortConfig({ key, direction });
+
+    const sortedData = getSortedData(key, direction);
+    setVisiblePatients(sortedData.slice(0, visiblePatients.length));
+  };
 
   const togglePatientsVisibility = () => {
+    const currentLength = visiblePatients.length;
+    const sortedData = getSortedData(
+      sortConfig.key,
+      sortConfig.direction || "ascending"
+    );
+
     if (showLess) {
-      setVisiblePatients(allPatientsData.slice(0, PAGE_SIZE));
+      setVisiblePatients(sortedData.slice(0, PAGE_SIZE));
       setShowLess(false);
     } else {
-      const currentLength = visiblePatients.length;
-      const nextPatients = allPatientsData.slice(
+      const nextPatients = sortedData.slice(
         currentLength,
         currentLength + PAGE_SIZE
       );
@@ -54,13 +129,7 @@ const PatientsList = () => {
     }
   };
 
-  const renderItem = ({
-    item,
-    index,
-  }: {
-    item: (typeof allPatientsData)[0];
-    index: number;
-  }) => (
+  const renderItem = ({ item, index }: { item: Patient; index: number }) => (
     <Pressable
       className={`flex-row justify-between p-4 ${
         index % 2 === 0 ? "bg-gray0" : "bg-white"
@@ -104,7 +173,7 @@ const PatientsList = () => {
             style={shadows.card}
           >
             <CustomText className="text-[26px] font-semibold text-gray-800 mb-1">
-              21
+              {allPatientsData.length}
             </CustomText>
             <CustomText className="text-[14px] text-black">Patients</CustomText>
           </View>
@@ -113,7 +182,7 @@ const PatientsList = () => {
             style={shadows.card}
           >
             <CustomText className="text-[26px] font-semibold text-red-600 mb-1">
-              2
+              {allPatientsData.filter((p) => p.risk === "Severe").length}
             </CustomText>
             <CustomText className="text-[14px] text-black">
               Patients requiring immediate attention
@@ -127,10 +196,70 @@ const PatientsList = () => {
       </CustomText>
 
       <View className="flex-row justify-between p-4 bg-white rounded-t-xl mx-[-16px]">
-        <CustomText className="flex-1 text-black font-medium">Name</CustomText>
-        <CustomText className="flex-1 text-black font-medium">
-          Depression Risk
-        </CustomText>
+        <Pressable
+          onPress={() => handleSort("name", "ascending")}
+          className="flex-1 flex-row items-center"
+        >
+          <CustomText className="text-black font-medium">Name</CustomText>
+          <View className="ml-2">
+            <Ionicons
+              name="caret-up"
+              size={16}
+              color={
+                sortConfig.key === "name" &&
+                sortConfig.direction === "ascending"
+                  ? "#535353"
+                  : "#8B8B8B"
+              }
+              onPress={() => handleSort("name", "ascending")}
+              style={{ marginBottom: -6 }}
+            />
+            <Ionicons
+              name="caret-down"
+              size={16}
+              color={
+                sortConfig.key === "name" &&
+                sortConfig.direction === "descending"
+                  ? "#535353"
+                  : "#8B8B8B"
+              }
+              onPress={() => handleSort("name", "descending")}
+            />
+          </View>
+        </Pressable>
+        <Pressable
+          onPress={() => handleSort("risk", "ascending")}
+          className="flex-1 flex-row items-center"
+        >
+          <CustomText className="text-black font-medium">
+            Depression Risk
+          </CustomText>
+          <View className="ml-2">
+            <Ionicons
+              name="caret-up"
+              size={16}
+              color={
+                sortConfig.key === "risk" &&
+                sortConfig.direction === "ascending"
+                  ? "#535353"
+                  : "#8B8B8B"
+              }
+              onPress={() => handleSort("risk", "ascending")}
+              style={{ marginBottom: -6 }}
+            />
+            <Ionicons
+              name="caret-down"
+              size={16}
+              color={
+                sortConfig.key === "risk" &&
+                sortConfig.direction === "descending"
+                  ? "#535353"
+                  : "#8B8B8B"
+              }
+              onPress={() => handleSort("risk", "descending")}
+            />
+          </View>
+        </Pressable>
       </View>
 
       <FlatList

@@ -120,6 +120,10 @@ export default function RootLayout() {
             name="journal/completion"
             options={{ headerShown: false }}
           />
+          <Stack.Screen
+            name="therapist/dashboard"
+            options={{ headerShown: false }}
+          />
           <Stack.Screen name="moodtracking" options={{ headerShown: false }} />
           <Stack.Screen
             name="read/[articleId]/chapter/[chapterId]/page/[pageId]"

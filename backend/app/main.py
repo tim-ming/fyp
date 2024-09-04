@@ -561,3 +561,19 @@ def get_patients(
         )
 
     return commands.get_patients_by_therapist(db, current_user)
+
+@app.patch("/severity")
+def update_severity(
+    user_id: int,
+    severity: str,
+    db: Session = Depends(get_db),
+):
+    """
+    Update severity for a user
+    :param user_id (int): User ID
+    :param severity (str): Severity
+    :param db (Session): Database session
+    :return (dict): Success message
+    """
+    commands.update_severity(db, user_id, severity)
+    return {"detail": "Severity updated"}

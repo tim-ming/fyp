@@ -34,6 +34,13 @@ def create_user(db: Session, user: schemas.UserCreate) -> models.User:
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
+
+    if not user.is_therapist:
+        db_patient_data = models.PatientData(user_id=db_user.id)
+        db.add(db_patient_data)
+        db.commit()
+        db.refresh(db_patient_data)
+
     return db_user
 
 
@@ -62,10 +69,14 @@ def get_mood_entries_by_user(
     :param limit (int): Number of entries to return
     :return (List[models.MoodEntry]): Mood entries
     """
+    db_patient_data = db.query(models.PatientData).filter(models.PatientData.user_id == user.id).first()
+    if db_patient_data is None:
+        return []
+    
     return (
         db.query(models.MoodEntry)
-        .filter(models.MoodEntry.user_id == user.id)
-        .order_by(models.JournalEntry.date.desc())
+        .filter(models.MoodEntry.patient_data_id == db_patient_data.id)
+        .order_by(models.MoodEntry.date.desc())
         .offset(skip)
         .limit(limit)
         .all()
@@ -82,10 +93,13 @@ def upsert_mood_entry(
     :param user (schemas.User): User
     :return (models.MoodEntry): New mood entry
     """
+    db_patient_data = db.query(models.PatientData).filter(models.PatientData.user_id == user.id).first()
+    if db_patient_data is None:
+        raise Exception("Patient data not found")
 
     db_mood_entry = (
         db.query(models.MoodEntry)
-        .filter(models.MoodEntry.user_id == user.id)
+        .filter(models.MoodEntry.patient_data_id == db_patient_data.id)
         .filter(models.MoodEntry.date == mood_entry.date)
         .first()
     )
@@ -96,7 +110,9 @@ def upsert_mood_entry(
     else:
         # Create new entry
         db_mood_entry = models.MoodEntry(
-            mood=mood_entry.mood, user_id=user.id, date=mood_entry.date
+            mood=mood_entry.mood, 
+            date=mood_entry.date, 
+            patient_data_id=db_patient_data.id
         )
         db.add(db_mood_entry)
 
@@ -116,9 +132,13 @@ def get_journal_entries_by_user(
     :param limit (int): Number of entries to return
     :return (List[models.JournalEntry]): Journal entries
     """
+    db_patient_data = db.query(models.PatientData).filter(models.PatientData.user_id == user.id).first()
+    if db_patient_data is None:
+        return []
+    
     return (
         db.query(models.JournalEntry)
-        .filter(models.JournalEntry.user_id == user.id)
+        .filter(models.JournalEntry.patient_data_id == db_patient_data.id)
         .order_by(models.JournalEntry.date.desc())
         .offset(skip)
         .limit(limit)
@@ -135,10 +155,13 @@ def upsert_journal_entry(
     :param user (schemas.User): User
     :return (models.JournalEntry): New journal entry
     """
+    db_patient_data = db.query(models.PatientData).filter(models.PatientData.user_id == user.id).first()
+    if db_patient_data is None:
+        raise Exception("Patient data not found")
 
     db_journal_entry = (
         db.query(models.JournalEntry)
-        .filter(models.JournalEntry.user_id == user.id)
+        .filter(models.JournalEntry.patient_data_id == db_patient_data.id)
         .filter(models.JournalEntry.date == journal_entry.date)
         .first()
     )
@@ -154,8 +177,8 @@ def upsert_journal_entry(
             title=journal_entry.title,
             body=journal_entry.body,
             image=journal_entry.image,
-            user_id=user.id,
             date=journal_entry.date,
+            patient_data_id=db_patient_data.id
         )
         db.add(db_journal_entry)
 
@@ -171,8 +194,12 @@ def count_mood_entries_by_user(db: Session, user: schemas.User) -> int:
     :param user (schemas.User): User
     :return (int): Number of mood entries
     """
+    db_patient_data = db.query(models.PatientData).filter(models.PatientData.user_id == user.id).first()
+    if db_patient_data is None:
+        return 0
+
     return (
-        db.query(models.MoodEntry).filter(models.MoodEntry.user_id == user.id).count()
+        db.query(models.MoodEntry).filter(models.MoodEntry.patient_data_id == db_patient_data.id).count()
     )
 
 
@@ -183,9 +210,13 @@ def count_journal_entries_by_user(db: Session, user: schemas.User) -> int:
     :param user (schemas.User): User
     :return (int): Number of journal entries
     """
+    db_patient_data = db.query(models.PatientData).filter(models.PatientData.user_id == user.id).first()
+    if db_patient_data is None:
+        return 0
+
     return (
         db.query(models.JournalEntry)
-        .filter(models.JournalEntry.user_id == user.id)
+        .filter(models.JournalEntry.patient_data_id == db_patient_data.id)
         .count()
     )
 
@@ -196,9 +227,13 @@ def count_guided_journal_entries_by_user(db: Session, user: schemas.User) -> int
     :param user (schemas.User): User
     :return (int): Number of guided journal entries
     """
+    db_patient_data = db.query(models.PatientData).filter(models.PatientData.user_id == user.id).first()
+    if db_patient_data is None:
+        return 0
+
     return (
         db.query(models.GuidedJournalEntry)
-        .filter(models.GuidedJournalEntry.user_id == user.id)
+        .filter(models.GuidedJournalEntry.patient_data_id == db_patient_data.id)
         .count()
     )
 
@@ -212,9 +247,13 @@ def get_mood_entry_by_id(
     :param user (schemas.User): User
     :return (Optional[models.MoodEntry]): Mood entry if found, None if not found
     """
+    db_patient_data = db.query(models.PatientData).filter(models.PatientData.user_id == user.id).first()
+    if db_patient_data is None:
+        return None
+
     return (
         db.query(models.MoodEntry)
-        .filter(models.MoodEntry.id == mood_id, models.MoodEntry.user_id == user.id)
+        .filter(models.MoodEntry.id == mood_id, models.MoodEntry.patient_data_id == db_patient_data.id)
         .first()
     )
 
@@ -229,10 +268,14 @@ def get_journal_entry_by_id(
     :param user (schemas.User): User
     :return (Optional[models.JournalEntry]): Journal entry if found, None if not found
     """
+    db_patient_data = db.query(models.PatientData).filter(models.PatientData.user_id == user.id).first()
+    if db_patient_data is None:
+        return None
+
     return (
         db.query(models.JournalEntry)
         .filter(
-            models.JournalEntry.id == journal_id, models.JournalEntry.user_id == user.id
+            models.JournalEntry.id == journal_id, models.JournalEntry.patient_data_id == db_patient_data.id
         )
         .first()
     )
@@ -249,9 +292,13 @@ def get_guided_journal_entries_by_user(
     :param limit (int): Number of entries to return
     :return (List[models.GuidedJournalEntry]): Guided journal entries
     """
+    db_patient_data = db.query(models.PatientData).filter(models.PatientData.user_id == user.id).first()
+    if db_patient_data is None:
+        return []
+    
     return (
         db.query(models.GuidedJournalEntry)
-        .filter(models.GuidedJournalEntry.user_id == user.id)
+        .filter(models.GuidedJournalEntry.patient_data_id == db_patient_data.id)
         .order_by(models.GuidedJournalEntry.date.desc())
         .offset(skip)
         .limit(limit)
@@ -268,10 +315,13 @@ def upsert_guided_journal_entry(
     :param user (schemas.User): User
     :return (models.GuidedJournalEntry): New guided journal entry
     """
+    db_patient_data = db.query(models.PatientData).filter(models.PatientData.user_id == user.id).first()
+    if db_patient_data is None:
+        raise Exception("Patient data not found")
 
     db_guided_journal_entry = (
         db.query(models.GuidedJournalEntry)
-        .filter(models.GuidedJournalEntry.user_id == user.id)
+        .filter(models.GuidedJournalEntry.patient_data_id == db_patient_data.id)
         .filter(models.GuidedJournalEntry.date == guided_journal_entry.date)
         .first()
     )
@@ -283,8 +333,8 @@ def upsert_guided_journal_entry(
         # Create new entry
         db_guided_journal_entry = models.GuidedJournalEntry(
             body=guided_journal_entry.body,
-            user_id=user.id,
             date=guided_journal_entry.date,
+            patient_data_id=db_patient_data.id
         )
         db.add(db_guided_journal_entry)
 
@@ -302,10 +352,14 @@ def get_guided_journal_entry_by_id(
     :param user (schemas.User): User
     :return (Optional[models.GuidedJournalEntry]): Guided journal entry if found, None if not found
     """
+    db_patient_data = db.query(models.PatientData).filter(models.PatientData.user_id == user.id).first()
+    if db_patient_data is None:
+        return None
+
     return (
         db.query(models.GuidedJournalEntry)
         .filter(
-            models.GuidedJournalEntry.id == guided_journal_id, models.GuidedJournalEntry.user_id == user.id
+            models.GuidedJournalEntry.id == guided_journal_id, models.GuidedJournalEntry.patient_data_id == db_patient_data.id
         )
         .first()
     )
@@ -364,9 +418,13 @@ def get_journal_entry_by_date(
     :param user (schemas.User): User
     :return (Optional[models.JournalEntry]): Journal entry if found, None if not found
     """
+    db_patient_data = db.query(models.PatientData).filter(models.PatientData.user_id == user.id).first()
+    if db_patient_data is None:
+        return None
+
     return (
         db.query(models.JournalEntry)
-        .filter(models.JournalEntry.user_id == user.id, models.JournalEntry.date == date)
+        .filter(models.JournalEntry.patient_data_id == db_patient_data.id, models.JournalEntry.date == date)
         .first()
     )
 
@@ -380,9 +438,13 @@ def get_guided_journal_entry_by_date(
     :param user (schemas.User): User
     :return (Optional[models.GuidedJournalEntry]): Guided journal entry if found, None if not found
     """
+    db_patient_data = db.query(models.PatientData).filter(models.PatientData.user_id == user.id).first()
+    if db_patient_data is None:
+        return None
+
     return (
         db.query(models.GuidedJournalEntry)
-        .filter(models.GuidedJournalEntry.user_id == user.id, models.GuidedJournalEntry.date == date)
+        .filter(models.GuidedJournalEntry.patient_data_id == db_patient_data.id, models.GuidedJournalEntry.date == date)
         .first()
     )
 
@@ -396,9 +458,13 @@ def get_mood_entry_by_date(
     :param user (schemas.User): User
     :return (Optional[models.MoodEntry]): Mood entry if found, None if not found
     """
+    db_patient_data = db.query(models.PatientData).filter(models.PatientData.user_id == user.id).first()
+    if db_patient_data is None:
+        return None
+
     return (
         db.query(models.MoodEntry)
-        .filter(models.MoodEntry.user_id == user.id, models.MoodEntry.date == date)
+        .filter(models.MoodEntry.patient_data_id == db_patient_data.id, models.MoodEntry.date == date)
         .first()
     )
 
@@ -452,3 +518,20 @@ def get_patients_by_therapist(
     :return (List[models.User]): Patients
     """
     return db.query(models.User).filter(models.User.therapist_id == therapist.id).all()
+
+def update_severity(
+    db: Session, user_id: int, severity: str) -> models.PatientData.severity:
+    """
+    Update severity for a patient
+    :param db (Session): Database session
+    :param user_id (int): User ID
+    :param severity (str): Severity
+    :return (models.PatientData.severity): Updated severity
+    """
+    db_patient_data = db.query(models.PatientData).filter(models.PatientData.user_id == user_id).first()
+    if db_patient_data is None:
+        raise Exception("Patient data not found")
+    db_patient_data.severity = severity
+    db.commit()
+    db.refresh(db_patient_data)
+    return db_patient_data.severity

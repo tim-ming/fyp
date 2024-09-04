@@ -1,6 +1,12 @@
 import { BACKEND_URL } from "@/constants/globals";
 import { useAuth } from "@/state/state";
-import { JournalEntry, JournalEntryCreate, Token, User } from "@/types/models";
+import {
+  JournalEntry,
+  JournalEntryCreate,
+  Token,
+  User,
+  UserWithoutSensitiveData,
+} from "@/types/models";
 
 const handleNotOk = async (response: Response) => {
   if (!response.ok) {
@@ -128,4 +134,19 @@ export const postJournalEntry = async (
 
   const data: JournalEntry = await response.json();
   return data;
+};
+
+export const getPatients = async (): Promise<UserWithoutSensitiveData[]> => {
+  const { token } = useAuth.getState();
+
+  const response = await fetch(`${BACKEND_URL}/patients`, {
+    headers: {
+      Authorization: `Bearer ${token?.access_token}`,
+    },
+  });
+
+  await handleNotOk(response);
+
+  const patients: User[] = await response.json();
+  return patients;
 };

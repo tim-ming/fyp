@@ -29,11 +29,25 @@ class User(Base):
     is_therapist = Column(Boolean, default=False)
     therapist_id = Column(Integer, ForeignKey("users.id"), nullable=True)
 
-    therapist = relationship("User", remote_side=[id], backref="patients") 
-    mood_entries = relationship("MoodEntry", back_populates="user")
-    journal_entries = relationship("JournalEntry", back_populates="user")
+    therapist = relationship("User", remote_side=[id], backref="patients")
+    patient_data = relationship("PatientData", back_populates="user", uselist=False)
     social_accounts = relationship("SocialAccount", back_populates="user")
-    guided_journal_entries = relationship("GuidedJournalEntry", back_populates="user")
+
+class PatientData(Base):
+    """
+    Patient Data Model
+    """
+
+    __tablename__ = "patient_data"
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), index=True)
+    severity = Column(String, default="Unknown")
+    mood_entries = relationship("MoodEntry", back_populates="patient_data")
+    journal_entries = relationship("JournalEntry", back_populates="patient_data")
+    guided_journal_entries = relationship("GuidedJournalEntry", back_populates="patient_data")
+
+    user = relationship("User", back_populates="patient_data")
 
 class SocialAccount(Base):
     """
@@ -63,9 +77,9 @@ class MoodEntry(Base):
     id = Column(Integer, primary_key=True)
     date = Column(Date, index=True)
     mood = Column(SmallInteger)
-    user_id = Column(Integer, ForeignKey("users.id"), index=True)
+    patient_data_id = Column(Integer, ForeignKey("patient_data.id"), index=True)
 
-    user = relationship("User", back_populates="mood_entries")
+    patient_data = relationship("PatientData", back_populates="mood_entries")
 
     __table_args__ = (
         Index("ix_mood_entries_date_desc", date.desc()),
@@ -84,9 +98,9 @@ class JournalEntry(Base):
     title = Column(String)
     body = Column(String)
     image = Column(String, nullable=True)
-    user_id = Column(Integer, ForeignKey("users.id"), index=True)
+    patient_data_id = Column(Integer, ForeignKey("patient_data.id"), index=True)
 
-    user = relationship("User", back_populates="journal_entries")
+    patient_data = relationship("PatientData", back_populates="journal_entries")
 
     __table_args__ = (
         Index("ix_journal_entries_date_desc", date.desc()),
@@ -102,9 +116,9 @@ class GuidedJournalEntry(Base):
     id = Column(Integer, primary_key=True)
     date = Column(Date, index=True)
     body = Column(String)
-    user_id = Column(Integer, ForeignKey("users.id"), index=True)
+    patient_data_id = Column(Integer, ForeignKey("patient_data.id"), index=True)
 
-    user = relationship("User", back_populates="guided_journal_entries")
+    patient_data = relationship("PatientData", back_populates="guided_journal_entries")
 
     __table_args__ = (
         Index("ix_guided_journal_entries_date_desc", date.desc()),

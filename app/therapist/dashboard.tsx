@@ -1,35 +1,18 @@
-import React, { useState, useRef } from "react";
-import { View, FlatList, Pressable } from "react-native";
+import React, { useState, useEffect, useRef } from "react";
+import { View, FlatList, Pressable, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
 import CustomText from "@/components/CustomText";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { shadows } from "@/constants/styles";
-import { useAuth } from "@/state/state";
+import { useAuth, useHydration } from "@/state/state";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { getPatients } from "@/api/api";
 
-type Patient = {
-  id: string;
+interface Patient {
+  id: number;
   name: string;
   risk: string;
-};
-
-const allPatientsData: Patient[] = [
-  { id: "00001", name: "Kok Tim Ming", risk: "Severe" },
-  { id: "00002", name: "Thian Ren Ning", risk: "Moderately Severe" },
-  { id: "00003", name: "Chai Wai Jin", risk: "Moderate" },
-  { id: "00004", name: "Lim Yi Xuan", risk: "Mild" },
-  { id: "00005", name: "Takumi Kotobuki", risk: "None" },
-  { id: "00006", name: "Balqis", risk: "Unknown" },
-  { id: "00007", name: "Nicole", risk: "Severe" },
-  { id: "00008", name: "Adam", risk: "Moderately Severe" },
-  { id: "00009", name: "Alan", risk: "Moderate" },
-  { id: "00010", name: "Mike", risk: "Mild" },
-  { id: "00011", name: "Patricia", risk: "Unknown" },
-  { id: "00012", name: "Catriona", risk: "Severe" },
-  { id: "00013", name: "Jeffrey", risk: "Moderately Severe" },
-  { id: "00014", name: "Tony", risk: "Moderate" },
-  { id: "00015", name: "Timothy", risk: "Mild" },
-];
+}
 
 const PAGE_SIZE = 6;
 
@@ -46,6 +29,10 @@ const PatientsList: React.FC = () => {
   const router = useRouter();
   const auth = useAuth();
 
+  const [allPatientsData, setAllPatientsData] = useState<Patient[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const [showLess, setShowLess] = useState(false);
   const [sortConfig, setSortConfig] = useState<{
     key: keyof Patient;
@@ -58,6 +45,31 @@ const PatientsList: React.FC = () => {
   const sortedDataCache = useRef<{
     [key: string]: Patient[];
   }>({});
+
+  const isHydrated = useHydration();
+
+  useEffect(() => {
+    if (!isHydrated) {
+      return;
+    }
+    const fetchPatients = async () => {
+      try {
+        const patients = await getPatients();
+        const filteredPatients = patients.map((patient) => ({
+          id: patient.id,
+          name: patient.name,
+          risk: patient.patient_data?.severity || "Unknown",
+        }));
+        setAllPatientsData(filteredPatients);
+      } catch (err) {
+        setError("Failed to fetch patients");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPatients();
+  }, [isHydrated]);
 
   const getSortedData = (
     key: keyof Patient,
@@ -88,9 +100,15 @@ const PatientsList: React.FC = () => {
     return sortedData;
   };
 
-  const [visiblePatients, setVisiblePatients] = useState<Patient[]>(
-    getSortedData("risk", "ascending").slice(0, PAGE_SIZE)
-  );
+  const [visiblePatients, setVisiblePatients] = useState<Patient[]>([]);
+
+  useEffect(() => {
+    if (allPatientsData.length > 0) {
+      setVisiblePatients(
+        getSortedData("risk", "ascending").slice(0, PAGE_SIZE)
+      );
+    }
+  }, [allPatientsData]);
 
   const handleSort = (
     key: keyof Patient,
@@ -134,7 +152,7 @@ const PatientsList: React.FC = () => {
       className={`flex-row justify-between p-4 ${
         index % 2 === 0 ? "bg-gray0" : "bg-white"
       }`}
-      onPress={() => router.push(`/therapist/patients/${item.id}`)}
+      onPress={() => router.push(`/therapist/patients/00001`)} // Replace with actual patient ID later on after we have more patient data
     >
       <CustomText className="flex-1 text-gray300">{item.name}</CustomText>
       <CustomText
@@ -156,6 +174,14 @@ const PatientsList: React.FC = () => {
       </CustomText>
     </Pressable>
   );
+
+  if (loading) {
+    return (
+      <View className="flex-1 justify-center items-center bg-blue100">
+        <ActivityIndicator size="large" color="#256CD0" />
+      </View>
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1 p-4 bg-blue100">
@@ -264,12 +290,14 @@ const PatientsList: React.FC = () => {
 
       <FlatList
         data={visiblePatients}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.id.toString()}
         renderItem={renderItem}
         className="mx-[-16px] mb-[-16px]"
         ListFooterComponent={() => (
           <Pressable
-            className="p-3 bg-gray0 items-center rounded-b-xl"
+            className={`p-4 ${
+              allPatientsData.length % 2 == 0 ? "bg-gray0" : "bg-white"
+            } items-center rounded-b-xl`}
             onPress={togglePatientsVisibility}
           >
             <CustomText className="text-blue200 font-medium underline">

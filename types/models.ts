@@ -37,6 +37,7 @@ export interface UserWithoutSensitiveData extends UserBase {
   has_onboarded: boolean;
   is_therapist: boolean;
   therapist_id?: number | null;
+  patient_data?: PatientData;
 }
 
 // Base Social Account Schema
@@ -83,7 +84,6 @@ export interface MoodEntryCreate extends MoodEntryBase {}
 // Mood Entry Schema
 export interface MoodEntry extends MoodEntryBase {
   id: number;
-  user_id: number;
 }
 
 // Base Journal Entry Schema
@@ -100,7 +100,6 @@ export interface JournalEntryCreate extends JournalEntryBase {}
 // Journal Entry Schema
 export interface JournalEntry extends JournalEntryBase {
   id: number;
-  user_id: number;
 }
 
 // Base Guided Journal Entry Schema
@@ -115,5 +114,21 @@ export interface GuidedJournalEntryCreate extends GuidedJournalEntryBase {}
 // Guided Journal Entry Schema
 export interface GuidedJournalEntry extends GuidedJournalEntryBase {
   id: number;
+}
+
+// Patient Data Schema
+export interface PatientDataBase {
   user_id: number;
+}
+
+// Patient Data Create Schema
+export interface PatientDataCreate extends PatientDataBase {}
+
+// Patient Data Schema
+export interface PatientData extends PatientDataBase {
+  id: number;
+  severity: string;
+  mood_entries?: MoodEntry[];
+  journal_entries?: JournalEntry[];
+  guided_journal_entries?: GuidedJournalEntry[];
 }

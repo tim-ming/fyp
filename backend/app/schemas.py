@@ -58,6 +58,7 @@ class UserWithoutSensitiveData(UserBase):
     has_onboarded: bool
     is_therapist: bool
     therapist_id: Optional[int] = None
+    patient_data: Optional["PatientData"] = None
 
     class Config:
         from_attributes = True
@@ -134,7 +135,6 @@ class MoodEntry(MoodEntryBase):
     """
 
     id: int
-    user_id: int
 
     class Config:
         from_attributes = True
@@ -164,7 +164,6 @@ class JournalEntry(JournalEntryBase):
     """
 
     id: int
-    user_id: int
 
     class Config:
         from_attributes = True
@@ -192,7 +191,36 @@ class GuidedJournalEntry(GuidedJournalEntryBase):
     """
 
     id: int
+
+    class Config:
+        from_attributes = True
+
+
+class PatientDataBase(BaseModel):
+    """
+    Base Patient Data Schema
+    """
+
     user_id: int
+
+
+class PatientDataCreate(PatientDataBase):
+    """
+    Patient Data Create Schema
+    """
+    pass
+
+
+class PatientData(PatientDataBase):
+    """
+    Patient Data Schema
+    """
+
+    id: int
+    severity: str
+    mood_entries: Optional[list["MoodEntry"]] = []
+    journal_entries: Optional[list["JournalEntry"]] = []
+    guided_journal_entries: Optional[list["GuidedJournalEntry"]] = []
 
     class Config:
         from_attributes = True

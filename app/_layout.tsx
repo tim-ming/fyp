@@ -55,7 +55,7 @@ export default function RootLayout() {
         auth.setUser(user);
       } catch (error) {
         console.log("Redirecting to /signin,", error);
-        router.push("/signin");
+        // router.push("/signin");
       }
     };
     fetchData();
@@ -109,6 +109,7 @@ export default function RootLayout() {
           />
           <Stack.Screen name="signin" options={{ headerShown: false }} />
           <Stack.Screen name="signup" options={{ headerShown: false }} />
+          <Stack.Screen name="bioinput" />
           <Stack.Screen name="understand" options={{ headerShown: false }} />
           <Stack.Screen name="relax/index" />
           <Stack.Screen name="relax/breathe" options={{ headerShown: false }} />

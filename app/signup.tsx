@@ -57,7 +57,7 @@ const signUpHandler = async (email: string, password: string, name: string) => {
   postSignup(email, password, name)
     .then((response) => {
       console.log(response);
-      router.push("/signin");
+      router.push("/bioinput");
     })
     .catch((error) => {
       console.error(error);
@@ -96,6 +96,7 @@ const SignUpScreen = () => {
               <View className="relative">
                 <TextInput
                   style={shadows.card}
+                  ref={emailInputRef}
                   className="h-14 bg-white text-base rounded-2xl pl-12 pr-4 font-[PlusJakartaSans] placeholder:text-gray100"
                   placeholder="Enter your email address"
                   keyboardType="email-address"

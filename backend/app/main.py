@@ -174,7 +174,7 @@ def get_profile(current_user: Annotated[schemas.User, Depends(get_current_user)]
     """
     return current_user
 
-@app.get("/journals/id/{journal_id}", response_model=schemas.JournalEntry)
+@app.get("/journals/id/{journal_id}", response_model=Optional[schemas.JournalEntry])
 def get_journal_entry(
     journal_id: int,
     current_user: Annotated[schemas.User, Depends(get_current_user)],
@@ -189,7 +189,7 @@ def get_journal_entry(
     """
     return commands.get_journal_entry_by_id(db, journal_id, current_user)
 
-@app.get("/mood/id/{mood_id}", response_model=schemas.MoodEntry)
+@app.get("/mood/id/{mood_id}", response_model=Optional[schemas.MoodEntry])
 def get_mood_entry(
     mood_id: int,
     current_user: Annotated[schemas.User, Depends(get_current_user)],
@@ -204,7 +204,7 @@ def get_mood_entry(
     """
     return commands.get_mood_entry_by_id(db, mood_id, current_user)
 
-@app.get("/guided-journals/id/{guided_journal_id}", response_model=schemas.GuidedJournalEntry)
+@app.get("/guided-journals/id/{guided_journal_id}", response_model=Optional[schemas.GuidedJournalEntry])
 def get_guided_journal_entry(
     guided_journal_id: int,
     current_user: Annotated[schemas.User, Depends(get_current_user)],
@@ -219,7 +219,7 @@ def get_guided_journal_entry(
     """
     return commands.get_guided_journal_entry_by_id(db, guided_journal_id, current_user)
 
-@app.get("/guided-journals/date/{date}", response_model=schemas.GuidedJournalEntry)
+@app.get("/guided-journals/date/{date}", response_model=Optional[schemas.GuidedJournalEntry])
 def get_guided_journal_entries_by_date(
     date: str,
     current_user: Annotated[schemas.User, Depends(get_current_user)],
@@ -240,7 +240,7 @@ def get_guided_journal_entries_by_date(
     
     return commands.get_guided_journal_entry_by_date(db, parsed_date, current_user)
 
-@app.get("/journals/date/{date}", response_model=schemas.JournalEntry)
+@app.get("/journals/date/{date}", response_model=Optional[schemas.JournalEntry])
 def get_journal_entries_by_date(
     date: str,
     current_user: Annotated[schemas.User, Depends(get_current_user)],
@@ -261,7 +261,7 @@ def get_journal_entries_by_date(
     
     return commands.get_journal_entry_by_date(db, parsed_date, current_user)
 
-@app.get("/mood/date/{date}", response_model=schemas.MoodEntry)
+@app.get("/mood/date/{date}", response_model=Optional[schemas.MoodEntry])
 def get_mood_entries_by_date(
     date: str,
     current_user: Annotated[schemas.User, Depends(get_current_user)],

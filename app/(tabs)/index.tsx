@@ -26,6 +26,8 @@ import Carousel, {
   CarouselProps,
   getInputRangeFromIndexes,
 } from "react-native-snap-carousel";
+import doctorsData from "@/assets/data/doctors.json";
+import { Doctor } from "@/types/globals";
 
 type JournalEntryCard = {
   journal: JournalEntry | null;
@@ -213,6 +215,21 @@ const SuggestedCard: React.FC<CardProps> = ({ title, href, icon }) => {
   );
 };
 
+type DoctorsData = {
+  [id: string]: Doctor;
+};
+
+type DoctorPair = [string, Doctor][];
+
+const convertToPairs = (data: DoctorsData): DoctorPair[] => {
+  const entries = Object.entries(data);
+  const pairs: DoctorPair[] = [];
+  for (let i = 0; i < entries.length; i += 2) {
+    pairs.push(entries.slice(i, i + 2) as DoctorPair);
+  }
+  return pairs;
+};
+
 const HomeScreen = () => {
   const today = new Date();
   const [refreshing, setRefreshing] = useState(false);
@@ -324,6 +341,42 @@ const HomeScreen = () => {
               <SuggestedCard title="Read" href="/read" icon="bookopen" />
             </View>
           </View>
+
+          <View className="w-full py-6">
+            <View style={styles.line} className="h-0.5 w-full rounded-full" />
+          </View>
+          {convertToPairs(doctorsData).map(([[id1, doc1], [id2, doc2]]) => (
+            <View key={id1}>
+              <View className="flex-row mb-2">
+                <Pressable
+                  onPress={() => router.push(`/doctors/${id1}`)}
+                  className="flex-1 justify-center items-center"
+                  style={stylesCard.container}
+                >
+                  <Image
+                    source={`../assets/images/${doc1.image}`}
+                    className="w-full h-32"
+                  />
+                  <CustomText className="text-lg text-center">
+                    {doc1.name}
+                  </CustomText>
+                </Pressable>
+                <Pressable
+                  onPress={() => router.push(`/doctors/${id2}`)}
+                  className="flex-1 justify-center items-center ml-2"
+                  style={stylesCard.container}
+                >
+                  <Image
+                    source={`../assets/images/${doc2.image}`}
+                    className="w-full h-32"
+                  />
+                  <CustomText className="text-lg text-center">
+                    {doc2.name}
+                  </CustomText>
+                </Pressable>
+              </View>
+            </View>
+          ))}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -404,6 +457,17 @@ const styles = StyleSheet.create({
   suggestionDescription: {
     fontSize: 14,
     color: "gray",
+  },
+});
+
+const stylesCard = StyleSheet.create({
+  container: {
+    backgroundColor: "white",
+    padding: 16, // 1rem is approximately 16 pixels
+    borderRadius: 16, // Adjust as needed
+    borderWidth: 1, // Adjust as needed
+    borderColor: Colors.gray50, // Adjust as needed
+    ...shadows.card,
   },
 });
 

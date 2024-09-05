@@ -40,7 +40,7 @@ const BreathingScreen = () => {
     Animation.BREATHE_OUT_MSG
   );
 
-  const [menuOpen, setMenuOpen] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const scaleAnims = useRef(
     Array.from({ length: RING_SIZES.length }, () => new Animated.Value(1))
@@ -99,7 +99,12 @@ const BreathingScreen = () => {
     setMenuOpen(!menuOpen);
   };
 
-  const finish = () => {
+  const complete = () => {
+    // TODO: log something
+    router.push("/relax");
+  };
+
+  const endEarly = () => {
     // TODO: log something
 
     router.push("/relax");
@@ -121,7 +126,7 @@ const BreathingScreen = () => {
       <View className="flex-1 justify-center items-center bg-blue100 px-4">
         <View
           className={`${
-            menuOpen ? "opacity-50" : "opacity-100"
+            !menuOpen ? "opacity-50" : "opacity-100"
           } w-full absolute top-4 justify-center items-center`}
         >
           <View className="w-full justify-center items-center rounded-full">
@@ -138,7 +143,7 @@ const BreathingScreen = () => {
 
         <View
           className={`${
-            menuOpen ? "opacity-100" : "opacity-20"
+            !menuOpen ? "opacity-100" : "opacity-20"
           } absolute flex items-center justify-center`}
         >
           {/* Dynamically generated rings */}
@@ -159,7 +164,22 @@ const BreathingScreen = () => {
           </CustomText>
         </View>
 
-        {!menuOpen && (
+        {!menuOpen && progress == 1 && (
+          <View className={` absolute bottom-4 w-full px-4`}>
+            <Pressable className="h-14 bg-blue200 items-center justify-center rounded-full">
+              <CustomText
+                className="text-white text-base font-medium"
+                onPress={() => {
+                  complete();
+                }}
+              >
+                Complete
+              </CustomText>
+            </Pressable>
+          </View>
+        )}
+
+        {menuOpen && (
           <>
             <View className="w-[90%] bg-white p-4 rounded-lg border border-gray50">
               <CustomText
@@ -179,7 +199,7 @@ const BreathingScreen = () => {
                 <CustomText
                   className="text-white text-base font-medium"
                   onPress={() => {
-                    finish();
+                    endEarly();
                   }}
                 >
                   End Session

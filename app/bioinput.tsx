@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import Male from "@/assets/icons/male.svg";
 import Female from "@/assets/icons/female.svg";
-import Mail from "@/assets/icons/mail.svg";
+import User from "@/assets/icons/user.svg";
 import Calendar from "@/assets/icons/calendar.svg";
 import CustomText from "@/components/CustomText";
 import { shadows } from "@/constants/styles";
@@ -29,7 +29,7 @@ const UserDetailsScreen = () => {
   const [month, setMonth] = useState("");
   const [year, setYear] = useState("");
 
-  const handleDateChange = (value, type) => {
+  const handleDateChange = (value: string, type: "day" | "month" | "year") => {
     if (type === "day") {
       if (/^\d{0,2}$/.test(value)) setDay(value);
     } else if (type === "month") {
@@ -80,12 +80,12 @@ const UserDetailsScreen = () => {
                 // value={email}
                 // onChangeText={setEmail}
               />
-              <Mail
+              <User
                 width={24}
                 height={24}
                 strokeWidth={1.5}
                 pointerEvents="none"
-                className="stroke-gray200 absolute left-4 top-0 h-full w-6 items-center justify-center"
+                className="fill-gray200 absolute left-4 top-0 h-full w-6 items-center justify-center"
               />
             </View>
           </Pressable>

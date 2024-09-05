@@ -49,8 +49,7 @@ const postJournalEntryHandler = async (journal: JournalInput) => {
 
 const Entry: React.FC = () => {
   const today = new Date();
-  const { date } =
-    (useRoute().params as { date: string }) || format(today, "yyyy-MM-dd");
+  const date = useRoute().params?.date ?? format(today, "yyyy-MM-dd");
 
   const [journalEntry, setJournalEntry] =
     useState<JournalInput>(BASE_JOURNAL_ENTRY);
@@ -70,6 +69,8 @@ const Entry: React.FC = () => {
     };
     fetchData();
   }, [isHydrated]);
+
+  console.log(date);
 
   return (
     <View className="flex-1 justify-between bg-blue100 px-2 pt-12">

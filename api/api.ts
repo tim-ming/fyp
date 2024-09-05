@@ -79,7 +79,7 @@ export const postSignup = async (
   email: string,
   password: string,
   name: string
-): Promise<Response> => {
+): Promise<Token> => {
   const response = await fetch(`${BACKEND_URL}/signup`, {
     method: "POST",
     body: JSON.stringify({ email, password, name }),
@@ -88,7 +88,10 @@ export const postSignup = async (
     },
   });
 
-  return response.json();
+  await handleNotOk(response);
+
+  const data = await postSignin(email, password);
+  return data;
 };
 
 export const postSignin = async (

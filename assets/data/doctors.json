@@ -1,0 +1,62 @@
+{
+  "00001": {
+    "name": "Dr. Kok Tim Ming",
+    "dob": "01 Jan 1978",
+    "sex": "Male",
+    "qualifications": "PhD in Clinical Psychology, Licensed Therapist",
+    "expertise": "Cognitive Behavioral Therapy (CBT), Trauma Counseling",
+    "bio": "Dr. Kok specializes in trauma recovery and CBT, working with patients suffering from PTSD and chronic anxiety.",
+    "treatmentApproach": "Focused on evidence-based practices including CBT and exposure therapy for anxiety and trauma recovery",
+    "image": "man1.png"
+  },
+  "00002": {
+    "name": "Dr. Thian Ren Ning",
+    "dob": "12 Dec 1985",
+    "sex": "Female",
+    "qualifications": "MD in Psychiatry, Board Certified",
+    "expertise": "Pharmacotherapy, Mood Disorders",
+    "bio": "Dr. Thian is a psychiatrist with extensive experience in treating mood disorders like depression and bipolar disorder.",
+    "treatmentApproach": "Utilizes a combination of medication and psychotherapy for mood stabilization and patient wellness",
+    "image": "man2.png"
+  },
+  "00003": {
+    "name": "Dr. Chai Wai Jin",
+    "dob": "05 May 1980",
+    "sex": "Male",
+    "qualifications": "MSc in Counseling Psychology, Licensed Counselor",
+    "expertise": "Mindfulness-Based Stress Reduction (MBSR), Anxiety Disorders",
+    "bio": "Dr. Chai is an expert in stress management, employing mindfulness-based interventions for anxiety and stress.",
+    "treatmentApproach": "Incorporates mindfulness and relaxation techniques for reducing anxiety and improving overall mental health",
+    "image": "woman1.png"
+  },
+  "00004": {
+    "name": "Dr. Lim Yi Xuan",
+    "dob": "20 Feb 1975",
+    "sex": "Female",
+    "qualifications": "PhD in Psychology, Cognitive Behavioral Specialist",
+    "expertise": "CBT, Depression, Anxiety",
+    "bio": "Dr. Lim focuses on treating depression and anxiety through cognitive behavioral interventions.",
+    "treatmentApproach": "Emphasizes structured therapy sessions focused on reshaping negative thought patterns",
+    "image": "woman2.png"
+  },
+  "00005": {
+    "name": "Dr. Takumi Kotobuki",
+    "dob": "10 Oct 1983",
+    "sex": "Male",
+    "qualifications": "MD in Psychiatry, Board Certified",
+    "expertise": "Psychopharmacology, Severe Mental Illness",
+    "bio": "Dr. Takumi is a psychiatrist specializing in the medical management of severe mental illnesses like schizophrenia.",
+    "treatmentApproach": "Integrates medication management with supportive psychotherapy for patients with chronic conditions",
+    "image": "woman3.png"
+  },
+  "00006": {
+    "name": "Dr. Thian Ren Ning",
+    "dob": "12 Dec 1985",
+    "sex": "Female",
+    "qualifications": "MD in Psychiatry, Board Certified",
+    "expertise": "Pharmacotherapy, Mood Disorders",
+    "bio": "Dr. Thian is a psychiatrist with extensive experience in treating mood disorders like depression and bipolar disorder.",
+    "treatmentApproach": "Utilizes a combination of medication and psychotherapy for mood stabilization and patient wellness",
+    "image": "woman4.png"
+  }
+}

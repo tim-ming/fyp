@@ -3,7 +3,7 @@ import { View, Pressable } from "react-native";
 import { Link } from "expo-router";
 import CustomText from "@/components/CustomText";
 import { useRoute, RouteProp } from "@react-navigation/native";
-import { getMonth } from "@/constants/globals";
+import { format } from "date-fns";
 
 const JournalComplete: React.FC = () => {
   const today = new Date();
@@ -18,9 +18,7 @@ const JournalComplete: React.FC = () => {
           Recorded on
         </CustomText>
         <CustomText className="text-[20px] font-medium text-gray300 mt-3 text-center">
-          {`${today.getDate()} ${getMonth(
-            today.getMonth()
-          )} ${today.getFullYear()}`}
+          {format(today, "dd MMM yyyy")}
         </CustomText>
       </View>
 

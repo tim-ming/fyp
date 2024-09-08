@@ -2,120 +2,18 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap"
+      rel="stylesheet"
+    />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Hariku - A Mental Health Mobile App</title>
-    <style>
-      /* Global styles */
-      body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-        background-color: #f4f4f9;
-        color: #333;
-        line-height: 1.6;
-      }
-
-      header {
-        background-color: #4caf50;
-        color: white;
-        padding: 20px 10px;
-        text-align: center;
-      }
-
-      h1 {
-        margin: 0;
-        font-size: 2.5rem;
-      }
-
-      .container {
-        max-width: 900px;
-        margin: 0 auto;
-        padding: 20px;
-      }
-
-      .app-icon {
-        width: 150px;
-        height: 150px;
-        background-color: #ddd;
-        border-radius: 15px;
-        margin: 20px auto;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 1rem;
-        color: #888;
-        background-image: url("../assets/images/appicon.jpg");
-      }
-
-      .section {
-        margin: 40px 0;
-      }
-
-      .section h2 {
-        font-size: 1.8rem;
-        color: #4caf50;
-        border-bottom: 2px solid #ddd;
-        padding-bottom: 10px;
-        margin-bottom: 20px;
-      }
-
-      .section p {
-        font-size: 1rem;
-        line-height: 1.5;
-      }
-
-      footer {
-        background-color: #333;
-        color: white;
-        text-align: center;
-        padding: 10px;
-        position: fixed;
-        bottom: 0;
-        width: 100%;
-      }
-
-      footer p {
-        margin: 0;
-      }
-    </style>
+    <title>Vite + React + TS</title>
   </head>
   <body>
-    <header>
-      <h1>Hariku</h1>
-      <p>Your mental health companion</p>
-    </header>
-
-    <div class="container">
-      <!-- Placeholder for app icon -->
-      <div class="app-icon"></div>
-
-      <!-- Privacy Policy Section -->
-      <div class="section">
-        <h2>Privacy Policy</h2>
-        <p>
-          At Hariku, we prioritize your privacy and are committed to protecting
-          your personal data. This policy outlines how we collect, use, and
-          safeguard your information while you use our mobile app. By using
-          Hariku, you agree to the collection and use of information in
-          accordance with this policy.
-        </p>
-      </div>
-
-      <!-- Terms of Service Section -->
-      <div class="section">
-        <h2>Terms of Service</h2>
-        <p>
-          Welcome to Hariku! These terms govern your use of our mobile app. By
-          accessing or using the app, you agree to be bound by these terms. We
-          may update these terms from time to time, and it's your responsibility
-          to review them periodically. If you disagree with any part of these
-          terms, please discontinue using the app.
-        </p>
-      </div>
-    </div>
-
-    <footer>
-      <p>&copy; 2024 Hariku - All Rights Reserved</p>
-    </footer>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

@@ -13,7 +13,9 @@ function App() {
 
       <main className="content">
         <section className="policy-section">
-          <h2>Privacy Policy</h2>
+          <h2>
+            <a href="/privacy">Privacy Policy</a>
+          </h2>
           <p>
             At Hariku, we prioritize your privacy and are committed to
             protecting your personal data. This policy outlines how we collect,
@@ -24,7 +26,9 @@ function App() {
         </section>
 
         <section className="policy-section">
-          <h2>Terms of Service</h2>
+          <h2>
+            <a href="/terms">Terms of Service</a>
+          </h2>
           <p>
             Welcome to Hariku! These terms govern your use of our mobile app. By
             accessing or using the app, you agree to be bound by these terms. We

@@ -195,7 +195,7 @@ const SignUpScreen = () => {
           <View className="flex-1 h-px bg-gray-300" />
         </View>
 
-        <View className="flex flex-col gap-3">
+        <View className="flex flex-col">
           <SignInWithGoogle />
           <SignInWithApple />
         </View>

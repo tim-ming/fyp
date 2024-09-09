@@ -1,4 +1,5 @@
 import React from "react";
+import { Linking } from "react-native";
 import {
   View,
   TextInput,
@@ -13,8 +14,6 @@ import {} from "nativewind";
 import CustomText from "@/components/CustomText";
 import Lock from "@/assets/icons/lock.svg";
 import Mail from "@/assets/icons/mail.svg";
-import Apple from "@/assets/icons/apple.svg";
-import Google from "@/assets/icons/google.svg";
 import { useRef } from "react";
 import { shadows } from "@/constants/styles";
 import { useState } from "react";
@@ -23,6 +22,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { postSignup } from "@/api/api";
+import { SignInWithGoogle, SignInWithApple } from "@/components/SignInWith";
+import { WEBSITE_URL } from "@/constants/globals";
 
 const Checkbox = () => {
   const [checked, setChecked] = useState(false);
@@ -62,6 +63,26 @@ const signUpHandler = async (email: string, password: string, name: string) => {
     .catch((error) => {
       console.error(error);
     });
+};
+
+const termsOfService = () => {
+  const openURL = () => {
+    const url = WEBSITE_URL + "/terms"; // Replace with your URL
+    Linking.openURL(url).catch((err) =>
+      console.error("Failed to open URL:", err)
+    );
+  };
+  openURL();
+};
+
+const privacyPolicy = () => {
+  const openURL = () => {
+    const url = WEBSITE_URL + "/privacy"; // Replace with your URL
+    Linking.openURL(url).catch((err) =>
+      console.error("Failed to open URL:", err)
+    );
+  };
+  openURL();
 };
 
 const SignUpScreen = () => {
@@ -142,13 +163,17 @@ const SignUpScreen = () => {
           <Checkbox />
           <CustomText className="text-sm text-gray-500 ">
             By signing up, you agree to our{" "}
-            <CustomText className="text-blue200 underline">
-              Terms of Service
-            </CustomText>{" "}
+            <Pressable onPress={termsOfService}>
+              <CustomText className="text-blue200 underline">
+                Terms of Service
+              </CustomText>
+            </Pressable>{" "}
             and{" "}
-            <CustomText className="text-blue200 underline">
-              Privacy Policy
-            </CustomText>
+            <Pressable onPress={privacyPolicy}>
+              <CustomText className="text-blue200 underline">
+                Privacy Policy
+              </CustomText>
+            </Pressable>
             .
           </CustomText>
         </View>
@@ -171,19 +196,8 @@ const SignUpScreen = () => {
         </View>
 
         <View className="flex flex-col gap-3">
-          <Pressable className="flex-row justify-center items-center h-14 bg-white border border-gray-300 px-4 rounded-full">
-            <Google width={24} height={24} className="mr-2" />
-            <CustomText className="text-black text-base font-medium">
-              Sign in with Google
-            </CustomText>
-          </Pressable>
-
-          <Pressable className="flex-row justify-center items-center h-14 bg-black px-4 rounded-full">
-            <Apple width={24} height={24} className="mr-2" />
-            <CustomText className="text-white text-base font-medium">
-              Sign in with Apple
-            </CustomText>
-          </Pressable>
+          <SignInWithGoogle />
+          <SignInWithApple />
         </View>
 
         <CustomText className="text-center text-gray-500 mt-10">

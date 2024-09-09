@@ -4,7 +4,7 @@ import App from "./App.tsx";
 import PrivacyPolicy from "./PrivacyPolicy.tsx";
 import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Terms from "./terms.tsx";
+import Terms from "./Terms.tsx";
 
 const router = createBrowserRouter([
   {

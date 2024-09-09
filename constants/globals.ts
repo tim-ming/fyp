@@ -13,6 +13,7 @@ export const getStatus = (value: number) => {
 };
 
 export const BACKEND_URL = "http://localhost:8000";
+export const WEBSITE_URL = "https://fyp-csh.pages.dev";
 
 // export const getToken = async () =>
 //   Platform.OS === "web"

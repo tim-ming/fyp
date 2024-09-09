@@ -1,10 +1,9 @@
 import { getUser, postSignin } from "@/api/api";
-import Apple from "@/assets/icons/apple.svg";
 import Check from "@/assets/icons/check.svg";
-import Google from "@/assets/icons/google.svg";
 import Lock from "@/assets/icons/lock.svg";
 import Mail from "@/assets/icons/mail.svg";
 import CustomText from "@/components/CustomText";
+import { SignInWithApple, SignInWithGoogle } from "@/components/SignInWith";
 import { shadows } from "@/constants/styles";
 import { useAuth } from "@/state/state";
 import { router } from "expo-router";
@@ -78,6 +77,7 @@ const SignInScreen = () => {
       console.error(error);
     }
   };
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View className="flex-1 p-4 pt-20 bg-gray-100">
@@ -169,20 +169,9 @@ const SignInScreen = () => {
           <View className="flex-1 h-px bg-gray-300" />
         </View>
 
-        <View className="flex flex-col gap-3">
-          <Pressable className="flex-row justify-center items-center h-14 bg-white border border-gray-300 px-4 rounded-full">
-            <Google width={24} height={24} className="mr-2" />
-            <CustomText className="text-black text-base font-medium">
-              Sign in with Google
-            </CustomText>
-          </Pressable>
-
-          <Pressable className="flex-row justify-center items-center h-14 bg-black px-4 rounded-full">
-            <Apple width={24} height={24} className="mr-2" />
-            <CustomText className="text-white text-base font-medium">
-              Sign in with Apple
-            </CustomText>
-          </Pressable>
+        <View className="flex flex-col">
+          <SignInWithGoogle />
+          <SignInWithApple />
         </View>
 
         <CustomText className="text-center text-gray-500 mt-10">

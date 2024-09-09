@@ -1,5 +1,3 @@
-import "./terms.css";
-
 const Content = () => (
   <>
     <h1>Terms of Service</h1>
@@ -172,21 +170,9 @@ const Content = () => (
 const Terms = () => {
   return (
     <div className="app-container">
-      <header className="app-header">
-        <div className="app-icon-placeholder">
-          <img src="/appicon.jpg" alt="App Icon" />
-        </div>
-        <h1>Hariku</h1>
-        <p>Your mental health companion</p>
-      </header>
-
       <main className="content">
         <Content />
       </main>
-
-      <footer className="app-footer">
-        <p>&copy; 2024 Hariku - All Rights Reserved</p>
-      </footer>
     </div>
   );
 };

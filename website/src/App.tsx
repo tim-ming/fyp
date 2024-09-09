@@ -1,16 +1,6 @@
-import "./App.css";
-
 function App() {
   return (
     <div className="app-container">
-      <header className="app-header">
-        <div className="app-icon-placeholder">
-          <img src="/appicon.jpg" alt="App Icon" />
-        </div>
-        <h1>Hariku</h1>
-        <p>Your mental health companion</p>
-      </header>
-
       <main className="content">
         <section className="policy-section">
           <h2>
@@ -38,10 +28,6 @@ function App() {
           </p>
         </section>
       </main>
-
-      <footer className="app-footer">
-        <p>&copy; 2024 Hariku - All Rights Reserved</p>
-      </footer>
     </div>
   );
 }

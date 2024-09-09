@@ -8,3 +8,5 @@ export type Doctor = {
   treatmentApproach: string;
   image: string;
 };
+
+export type Sex = "m" | "f" | null;

@@ -1,20 +1,50 @@
 import { BACKEND_URL } from "@/constants/globals";
 import { useAuth } from "@/state/state";
+import { Sex } from "@/types/globals";
 import {
   JournalEntry,
   JournalEntryCreate,
   Token,
   User,
+  UserUpdate,
   UserWithoutSensitiveData,
 } from "@/types/models";
 
-const handleNotOk = async (response: Response) => {
+export const handleNotOk = async (response: Response) => {
   if (!response.ok) {
     const errorData = await response.json();
     throw new Error(
       `${response.status} ${response.statusText}, ${errorData.detail}`
     );
   }
+};
+
+export const updateOnboarded = async (): Promise<Response> => {
+  const { token } = useAuth.getState();
+  const user = useAuth.getState().user;
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const response = await fetch(`${BACKEND_URL}/users/me`, {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${token?.access_token}`,
+    },
+
+    body: JSON.stringify({ user: { ...user, has_onboarded: true } }),
+  });
+
+  return response;
+};
+
+export const checkEmailExists = async (email: string): Promise<Response> => {
+  const response = await fetch(
+    `${BACKEND_URL}/users/check-email?email=${encodeURIComponent(email)}`
+  );
+
+  return response;
 };
 
 export const getUser = async (): Promise<User> => {
@@ -78,8 +108,10 @@ export const getJournalEntries = async (
 export const postSignup = async (
   email: string,
   password: string,
-  name: string
-): Promise<Token> => {
+  name: string,
+  sex: Sex,
+  dob: Date
+): Promise<Response> => {
   const response = await fetch(`${BACKEND_URL}/signup`, {
     method: "POST",
     body: JSON.stringify({ email, password, name }),
@@ -88,16 +120,13 @@ export const postSignup = async (
     },
   });
 
-  await handleNotOk(response);
-
-  const data = await postSignin(email, password);
-  return data;
+  return response;
 };
 
 export const postSignin = async (
   email: string,
   password: string
-): Promise<Token> => {
+): Promise<Response> => {
   const form = new FormData();
   form.append("username", email);
   form.append("password", password);
@@ -107,16 +136,7 @@ export const postSignin = async (
     body: form,
   });
 
-  await handleNotOk(response);
-
-  const data: Token = await response.json();
-
-  // TODO: Do we need to change this?
-  const expiresAt = new Date(Date.now() + data.expires_in * 60 * 1000);
-
-  useAuth.getState().setToken(data);
-
-  return data;
+  return response;
 };
 
 export const postJournalEntry = async (

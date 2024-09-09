@@ -5,11 +5,13 @@ import CustomText from "@/components/CustomText";
 import { shadows } from "@/constants/styles";
 import Check from "@/assets/icons/check.svg";
 import { useRouter } from "expo-router";
+import { updateOnboarded } from "@/api/api";
 
 const SocialMediaScreen = () => {
   const router = useRouter();
 
-  const handleSkipPress = () => {
+  const handleSkipPress = async () => {
+    await updateOnboarded();
     router.push("/");
   };
 

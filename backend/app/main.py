@@ -142,6 +142,22 @@ def post_signin(
 
     return schemas.Token(access_token=access_token, token_type="bearer", expires_in=ACCESS_TOKEN_EXPIRE_MINUTES)
 
+@app.get("/users/check-email")
+def get_email_exists(
+    email: str = Query(..., title="Email", description="The email address to check"),
+    db: Session = Depends(get_db)
+):
+    """
+    Check if the provided email is already registered.
+    
+    :param email: The email address to check
+    :param db: Database session
+    :return: A message indicating whether the email exists or not, False or True
+    """
+    existing_user = commands.get_user_by_email(db, email)
+    if existing_user is not None:
+        return {"detail": "True"}
+    return {"detail": "False"}
 
 @app.post("/signup")
 def post_signup(user: schemas.UserCreate, db: Session = Depends(get_db)):

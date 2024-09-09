@@ -165,10 +165,6 @@ const Content = () => (
     </p>
     <ul>
       <li>Google</li>
-      <li>Facebook</li>
-      <li>Instagram</li>
-      <li>Twitter</li>
-      <li>LinkedIn</li>
     </ul>
     <p>
       If You decide to register through or otherwise grant us access to a
@@ -206,113 +202,71 @@ const Content = () => (
       Your Device settings.
     </p>
     <h3>Use of Your Personal Data</h3>
-    <p>The Company may use Personal Data for the following purposes:</p>
+    <p>Hariku may use Personal Data for the following purposes:</p>
     <ul>
       <li>
         <p>
-          <strong>To provide and maintain our Service</strong>, including to
-          monitor the usage of our Service.
+          <strong>To train our machine learning model:</strong> We use your data
+          to improve the accuracy and effectiveness of our mental health
+          intervention algorithms. All data used in this process is anonymized
+          to protect your privacy.
         </p>
       </li>
       <li>
         <p>
-          <strong>To manage Your Account:</strong> to manage Your registration
-          as a user of the Service. The Personal Data You provide can give You
-          access to different functionalities of the Service that are available
-          to You as a registered user.
+          <strong>To allow registered therapists access:</strong> With your
+          explicit consent, Hariku may share your data with qualified therapists
+          or mental health professionals who are registered on the platform.
+          This allows them to view and analyze your information in order to
+          provide personalized interventions and support.
         </p>
       </li>
       <li>
         <p>
-          <strong>For the performance of a contract:</strong> the development,
-          compliance and undertaking of the purchase contract for the products,
-          items or services You have purchased or of any other contract with Us
-          through the Service.
+          <strong>To manage your account:</strong> Your personal data helps
+          manage your registration as a user of Hariku, providing access to
+          relevant features and services tailored to your mental health needs.
         </p>
       </li>
       <li>
         <p>
-          <strong>To contact You:</strong> To contact You by email, telephone
-          calls, SMS, or other equivalent forms of electronic communication,
-          such as a mobile application's push notifications regarding updates or
-          informative communications related to the functionalities, products or
-          contracted services, including the security updates, when necessary or
-          reasonable for their implementation.
+          <strong>To contact you:</strong> We may contact you by email, phone,
+          SMS, or push notifications to provide updates related to your therapy
+          sessions, app features, or general mental health advice, based on your
+          preferences and consent.
         </p>
       </li>
       <li>
         <p>
-          <strong>To provide You</strong> with news, special offers and general
-          information about other goods, services and events which we offer that
-          are similar to those that you have already purchased or enquired about
-          unless You have opted not to receive such information.
+          <strong>To improve our services:</strong> We use your information for
+          data analysis to identify usage trends, improve the platform, and
+          enhance your experience. This includes evaluating the effectiveness of
+          our machine learning models and interventions.
         </p>
       </li>
       <li>
         <p>
-          <strong>To manage Your requests:</strong> To attend and manage Your
-          requests to Us.
-        </p>
-      </li>
-      <li>
-        <p>
-          <strong>For business transfers:</strong> We may use Your information
-          to evaluate or conduct a merger, divestiture, restructuring,
-          reorganization, dissolution, or other sale or transfer of some or all
-          of Our assets, whether as a going concern or as part of bankruptcy,
-          liquidation, or similar proceeding, in which Personal Data held by Us
-          about our Service users is among the assets transferred.
-        </p>
-      </li>
-      <li>
-        <p>
-          <strong>For other purposes</strong>: We may use Your information for
-          other purposes, such as data analysis, identifying usage trends,
-          determining the effectiveness of our promotional campaigns and to
-          evaluate and improve our Service, products, services, marketing and
-          your experience.
+          <strong>With your consent:</strong> We may share your personal data or
+          use it for other purposes only with your explicit consent.
         </p>
       </li>
     </ul>
-    <p>We may share Your personal information in the following situations:</p>
+
+    <p>We may share your personal information in the following situations:</p>
     <ul>
       <li>
-        <strong>With Service Providers:</strong> We may share Your personal
-        information with Service Providers to monitor and analyze the use of our
-        Service, to contact You.
+        <strong>With registered therapists:</strong> We share your data only
+        with therapists you have consented to, allowing them to provide
+        personalized care and feedback.
       </li>
       <li>
-        <strong>For business transfers:</strong> We may share or transfer Your
-        personal information in connection with, or during negotiations of, any
-        merger, sale of Company assets, financing, or acquisition of all or a
-        portion of Our business to another company.
+        <strong>With service providers:</strong> We may share anonymized data
+        with third-party service providers for data analysis and machine
+        learning model improvement.
       </li>
       <li>
-        <strong>With Affiliates:</strong> We may share Your information with Our
-        affiliates, in which case we will require those affiliates to honor this
-        Privacy Policy. Affiliates include Our parent company and any other
-        subsidiaries, joint venture partners or other companies that We control
-        or that are under common control with Us.
-      </li>
-      <li>
-        <strong>With business partners:</strong> We may share Your information
-        with Our business partners to offer You certain products, services or
-        promotions.
-      </li>
-      <li>
-        <strong>With other users:</strong> when You share personal information
-        or otherwise interact in the public areas with other users, such
-        information may be viewed by all users and may be publicly distributed
-        outside. If You interact with other users or register through a
-        Third-Party Social Media Service, Your contacts on the Third-Party
-        Social Media Service may see Your name, profile, pictures and
-        description of Your activity. Similarly, other users will be able to
-        view descriptions of Your activity, communicate with You and view Your
-        profile.
-      </li>
-      <li>
-        <strong>With Your consent</strong>: We may disclose Your personal
-        information for any other purpose with Your consent.
+        <strong>With your consent:</strong> We may disclose your personal data
+        for any other purpose with your explicit consent.
       </li>
     </ul>
     <h3>Retention of Your Personal Data</h3>
@@ -372,34 +326,36 @@ const Content = () => (
       we have a legal obligation or lawful basis to do so.
     </p>
     <h3>Disclosure of Your Personal Data</h3>
-    <h4>Business Transactions</h4>
-    <p>
-      If the Company is involved in a merger, acquisition or asset sale, Your
-      Personal Data may be transferred. We will provide notice before Your
-      Personal Data is transferred and becomes subject to a different Privacy
-      Policy.
-    </p>
+
     <h4>Law enforcement</h4>
     <p>
-      Under certain circumstances, the Company may be required to disclose Your
-      Personal Data if required to do so by law or in response to valid requests
-      by public authorities (e.g. a court or a government agency).
+      Hariku strives to protect your privacy and avoid disclosing your personal
+      data. However, under certain exceptional circumstances, we may be required
+      to disclose your Personal Data if compelled by law or in response to
+      legitimate requests from public authorities (e.g., a court or government
+      agency). We will take all reasonable measures to ensure that only the
+      minimum necessary data is disclosed.
     </p>
+
     <h4>Other legal requirements</h4>
     <p>
-      The Company may disclose Your Personal Data in the good faith belief that
-      such action is necessary to:
+      Hariku may disclose your Personal Data only if absolutely necessary and in
+      the good faith belief that such action is required to:
     </p>
     <ul>
       <li>Comply with a legal obligation</li>
-      <li>Protect and defend the rights or property of the Company</li>
+      <li>Protect and defend the rights or property of Hariku</li>
       <li>
-        Prevent or investigate possible wrongdoing in connection with the
+        Prevent or investigate potential wrongdoing related to the use of the
         Service
       </li>
-      <li>Protect the personal safety of Users of the Service or the public</li>
+      <li>Protect the personal safety of users of the Service or the public</li>
       <li>Protect against legal liability</li>
     </ul>
+    <p>
+      In all instances, we will prioritize your privacy and ensure that any
+      disclosure is limited to what is legally required.
+    </p>
     <h3>Security of Your Personal Data</h3>
     <p>
       The security of Your Personal Data is important to Us, but remember that

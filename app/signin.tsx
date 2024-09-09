@@ -8,7 +8,7 @@ import { shadows } from "@/constants/styles";
 import { useAuth } from "@/state/state";
 import { router } from "expo-router";
 import {} from "nativewind";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Keyboard,
   Pressable,
@@ -17,30 +17,6 @@ import {
   View,
 } from "react-native";
 
-const Checkbox = () => {
-  const [checked, setChecked] = useState(false);
-
-  const toggleCheckbox = () => {
-    setChecked(!checked);
-  };
-
-  return (
-    <Pressable
-      className="w-7 h-7 items-center justify-center mr-2"
-      onPress={toggleCheckbox}
-    >
-      <View
-        style={shadows.cardDarker}
-        className={`${
-          checked ? "bg-blue200" : "bg-white"
-        } rounded-full w-full h-full items-center justify-center`}
-      >
-        {checked && <Check className="stroke-white p-1 stroke-[3]" />}
-      </View>
-    </Pressable>
-  );
-};
-
 const SignInScreen = () => {
   const emailInputRef = useRef<TextInput>(null);
   const passwordInputRef = useRef<TextInput>(null);
@@ -48,14 +24,25 @@ const SignInScreen = () => {
   const [password, setPassword] = useState("");
   const auth = useAuth();
 
-  const signInHandler = async (email: string, password: string) => {
-    if (!email || !password) {
-      alert("Please enter both email and password");
-      return;
-    }
+  const [errorMessage, setErrorMessage] = useState("");
+  const [canSignin, setCanSignin] = useState(false);
+  const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    setCanSignin(email.length > 0 && password.length > 0);
+  }, [email, password]);
+
+  const signInHandler = async (email: string, password: string) => {
+    setLoading(true);
     try {
-      const token = await postSignin(email, password);
+      const signinResponse = await postSignin(email, password);
+      if (!signinResponse.ok) {
+        const errorData = await signinResponse.json();
+        setErrorMessage(errorData.detail);
+        return;
+      }
+      const token = await signinResponse.json();
+      console.log(token);
       auth.setToken(token);
 
       const user = await getUser();
@@ -76,6 +63,7 @@ const SignInScreen = () => {
     } catch (error) {
       console.error(error);
     }
+    setLoading(false);
   };
 
   return (
@@ -97,14 +85,16 @@ const SignInScreen = () => {
             Be a better you today.
           </CustomText>
 
-          <View className="flex flex-col gap-3">
+          <View className="flex flex-col">
             <Pressable
+              className="mb-3"
               onPress={() => emailInputRef.current?.focus()}
               tabIndex={-1}
             >
               <View className="relative">
                 <TextInput
                   style={shadows.card}
+                  ref={emailInputRef}
                   className="h-14 bg-white text-base rounded-2xl pl-12 pr-4 font-[PlusJakartaSans] placeholder:text-gray100"
                   placeholder="Enter your email address"
                   keyboardType="email-address"
@@ -151,12 +141,17 @@ const SignInScreen = () => {
             Forgot password?
           </CustomText>
         </Pressable>
-
+        <CustomText className="text-center text-red-500 text-sm mb-1">
+          {errorMessage}
+        </CustomText>
         <Pressable
+          disabled={!canSignin && loading}
           onPress={() => {
             signInHandler(email, password);
           }}
-          className="h-14 bg-blue200 items-center justify-center rounded-full"
+          className={`h-14 ${
+            !canSignin && loading ? "bg-gray50" : "bg-blue200"
+          } items-center justify-center rounded-full`}
         >
           <CustomText className="text-white text-base font-medium">
             Sign in

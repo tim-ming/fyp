@@ -2,6 +2,7 @@ import articlesData from "@/assets/articles/articles.json";
 import Check from "@/assets/icons/check.svg";
 import ChevronRight from "@/assets/icons/chevron-right.svg";
 import CustomText from "@/components/CustomText";
+import { useAuth } from "@/state/state";
 import { loadChapterProgress } from "@/utils/progressStorage";
 import {
   Href,
@@ -15,6 +16,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 const ArticleProgressPage = () => {
   const router = useRouter();
+  const auth = useAuth();
   const { articleId } = useLocalSearchParams();
 
   const article = articlesData.articles.find(
@@ -37,7 +39,14 @@ const ArticleProgressPage = () => {
   };
 
   const fetchProgress = async () => {
-    const chapterProgress = await loadChapterProgress(articleId as string);
+    if (!auth.user?.id) {
+      console.error("User ID is undefined");
+      return;
+    }
+    const chapterProgress = await loadChapterProgress(
+      auth.user?.id.toString(),
+      articleId as string
+    );
     setProgress(chapterProgress || {});
   };
 

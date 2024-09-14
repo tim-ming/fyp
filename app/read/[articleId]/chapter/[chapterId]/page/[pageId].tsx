@@ -2,7 +2,9 @@ import articlesData from "@/assets/articles/articles.json";
 import ArrowLeft from "@/assets/icons/arrow-left.svg";
 import ArrowRight from "@/assets/icons/arrow-right.svg";
 import CustomText from "@/components/CustomText";
+import { useAuth } from "@/state/state";
 import {
+  clearAllData,
   loadChapterProgress,
   saveChapterProgress,
 } from "@/utils/progressStorage";
@@ -13,6 +15,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 const ReadingPage = () => {
   const router = useRouter();
+  const auth = useAuth();
   const { articleId, chapterId, pageId } = useLocalSearchParams();
 
   const article = articlesData.articles.find(
@@ -27,13 +30,21 @@ const ReadingPage = () => {
 
   useEffect(() => {
     const fetchProgress = async () => {
-      const progress = await loadChapterProgress(articleId as string);
+      if (!auth.user?.id) {
+        console.error("User ID is undefined");
+        return;
+      }
+      const progress = await loadChapterProgress(
+        auth.user?.id.toString(),
+        articleId as string
+      );
       const updatedProgress = progress || {};
 
       if (!updatedProgress[chapterId as string]) {
         if (pageIdInt === totalPages) {
           updatedProgress[chapterId as string] = true;
           await saveChapterProgress(
+            auth.user?.id.toString(),
             articleId as string,
             chapterId as string,
             true,
@@ -43,6 +54,7 @@ const ReadingPage = () => {
         } else {
           updatedProgress[chapterId as string] = false;
           await saveChapterProgress(
+            auth.user?.id.toString(),
             articleId as string,
             chapterId as string,
             false,

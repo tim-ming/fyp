@@ -1,6 +1,7 @@
 import articlesData from "@/assets/articles/articles.json";
 import CustomText from "@/components/CustomText";
 import { shadows } from "@/constants/styles";
+import { useAuth } from "@/state/state";
 import { loadChapterProgress } from "@/utils/progressStorage";
 import { useFocusEffect, useRouter } from "expo-router";
 import React, { useCallback, useState } from "react";
@@ -9,6 +10,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 const ArticlePage = () => {
   const router = useRouter();
+  const auth = useAuth();
 
   const [articles, setArticles] = useState(
     articlesData.articles.map((article) => ({
@@ -23,7 +25,14 @@ const ArticlePage = () => {
   const fetchProgress = async () => {
     const updatedArticles = await Promise.all(
       articles.map(async (article) => {
-        const progress = await loadChapterProgress(article.id);
+        if (!auth.user?.id) {
+          console.error("User ID is undefined");
+          return;
+        }
+        const progress = await loadChapterProgress(
+          auth.user?.id.toString(),
+          article.id
+        );
 
         const chapterProgress = progress
           ? Object.entries(progress).filter(
@@ -36,9 +45,30 @@ const ArticlePage = () => {
       })
     );
 
-    updatedArticles.sort((a, b) => parseInt(b.progress) - parseInt(a.progress));
+    const filteredArticles = updatedArticles.filter(
+      (article) => article !== undefined
+    ) as {
+      id: string;
+      title: string;
+      subtitle: string;
+      chapters: {
+        id: string;
+        title: string;
+        subtitle: string;
+        pages: {
+          page_number: number;
+          content: string;
+        }[];
+      }[];
+      progress: string;
+    }[];
 
-    setArticles(updatedArticles);
+    // Sort articles by progress
+    filteredArticles.sort((a, b) => {
+      return parseInt(b.progress) - parseInt(a.progress);
+    });
+
+    setArticles(filteredArticles);
   };
 
   useFocusEffect(

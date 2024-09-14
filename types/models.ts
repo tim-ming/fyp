@@ -49,6 +49,16 @@ export interface UserWithoutSensitiveData extends UserBase {
   patient_data?: PatientData;
 }
 
+// User Schema with patient data
+export interface UserWithPatientData extends UserBase {
+  id: number;
+  name: string;
+  dob?: string;
+  sex?: string | null;
+  occupation?: string;
+  patient_data?: PatientData;
+}
+
 // Base Social Account Schema
 export interface SocialAccountBase {
   provider: string;

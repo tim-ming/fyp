@@ -1,5 +1,5 @@
 from typing import List, Optional
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, load_only, joinedload
 from app import models, schemas
 
 
@@ -523,7 +523,16 @@ def get_patients_by_therapist(
     :param limit (int): Number of entries to return
     :return (List[models.User]): Patients
     """
-    return db.query(models.User).filter(models.User.therapist_id == therapist.id).all()
+    return (
+        db.query(models.User)
+        .filter(models.User.therapist_id == therapist.id)
+        .options(
+            joinedload(models.User.patient_data).noload(models.PatientData.mood_entries),
+            joinedload(models.User.patient_data).noload(models.PatientData.journal_entries),
+            joinedload(models.User.patient_data).noload(models.PatientData.guided_journal_entries)
+        )
+        .all()
+    )
 
 def update_severity(
     db: Session, user_id: int, severity: str) -> models.PatientData.severity:

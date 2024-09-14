@@ -578,6 +578,19 @@ def get_patients(
 
     return commands.get_patients_by_therapist(db, current_user)
 
+@app.get("/patient-data/{patient_id}", response_model=schemas.UserWithPatientData)
+def get_patient_data(
+    patient_id: int,
+    db: Session = Depends(get_db),
+):
+    """
+    Get patient data
+    :param patient_id (int): Patient ID
+    :param db (Session): Database session
+    :return (schemas.UserWithPatientData): Patient data
+    """
+    return commands.get_user_by_id(db, patient_id)
+
 @app.patch("/severity")
 def update_severity(
     user_id: int,

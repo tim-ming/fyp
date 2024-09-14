@@ -72,6 +72,21 @@ class UserWithoutSensitiveData(UserBase):
     class Config:
         from_attributes = True
 
+class UserWithPatientData(UserBase):
+    """
+    User Schema with Patient Data
+    """
+
+    id: int
+    name: str
+    dob: Optional[date]
+    sex: Optional[str]
+    occupation: Optional[str]
+    patient_data: Optional["PatientData"] = None
+
+    class Config:
+        from_attributes = True
+
 class SocialAccountBase(BaseModel):
     """
     Base Social Account Schema

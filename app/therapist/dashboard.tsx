@@ -152,7 +152,7 @@ const PatientsList: React.FC = () => {
       className={`flex-row justify-between p-4 ${
         index % 2 === 0 ? "bg-gray0" : "bg-white"
       }`}
-      onPress={() => router.push(`/therapist/patients/00001`)} // Replace with actual patient ID later on after we have more patient data
+      onPress={() => router.push(`/therapist/patients/${item.id}`)}
     >
       <CustomText className="flex-1 text-gray300">{item.name}</CustomText>
       <CustomText

@@ -1,5 +1,5 @@
-import React from "react";
-import { View, ScrollView, Pressable } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, ScrollView, Pressable, ActivityIndicator } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import CustomText from "@/components/CustomText";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -8,91 +8,58 @@ import Edit from "@/assets/icons/edit.svg";
 import Message from "@/assets/icons/message.svg";
 import Notes from "@/assets/icons/notes.svg";
 import Info from "@/assets/icons/info.svg";
+import { getPatientData } from "@/api/api";
+import { UserWithPatientData } from "@/types/models";
 
 const ICON_SIZE = 24;
 
-type Patient = {
-  name: string;
-  risk: string;
-  dob: string;
-  sex: string;
-  occupation: string;
-  riskDescription: string;
-  treatment: string;
+const riskDescriptions: { [key: string]: string } = {
+  Severe:
+    "Patient has a high likelihood of depression and/or other related mental illnesses.",
+  "Moderately Severe":
+    "Patient shows moderate signs of depression and requires monitoring and possible therapy.",
+  Moderate:
+    "Patient is exhibiting mild to moderate depressive symptoms and could benefit from lifestyle changes.",
+  Mild: "Patient has mild depressive symptoms. General well-being checkups recommended.",
+  None: "Patient does not exhibit any depressive symptoms.",
+  Unknown:
+    "Unknown risk level. Patient has not been assessed for depressive symptoms.",
 };
 
-const patientsData: { [key: string]: Patient } = {
-  "00001": {
-    name: "Kok Tim Ming",
-    risk: "Severe",
-    dob: "01 Jan 2003",
-    sex: "Male",
-    occupation: "Student",
-    riskDescription:
-      "Patient has a high likelihood of depression and/or other related mental illnesses.",
-    treatment:
-      "Immediate initiation of pharmacotherapy and, if severe impairment or poor response to therapy, expedited referral to a mental health specialist for psychotherapy and/or collaborative management.",
-  },
-  "00002": {
-    name: "Thian Ren Ning",
-    risk: "Moderately Severe",
-    dob: "01 Jan 2003",
-    sex: "Female",
-    occupation: "Student",
-    riskDescription:
-      "Patient shows moderate signs of depression and requires monitoring and possible therapy.",
-    treatment:
-      "Suggested regular counseling sessions and monitoring of symptoms for potential escalation.",
-  },
-  "00003": {
-    name: "Chai Wai Jin",
-    risk: "Moderate",
-    dob: "01 Jan 2003",
-    sex: "Male",
-    occupation: "Student",
-    riskDescription:
-      "Patient is exhibiting mild to moderate depressive symptoms and could benefit from lifestyle changes.",
-    treatment:
-      "Recommended lifestyle changes and mindfulness practices. No pharmacotherapy needed at this stage.",
-  },
-  "00004": {
-    name: "Lim Yi Xuan",
-    risk: "Mild",
-    dob: "01 Jan 2003",
-    sex: "Female",
-    occupation: "Student",
-    riskDescription:
-      "Patient has mild depressive symptoms. General well-being checkups recommended.",
-    treatment:
-      "Suggested regular exercise and periodic checkups to ensure no worsening of symptoms.",
-  },
-  "00005": {
-    name: "Takumi Kotobuki",
-    risk: "None",
-    dob: "01 Jan 2003",
-    sex: "Male",
-    occupation: "Student",
-    riskDescription: "Patient does not exhibit any depressive symptoms.",
-    treatment:
-      "No treatment required. Continue with regular wellness checkups.",
-  },
-  "00006": {
-    name: "Balqis",
-    risk: "Unknown",
-    dob: "01 Jan 2003",
-    sex: "Female",
-    occupation: "Student",
-    riskDescription:
-      "Unknown risk level. Patient has not been assessed for depressive symptoms.",
-    treatment:
-      "Assessment required to determine the patient's risk level and treatment plan.",
-  },
+const treatments: { [key: string]: string } = {
+  Severe:
+    "Immediate initiation of pharmacotherapy and, if severe impairment or poor response to therapy, expedited referral to a mental health specialist for psychotherapy and/or collaborative management.",
+  "Moderately Severe":
+    "Suggested regular counseling sessions and monitoring of symptoms for potential escalation.",
+  Moderate:
+    "Recommended lifestyle changes and mindfulness practices. No pharmacotherapy needed at this stage.",
+  Mild: "Suggested regular exercise and periodic checkups to ensure no worsening of symptoms.",
+  None: "No treatment required. Continue with regular wellness checkups.",
+  Unknown:
+    "Assessment required to determine the patient's risk level and treatment plan.",
 };
 
 const PatientDetails = () => {
   const router = useRouter();
   const { patientId } = useLocalSearchParams();
-  const patient = patientsData[patientId as string];
+  const [patient, setPatient] = useState<UserWithPatientData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPatient = async (patientId: number) => {
+      try {
+        const data = await getPatientData(patientId);
+        setPatient(data);
+        console.log(data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPatient(Number(patientId));
+  }, [patientId]);
+
   const riskColorMap: { [key: string]: string } = {
     Severe: "red300",
     "Moderately Severe": "orange300",
@@ -102,7 +69,19 @@ const PatientDetails = () => {
     Unknown: "gray100",
   };
   const getTextRiskColor = (risk: string) => riskColorMap[risk] || "gray100";
-  const textRiskColor = getTextRiskColor(patient.risk);
+  const textRiskColor = getTextRiskColor(patient?.patient_data?.severity || "");
+
+  if (loading) {
+    return (
+      <View className="flex-1 justify-center items-center">
+        <ActivityIndicator size="large" color="#256CD0" />
+      </View>
+    );
+  }
+
+  const severity = patient?.patient_data?.severity || "Unknown";
+  const riskDescription = riskDescriptions[severity];
+  const treatment = treatments[severity];
 
   return (
     <SafeAreaView className="flex-1 bg-blue100">
@@ -118,19 +97,19 @@ const PatientDetails = () => {
             <View className="flex-col">
               <View className="flex-row items-center gap-x-4">
                 <CustomText className="text-[20px] font-medium text-black">
-                  {patient.name}
+                  {patient?.name}
                 </CustomText>
                 <View
                   className={`border-2 ${
-                    patient.risk === "Severe"
+                    severity === "Severe"
                       ? "border-red300"
-                      : patient.risk === "Moderately Severe"
+                      : severity === "Moderately Severe"
                       ? "border-[#cd6000]"
-                      : patient.risk === "Moderate"
+                      : severity === "Moderate"
                       ? "border-[#b68500]"
-                      : patient.risk === "Mild"
+                      : severity === "Mild"
                       ? "border-[#8d9700]"
-                      : patient.risk === "None"
+                      : severity === "None"
                       ? "border-[#535353]"
                       : "border-gray100"
                   } px-4 py-1 rounded-full`}
@@ -138,7 +117,7 @@ const PatientDetails = () => {
                   <CustomText
                     className={`text-${textRiskColor} text-[16px] font-bold`}
                   >
-                    {patient.risk.split(" ").join("\n")}
+                    {severity.split(" ").join("\n")}
                   </CustomText>
                 </View>
               </View>
@@ -173,7 +152,7 @@ const PatientDetails = () => {
                 Date of Birth
               </CustomText>
               <CustomText className="text-[16px] text-black font-medium">
-                {patient.dob}
+                {patient?.dob ? patient?.dob : "-"}
               </CustomText>
             </View>
 
@@ -182,7 +161,7 @@ const PatientDetails = () => {
                 Sex
               </CustomText>
               <CustomText className="text-[16px] text-black font-medium">
-                {patient.sex}
+                {patient?.sex ? patient?.sex : "-"}
               </CustomText>
             </View>
           </View>
@@ -193,7 +172,7 @@ const PatientDetails = () => {
                 Occupation
               </CustomText>
               <CustomText className="text-[16px] text-black font-medium">
-                {patient.occupation}
+                {patient?.occupation ? patient?.occupation : "-"}
               </CustomText>
             </View>
           </View>
@@ -210,10 +189,10 @@ const PatientDetails = () => {
             <CustomText
               className={`text-${textRiskColor} font-bold text-[24px] mb-[14px]`}
             >
-              {patient.risk}
+              {severity}
             </CustomText>
             <CustomText className="text-gray300 text-[16px]">
-              {patient.riskDescription}
+              {riskDescription}
             </CustomText>
           </View>
         </View>
@@ -230,7 +209,8 @@ const PatientDetails = () => {
               Assess patient’s status
             </CustomText>
             <CustomText className="text-gray300 text-[16px]">
-              {patient.riskDescription}
+              Evaluate the patient's current mental health status by reviewing
+              their consented data to monitor symptoms and track progress.
             </CustomText>
             <Pressable className="border border-blue200 rounded-full py-[18px] my-[16px] items-center">
               <CustomText className="text-blue200 text-[16px] font-medium">
@@ -245,7 +225,7 @@ const PatientDetails = () => {
                 Treatment
               </CustomText>
               <CustomText className="text-gray300 text-[16px]">
-                {patient.treatment}
+                {treatment}
               </CustomText>
             </View>
           </View>

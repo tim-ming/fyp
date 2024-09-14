@@ -9,6 +9,7 @@ import {
   UserCreate,
   UserUpdate,
   UserWithoutSensitiveData,
+  UserWithPatientData,
 } from "@/types/models";
 
 export const handleNotOk = async (response: Response) => {
@@ -167,4 +168,21 @@ export const getPatients = async (): Promise<UserWithoutSensitiveData[]> => {
 
   const patients: User[] = await response.json();
   return patients;
+};
+
+export const getPatientData = async (
+  id: number
+): Promise<UserWithPatientData> => {
+  const { token } = useAuth.getState();
+
+  const response = await fetch(`${BACKEND_URL}/patient-data/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token?.access_token}`,
+    },
+  });
+
+  await handleNotOk(response);
+
+  const patient: UserWithPatientData = await response.json();
+  return patient;
 };

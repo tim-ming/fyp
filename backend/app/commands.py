@@ -29,7 +29,13 @@ def create_user(db: Session, user: schemas.UserCreate) -> models.User:
     :return (models.User): New user
     """
     db_user = models.User(
-        email=user.email, name=user.name, hashed_password=user.password, is_therapist=user.is_therapist
+        email=user.email, 
+        name=user.name, 
+        dob=user.dob, 
+        sex=user.sex, 
+        occupation=user.occupation,
+        hashed_password=user.password, 
+        is_therapist=user.is_therapist
     )
     db.add(db_user)
     db.commit()

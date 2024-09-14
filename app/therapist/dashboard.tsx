@@ -296,7 +296,7 @@ const PatientsList: React.FC = () => {
         ListFooterComponent={() => (
           <Pressable
             className={`p-4 ${
-              allPatientsData.length % 2 == 0 ? "bg-gray0" : "bg-white"
+              visiblePatients.length % 2 == 0 ? "bg-gray0" : "bg-white"
             } items-center rounded-b-xl`}
             onPress={togglePatientsVisibility}
           >

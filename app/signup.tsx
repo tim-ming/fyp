@@ -40,6 +40,8 @@ const UserDetails: React.FC<{
   setName: (name: string) => void;
   dob: Date;
   setDob: (dob: Date) => void;
+  occupation: string;
+  setOccupation: (occupation: string) => void;
   selectedSex: Sex;
   setSelectedSex: (sex: Sex) => void;
   onSubmit: () => Promise<Response>;
@@ -48,6 +50,8 @@ const UserDetails: React.FC<{
   setName,
   dob,
   setDob,
+  occupation,
+  setOccupation,
   selectedSex,
   setSelectedSex,
   onSubmit,
@@ -118,19 +122,15 @@ const UserDetails: React.FC<{
           <CustomText className="text-3xl font-semibold text-black">
             Fill in your details.
           </CustomText>
-
           {/* Subtitle */}
           <CustomText className="mt-2 text-gray200">
             We need your details to help us deliver accurate & personalized
             insights.
           </CustomText>
-
           <CustomText className="mt-4 text-blue200 font-medium">
             Find out how and why we need your data.
           </CustomText>
-
           <View className="w-full h-px bg-gray50 my-6" />
-
           {/* Full Name Input */}
           <CustomText className="mb-2 text-base text-black font-medium">
             Full name
@@ -156,7 +156,28 @@ const UserDetails: React.FC<{
           {errors.name && (
             <CustomText className="text-red-500 mb-4">{errors.name}</CustomText>
           )}
-
+          {/* Occupation Input */}
+          <CustomText className="mb-2 text-base text-black font-medium">
+            Occupation
+          </CustomText>
+          <Pressable className={`mb-4`} tabIndex={-1}>
+            <View className="relative">
+              <TextInput
+                style={{ ...shadows.card }}
+                className="h-14 bg-white text-base rounded-2xl pl-12 pr-4 font-[PlusJakartaSans] placeholder:text-gray100"
+                placeholder="Enter your occupation"
+                value={occupation}
+                onChangeText={setOccupation}
+              />
+              <User
+                width={24}
+                height={24}
+                strokeWidth={1.5}
+                pointerEvents="none"
+                className="fill-gray200 absolute left-4 top-0 h-full w-6 items-center justify-center"
+              />
+            </View>
+          </Pressable>
           {/* Sex Selection */}
           <CustomText className="mb-2 text-base text-black font-medium">
             Sex
@@ -216,7 +237,6 @@ const UserDetails: React.FC<{
           {errors.sex && (
             <CustomText className="text-red-500 mb-4">{errors.sex}</CustomText>
           )}
-
           {/* Date of Birth Input */}
           <CustomText className="mt-6 text-sm text-black">
             Date of birth
@@ -268,7 +288,6 @@ const UserDetails: React.FC<{
           {errors.dob && (
             <CustomText className="text-red-500 mt-2">{errors.dob}</CustomText>
           )}
-
           {/* Date Picker Modal */}
           {Platform.OS !== "web" && (
             <DatePicker
@@ -577,24 +596,20 @@ const Screen = () => {
   const [name, setName] = useState("");
   const [dob, setDob] = useState(new Date());
   const [selectedSex, setSelectedSex] = useState<Sex | null>(null);
+  const [occupation, setOccupation] = useState("");
   const auth = useAuth();
   const onSubmit = async () => {
     // TODO: make postSignup take a data object?
     const data = {
-      email,
-      password,
-      name,
+      email: email,
+      password: password,
+      name: name,
       sex: selectedSex,
-      dob,
+      occupation: occupation,
+      dob: dob.toISOString().split("T")[0],
     };
 
-    const signupResponse = await postSignup(
-      email,
-      password,
-      name,
-      selectedSex,
-      dob
-    );
+    const signupResponse = await postSignup(data);
     if (!signupResponse.ok) {
       const signupError = await signupResponse.json();
       throw new Error(signupError.detail);
@@ -628,6 +643,8 @@ const Screen = () => {
       setName={setName}
       dob={dob}
       setDob={setDob}
+      occupation={occupation}
+      setOccupation={setOccupation}
       selectedSex={selectedSex}
       setSelectedSex={setSelectedSex}
       onSubmit={onSubmit}

@@ -6,6 +6,9 @@ export interface UserBase {
 // User Create Schema
 export interface UserCreate extends UserBase {
   name: string;
+  dob: string;
+  sex: string | null;
+  occupation: string;
   password: string;
   is_therapist?: boolean; // Optional with a default value of false
 }
@@ -21,6 +24,9 @@ export interface UserUpdate extends UserBase {
 export interface User extends UserBase {
   id: number;
   name: string;
+  dob: string;
+  sex: string | null;
+  occupation: string;
   hashed_password: string;
   is_active: boolean;
   has_onboarded: boolean;
@@ -33,6 +39,9 @@ export interface User extends UserBase {
 export interface UserWithoutSensitiveData extends UserBase {
   id: number;
   name: string;
+  dob: string;
+  sex: string | null;
+  occupation: string;
   is_active: boolean;
   has_onboarded: boolean;
   is_therapist: boolean;

@@ -17,6 +17,9 @@ class UserCreate(UserBase):
     """
 
     name: str
+    dob: date
+    sex: str
+    occupation: Optional[str] = None
     password: str
     is_therapist: Optional[bool] = False
 
@@ -36,6 +39,9 @@ class User(UserBase):
 
     id: int
     name: str
+    dob: Optional[date]
+    sex: Optional[str]
+    occupation: Optional[str]
     hashed_password: str
     is_active: bool
     has_onboarded: bool
@@ -54,6 +60,9 @@ class UserWithoutSensitiveData(UserBase):
 
     id: int
     name: str
+    dob: Optional[date]
+    sex: Optional[str]
+    occupation: Optional[str]
     is_active: bool
     has_onboarded: bool
     is_therapist: bool

@@ -6,6 +6,7 @@ import {
   JournalEntryCreate,
   Token,
   User,
+  UserCreate,
   UserUpdate,
   UserWithoutSensitiveData,
 } from "@/types/models";
@@ -105,16 +106,10 @@ export const getJournalEntries = async (
   return journals;
 };
 
-export const postSignup = async (
-  email: string,
-  password: string,
-  name: string,
-  sex: Sex,
-  dob: Date
-): Promise<Response> => {
+export const postSignup = async (user: UserCreate): Promise<Response> => {
   const response = await fetch(`${BACKEND_URL}/signup`, {
     method: "POST",
-    body: JSON.stringify({ email, password, name }),
+    body: JSON.stringify(user),
     headers: {
       "Content-Type": "application/json",
     },

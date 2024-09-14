@@ -22,6 +22,9 @@ class User(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
+    dob = Column(Date)
+    sex = Column(String)
+    occupation = Column(String, nullable=True)
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String)
     is_active = Column(Boolean, default=True)

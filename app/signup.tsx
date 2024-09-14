@@ -112,7 +112,7 @@ const UserDetails: React.FC<{
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <View className="flex-1 p-4 pt-20 bg-gray-100 justify-between">
+      <View className="flex-1 p-4 pt-20 bg-blue100 justify-between">
         <View>
           {/* Title */}
           <CustomText className="text-3xl font-semibold text-black">
@@ -419,7 +419,7 @@ const SignUp: React.FC<{
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <View className="flex-1 p-4 pt-20 bg-gray-100">
+      <View className="flex-1 p-4 pt-20 bg-blue100">
         <View className="flex flex-col">
           <CustomText className="text-4xl leading-10 font-medium text-black200 tracking-tighter">
             Hello!

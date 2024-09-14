@@ -68,7 +68,7 @@ const SignInScreen = () => {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <View className="flex-1 p-4 pt-20 bg-gray-100">
+      <View className="flex-1 p-4 pt-20 bg-blue100">
         <View className="flex flex-col">
           <CustomText className="text-4xl leading-10 font-medium text-black200 tracking-tighter">
             Hello!

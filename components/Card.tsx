@@ -5,7 +5,7 @@ import { shadows } from "@/constants/styles";
 import { Colors } from "@/constants/Colors";
 import { Image } from "expo-image";
 
-interface CardProps {
+export interface CardProps {
   title: string;
   subtitle?: string;
   href: Href<string | object>;

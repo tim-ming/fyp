@@ -37,7 +37,7 @@ const postJournalEntryHandler = async (journal: JournalInput) => {
   try {
     const data = await postJournalEntry({
       ...journal,
-      date: new Date(),
+      date: new Date().toISOString().split("T")[0],
     } as JournalEntryCreate);
     console.log(data);
   } catch (error) {

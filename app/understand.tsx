@@ -84,7 +84,7 @@ const SocialMediaScreen = () => {
   };
 
   return (
-    <View className="flex-1 p-4 bg-gray-100 pt-20">
+    <View className="flex-1 p-4 bg-blue100 pt-20">
       <CustomText
         letterSpacing="tighter"
         className="text-4xl leading-10 font-medium text-black mb-6"

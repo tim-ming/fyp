@@ -75,7 +75,7 @@ export interface Token {
 // Base Mood Entry Schema
 export interface MoodEntryBase {
   mood: number;
-  date: Date;
+  date: string;
 }
 
 // Mood Entry Create Schema
@@ -91,7 +91,7 @@ export interface JournalEntryBase {
   title: string;
   body: string;
   image?: string | null;
-  date: Date;
+  date: string;
 }
 
 // Journal Entry Create Schema
@@ -105,7 +105,7 @@ export interface JournalEntry extends JournalEntryBase {
 // Base Guided Journal Entry Schema
 export interface GuidedJournalEntryBase {
   body: string;
-  date: Date;
+  date: string;
 }
 
 // Guided Journal Entry Create Schema

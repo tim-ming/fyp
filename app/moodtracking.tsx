@@ -1,3 +1,4 @@
+import { postMoodEntry } from "@/api/api";
 import EatIcon from "@/assets/icons/eat.svg";
 import HeartIcon from "@/assets/icons/heart.svg";
 import MoonIcon from "@/assets/icons/moon.svg";
@@ -5,6 +6,7 @@ import CustomText from "@/components/CustomText";
 import { Colors } from "@/constants/Colors";
 import { getStatus } from "@/constants/globals";
 import { shadows } from "@/constants/styles";
+import { MoodEntryCreate } from "@/types/models";
 import { Slider } from "@miblanchard/react-native-slider";
 import { router } from "expo-router";
 import React, { useState } from "react";
@@ -69,12 +71,30 @@ const MoodSliderSection: React.FC<MoodSliderSectionProps> = ({
   );
 };
 
+const scale = (value: number, scale = 100) => {
+  if (value < 0 || value > 1) {
+    throw new Error("Value must be in the range 0.0 - 1.0");
+  }
+  return Math.round(value * scale);
+};
+
 export default function MoodScreen() {
   const [feeling, setFeeling] = useState(0.5);
   const [eating, setEating] = useState(0.5);
   const [sleeping, setSleeping] = useState(0.5);
 
-  const submit = () => {
+  const submit = async (mood: number, eat: number, sleep: number) => {
+    try {
+      const data = await postMoodEntry({
+        mood: mood,
+        eat: eat,
+        sleep: sleep,
+        date: new Date().toISOString().split("T")[0],
+      } as MoodEntryCreate);
+      console.log("Mood", data);
+    } catch (error) {
+      console.error(error);
+    }
     router.push("/");
   };
   const skip = () => {
@@ -86,13 +106,13 @@ export default function MoodScreen() {
       <View className="flex-1 justify-center items-center w-full">
         <CustomText
           letterSpacing="tight"
-          className="text-xl font-medium mb-12 text-black"
+          className="text-xl font-medium mt-6 text-black"
         >
           How are you today?
         </CustomText>
       </View>
 
-      <View className="flex-1 justify-center w-full">
+      <View className="justify-center w-full">
         <MoodSliderSection
           label="I feel"
           value={feeling}
@@ -125,7 +145,9 @@ export default function MoodScreen() {
       </View>
       <View className="flex-1 justify-end w-full">
         <Pressable
-          onPress={submit}
+          onPress={() => {
+            submit(scale(feeling), scale(eating), scale(sleeping));
+          }}
           className="w-full h-14 bg-blue200 rounded-full justify-center items-center mb-2"
         >
           <CustomText className="text-base font-medium text-white">

@@ -6,6 +6,8 @@ import {
   GuidedJournalEntryCreate,
   JournalEntry,
   JournalEntryCreate,
+  MoodEntry,
+  MoodEntryCreate,
   Token,
   User,
   UserCreate,
@@ -226,5 +228,43 @@ export const postGuidedJournalEntry = async (
   await handleNotOk(response);
 
   const data: GuidedJournalEntry = await response.json();
+  return data;
+};
+
+export const getMoodEntry = async (date: string): Promise<MoodEntry> => {
+  const { token } = useAuth.getState();
+
+  const response = await fetch(
+    `${BACKEND_URL}/mood/date/${encodeURIComponent(date)}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token?.access_token}`,
+      },
+    }
+  );
+
+  await handleNotOk(response);
+
+  const data: MoodEntry = await response.json();
+  return data;
+};
+
+export const postMoodEntry = async (
+  mood: MoodEntryCreate
+): Promise<MoodEntry> => {
+  const { token } = useAuth.getState();
+
+  const response = await fetch(`${BACKEND_URL}/mood`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token?.access_token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(mood),
+  });
+
+  await handleNotOk(response);
+
+  const data: MoodEntry = await response.json();
   return data;
 };

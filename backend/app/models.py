@@ -81,6 +81,8 @@ class MoodEntry(Base):
     id = Column(Integer, primary_key=True)
     date = Column(Date, index=True)
     mood = Column(SmallInteger)
+    eat = Column(SmallInteger)
+    sleep = Column(SmallInteger)
     patient_data_id = Column(Integer, ForeignKey("patient_data.id"), index=True)
 
     patient_data = relationship("PatientData", back_populates="mood_entries")

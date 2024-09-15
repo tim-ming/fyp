@@ -94,6 +94,8 @@ export interface Token {
 // Base Mood Entry Schema
 export interface MoodEntryBase {
   mood: number;
+  eat: number;
+  sleep: number;
   date: string;
 }
 

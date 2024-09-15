@@ -113,10 +113,14 @@ def upsert_mood_entry(
     if db_mood_entry:
         # Update existing entry
         db_mood_entry.mood = mood_entry.mood
+        db_mood_entry.eat = mood_entry.eat
+        db_mood_entry.sleep = mood_entry.sleep
     else:
         # Create new entry
         db_mood_entry = models.MoodEntry(
-            mood=mood_entry.mood, 
+            mood=mood_entry.mood,
+            eat = mood_entry.eat,
+            leep = mood_entry.sleep,
             date=mood_entry.date, 
             patient_data_id=db_patient_data.id
         )

@@ -144,6 +144,8 @@ class MoodEntryBase(BaseModel):
     """
 
     mood: int
+    eat: int
+    sleep: int
     date: date
 
 

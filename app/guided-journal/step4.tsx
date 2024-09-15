@@ -1,22 +1,38 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, TextInput, Pressable } from "react-native";
 import { router } from "expo-router";
 import CustomText from "@/components/CustomText";
 import { Colors } from "@/constants/Colors";
-import { postGuidedJournalEntry } from "@/api/api";
+import { getGuidedJournalEntry, postGuidedJournalEntry } from "@/api/api";
 import { GuidedJournalEntryCreate } from "@/types/models";
-import { useJournalStore } from "@/state/state";
+import { useHydration, useJournalStore } from "@/state/state";
 import { capitalizeFirstLetter, getDayOfWeek } from "@/utils/helpers";
 import { format } from "date-fns";
 
 const GuidedJournalStep4: React.FC = () => {
   const today = new Date();
   const date = today.toISOString().split("T")[0];
+  const isHydrated = useHydration();
 
   const { guidedJournalEntry, setGuidedJournalEntry } = useJournalStore();
   const [step4Text, setStep4Text] = useState<string>(
     guidedJournalEntry?.step4_text || ""
   );
+
+  useEffect(() => {
+    if (!isHydrated || guidedJournalEntry?.step4_text) return;
+    const fetchData = async () => {
+      const data = await getGuidedJournalEntry(date);
+      if (data) {
+        setStep4Text(data.body.step4_text ?? "");
+        setGuidedJournalEntry({
+          ...data.body,
+          step4_text: data.body.step4_text ?? "",
+        });
+      }
+    };
+    fetchData();
+  }, [isHydrated]);
 
   const handleNext = () => {
     const updatedEntry = {

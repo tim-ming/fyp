@@ -1,12 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Pressable, ScrollView } from "react-native";
 import { router } from "expo-router";
 import CustomText from "@/components/CustomText";
 import { CognitiveDistortion, GuidedJournalEntryCreate } from "@/types/models";
-import { postGuidedJournalEntry } from "@/api/api";
+import { getGuidedJournalEntry, postGuidedJournalEntry } from "@/api/api";
 import { capitalizeFirstLetter, getDayOfWeek } from "@/utils/helpers";
 import { format } from "date-fns";
-import { useJournalStore } from "@/state/state";
+import { useHydration, useJournalStore } from "@/state/state";
 
 const distortionOptions = [
   {
@@ -64,6 +64,7 @@ const distortionOptions = [
 const GuidedJournalStep2: React.FC = () => {
   const today = new Date();
   const date = today.toISOString().split("T")[0];
+  const isHydrated = useHydration();
 
   const { guidedJournalEntry, setGuidedJournalEntry } = useJournalStore();
   const [selectedDistortions, setSelectedDistortions] = useState<
@@ -77,6 +78,22 @@ const GuidedJournalStep2: React.FC = () => {
         : [...prevSelected, distortion]
     );
   };
+
+  useEffect(() => {
+    if (!isHydrated || guidedJournalEntry?.step2_selected_distortions) return;
+    const fetchData = async () => {
+      const data = await getGuidedJournalEntry(date);
+      if (data) {
+        setSelectedDistortions(data.body.step2_selected_distortions || []);
+        setGuidedJournalEntry({
+          ...data.body,
+          step2_selected_distortions:
+            data.body.step2_selected_distortions || [],
+        });
+      }
+    };
+    fetchData();
+  }, [isHydrated]);
 
   const handleNext = () => {
     const updatedEntry = {

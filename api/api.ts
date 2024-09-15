@@ -2,6 +2,8 @@ import { BACKEND_URL } from "@/constants/globals";
 import { useAuth } from "@/state/state";
 import { Sex } from "@/types/globals";
 import {
+  GuidedJournalEntry,
+  GuidedJournalEntryCreate,
   JournalEntry,
   JournalEntryCreate,
   Token,
@@ -185,4 +187,44 @@ export const getPatientData = async (
 
   const patient: UserWithPatientData = await response.json();
   return patient;
+};
+
+export const getGuidedJournalEntry = async (
+  date: string
+): Promise<GuidedJournalEntry> => {
+  const { token } = useAuth.getState();
+
+  const response = await fetch(
+    `${BACKEND_URL}/guided-journals/date/${encodeURIComponent(date)}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token?.access_token}`,
+      },
+    }
+  );
+
+  await handleNotOk(response);
+
+  const data: GuidedJournalEntry = await response.json();
+  return data;
+};
+
+export const postGuidedJournalEntry = async (
+  guidedJournal: GuidedJournalEntryCreate
+): Promise<GuidedJournalEntry> => {
+  const { token } = useAuth.getState();
+
+  const response = await fetch(`${BACKEND_URL}/guided-journals`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token?.access_token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(guidedJournal),
+  });
+
+  await handleNotOk(response);
+
+  const data: GuidedJournalEntry = await response.json();
+  return data;
 };

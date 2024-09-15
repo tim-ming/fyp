@@ -7,7 +7,8 @@ from sqlalchemy import (
     Integer,
     SmallInteger,
     String,
-    Date
+    Date,
+    JSON
 )
 from sqlalchemy.orm import relationship
 from app.database import Base
@@ -118,7 +119,7 @@ class GuidedJournalEntry(Base):
 
     id = Column(Integer, primary_key=True)
     date = Column(Date, index=True)
-    body = Column(String)
+    body = Column(JSON)
     patient_data_id = Column(Integer, ForeignKey("patient_data.id"), index=True)
 
     patient_data = relationship("PatientData", back_populates="guided_journal_entries")

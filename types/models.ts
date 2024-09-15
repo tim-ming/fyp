@@ -121,9 +121,31 @@ export interface JournalEntry extends JournalEntryBase {
   id: number;
 }
 
+// Enum for distortion types
+export enum CognitiveDistortion {
+  FortuneTelling = "Fortune-telling",
+  ShouldStatements = "Should statements",
+  MindReading = "Mind Reading",
+  Catastrophising = "Catastrophising",
+  EmotionalReasoning = "Emotional Reasoning",
+  AllOrNothingThinking = "All-or-Nothing Thinking",
+  BlackAndWhiteThinking = "Black and White Thinking",
+  Personalisation = "Personalisation",
+  DiscountingThePositive = "Discounting the Positive",
+  Labelling = "Labelling",
+}
+
+// Base Guided Journal Body Schema
+export interface GuidedJournalBody {
+  step1_text?: string | null;
+  step2_selected_distortions?: CognitiveDistortion[] | null;
+  step3_text?: string | null;
+  step4_text?: string | null;
+}
+
 // Base Guided Journal Entry Schema
 export interface GuidedJournalEntryBase {
-  body: string;
+  body: GuidedJournalBody;
   date: string;
 }
 

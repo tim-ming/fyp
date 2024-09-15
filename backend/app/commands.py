@@ -331,14 +331,16 @@ def upsert_guided_journal_entry(
         .filter(models.GuidedJournalEntry.date == guided_journal_entry.date)
         .first()
     )
+    
+    journal_body_dict = guided_journal_entry.body.dict()
 
     if db_guided_journal_entry:
         # Update existing entry
-        db_guided_journal_entry.body = guided_journal_entry.body
+        db_guided_journal_entry.body = journal_body_dict
     else:
         # Create new entry
         db_guided_journal_entry = models.GuidedJournalEntry(
-            body=guided_journal_entry.body,
+            body=journal_body_dict,
             date=guided_journal_entry.date,
             patient_data_id=db_patient_data.id
         )

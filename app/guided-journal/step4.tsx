@@ -1,19 +1,46 @@
-import React from "react";
-import { View, Text, TextInput, Pressable } from "react-native";
-import { Link } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
+import React, { useState } from "react";
+import { View, TextInput, Pressable } from "react-native";
+import { router } from "expo-router";
 import CustomText from "@/components/CustomText";
 import { Colors } from "@/constants/Colors";
+import { postGuidedJournalEntry } from "@/api/api";
+import { GuidedJournalEntryCreate } from "@/types/models";
+import { useJournalStore } from "@/state/state";
+import { capitalizeFirstLetter, getDayOfWeek } from "@/utils/helpers";
+import { format } from "date-fns";
 
 const GuidedJournalStep4: React.FC = () => {
+  const today = new Date();
+  const date = today.toISOString().split("T")[0];
+
+  const { guidedJournalEntry, setGuidedJournalEntry } = useJournalStore();
+  const [step4Text, setStep4Text] = useState<string>(
+    guidedJournalEntry?.step4_text || ""
+  );
+
+  const handleNext = () => {
+    const updatedEntry = {
+      ...guidedJournalEntry,
+      step4_text: step4Text,
+    };
+
+    setGuidedJournalEntry(updatedEntry);
+    postGuidedJournalEntry({
+      body: updatedEntry,
+      date: today.toISOString().split("T")[0],
+    } as GuidedJournalEntryCreate);
+
+    router.push("/guided-journal/completion");
+  };
+
   return (
     <View className="flex-1 justify-between bg-blue100 px-2 pt-12">
       <View>
         <CustomText className="text-[16px] font-semibold text-center text-gray200">
-          Wednesday
+          {capitalizeFirstLetter(getDayOfWeek(today.toISOString()))}
         </CustomText>
         <CustomText className="text-[20px] font-semibold text-center text-gray200">
-          21 Aug 2024
+          {format(date, "dd MMM yyyy")}
         </CustomText>
       </View>
 
@@ -39,16 +66,19 @@ const GuidedJournalStep4: React.FC = () => {
         placeholder="I'm not sure, maybe I will be able to find out tomorrow..."
         multiline
         placeholderTextColor={Colors.gray100}
+        value={step4Text}
+        onChangeText={(text) => setStep4Text(text)}
       />
 
       <View className="flex-1 justify-end mb-6 mx-2">
-        <Link href="/guided-journal/completion" asChild>
-          <Pressable className="h-14 bg-blue200 items-center justify-center rounded-full">
-            <CustomText className="text-white text-base font-medium">
-              Finish thought
-            </CustomText>
-          </Pressable>
-        </Link>
+        <Pressable
+          onPress={handleNext}
+          className="h-14 bg-blue200 items-center justify-center rounded-full"
+        >
+          <CustomText className="text-white text-base font-medium">
+            Finish thought
+          </CustomText>
+        </Pressable>
       </View>
     </View>
   );

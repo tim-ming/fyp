@@ -1,4 +1,4 @@
-import { Token, User } from "@/types/models";
+import { GuidedJournalBody, Token, User } from "@/types/models";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -61,3 +61,14 @@ export const useHydration = () => {
 
   return hydrated;
 };
+
+// non-persistent store for guided journal entries
+type JournalStore = {
+  guidedJournalEntry: GuidedJournalBody | null;
+  setGuidedJournalEntry: (entry: GuidedJournalBody) => void;
+};
+
+export const useJournalStore = create<JournalStore>((set) => ({
+  guidedJournalEntry: null,
+  setGuidedJournalEntry: (entry) => set({ guidedJournalEntry: entry }),
+}));

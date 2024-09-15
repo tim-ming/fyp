@@ -1,77 +1,106 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Pressable, ScrollView } from "react-native";
-import { Link } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { View, Pressable, ScrollView } from "react-native";
+import { router } from "expo-router";
 import CustomText from "@/components/CustomText";
+import { CognitiveDistortion, GuidedJournalEntryCreate } from "@/types/models";
+import { postGuidedJournalEntry } from "@/api/api";
+import { capitalizeFirstLetter, getDayOfWeek } from "@/utils/helpers";
+import { format } from "date-fns";
+import { useJournalStore } from "@/state/state";
 
 const distortionOptions = [
   {
     id: 1,
-    title: "Fortune-telling",
+    title: CognitiveDistortion.FortuneTelling,
     description: "“I’m going to fail this assignment.”",
   },
   {
     id: 2,
-    title: "Should statements",
+    title: CognitiveDistortion.ShouldStatements,
     description: "“I should have known that.”",
   },
   {
     id: 3,
-    title: "Mind Reading",
-    // description: "“They don’t want to talk to me.”",
+    title: CognitiveDistortion.MindReading,
     description: "“The audience doesn't like this presentation.”",
   },
   {
     id: 4,
-    title: "Catastrophising",
+    title: CognitiveDistortion.Catastrophising,
     description: "“I made a mistake, now they’re going to hate me.”",
   },
   {
     id: 5,
-    title: "Emotional Reasoning",
+    title: CognitiveDistortion.EmotionalReasoning,
     description: "“I am anxious so I will stutter while talking.”",
   },
   {
     id: 6,
-    title: "All-or-Nothing Thinking",
+    title: CognitiveDistortion.AllOrNothingThinking,
     description: "“If I don’t succeed completely, I’m a total failure.”",
   },
   {
     id: 7,
-    title: "Black and White Thinking",
+    title: CognitiveDistortion.BlackAndWhiteThinking,
     description: "“I am a failure.”",
   },
   {
     id: 8,
-    title: "Personalisation",
+    title: CognitiveDistortion.Personalisation,
     description: "“They are not talking to me because I am boring.”",
   },
   {
     id: 9,
-    title: "Discounting the Positive",
+    title: CognitiveDistortion.DiscountingThePositive,
     description: "“They are only being nice to me because they have to.”",
   },
-  { id: 10, title: "Labelling", description: "“I am just a lazy person.”" },
+  {
+    id: 10,
+    title: CognitiveDistortion.Labelling,
+    description: "“I am just a lazy person.”",
+  },
 ];
 
 const GuidedJournalStep2: React.FC = () => {
-  const [selectedDistortions, setSelectedDistortions] = useState<number[]>([]);
+  const today = new Date();
+  const date = today.toISOString().split("T")[0];
 
-  const handleSelectDistortion = (id: number): void => {
+  const { guidedJournalEntry, setGuidedJournalEntry } = useJournalStore();
+  const [selectedDistortions, setSelectedDistortions] = useState<
+    CognitiveDistortion[]
+  >(guidedJournalEntry?.step2_selected_distortions || []);
+
+  const handleSelectDistortion = (distortion: CognitiveDistortion) => {
     setSelectedDistortions((prevSelected) =>
-      prevSelected.includes(id)
-        ? prevSelected.filter((distortionId) => distortionId !== id)
-        : [...prevSelected, id]
+      prevSelected.includes(distortion)
+        ? prevSelected.filter((d) => d !== distortion)
+        : [...prevSelected, distortion]
     );
   };
+
+  const handleNext = () => {
+    const updatedEntry = {
+      ...guidedJournalEntry,
+      step2_selected_distortions: selectedDistortions,
+    };
+
+    setGuidedJournalEntry(updatedEntry);
+    postGuidedJournalEntry({
+      body: updatedEntry,
+      date: today.toISOString().split("T")[0],
+    } as GuidedJournalEntryCreate);
+
+    router.push("/guided-journal/step3");
+  };
+
   return (
     <View className="flex-1 bg-blue100 px-2 pt-12">
       <View>
         <CustomText className="text-[16px] font-semibold text-center text-gray200">
-          Wednesday
+          {capitalizeFirstLetter(getDayOfWeek(today.toISOString()))}
         </CustomText>
         <CustomText className="text-[20px] font-semibold text-center text-gray200">
-          21 Aug 2024
+          {format(date, "dd MMM yyyy")}
         </CustomText>
       </View>
 
@@ -87,7 +116,7 @@ const GuidedJournalStep2: React.FC = () => {
       </CustomText>
 
       <View className="mt-4 mx-2 p-4 bg-white rounded-3xl">
-        <CustomText className=" text-black100 leading-4 text-[14px] ">
+        <CustomText className="text-black100 leading-4 text-[14px]">
           {`Look at your thought again.\n
 Test whether any of the common distortions apply to your thoughts.`}
         </CustomText>
@@ -97,14 +126,16 @@ Test whether any of the common distortions apply to your thoughts.`}
         {distortionOptions.map((item) => (
           <Pressable
             key={item.id}
-            onPress={() => handleSelectDistortion(item.id)}
+            onPress={() => handleSelectDistortion(item.title)}
             className={`p-4 rounded-3xl mb-4 mx-2 ${
-              selectedDistortions.includes(item.id) ? "bg-blue200" : "bg-white"
+              selectedDistortions.includes(item.title)
+                ? "bg-blue200"
+                : "bg-white"
             }`}
           >
             <CustomText
               className={`text-lg font-semibold ${
-                selectedDistortions.includes(item.id)
+                selectedDistortions.includes(item.title)
                   ? "text-white"
                   : "text-gray-800"
               }`}
@@ -113,7 +144,7 @@ Test whether any of the common distortions apply to your thoughts.`}
             </CustomText>
             <CustomText
               className={`text-base ${
-                selectedDistortions.includes(item.id)
+                selectedDistortions.includes(item.title)
                   ? "text-white"
                   : "text-gray-500"
               }`}
@@ -125,13 +156,14 @@ Test whether any of the common distortions apply to your thoughts.`}
       </ScrollView>
 
       <View className="flex-1 justify-end mb-6 mx-2">
-        <Link href="/guided-journal/step3" asChild>
-          <Pressable className="h-14 bg-blue200 items-center justify-center rounded-full">
-            <CustomText className="text-white text-base font-medium">
-              Next
-            </CustomText>
-          </Pressable>
-        </Link>
+        <Pressable
+          onPress={handleNext}
+          className="h-14 bg-blue200 items-center justify-center rounded-full"
+        >
+          <CustomText className="text-white text-base font-medium">
+            Next
+          </CustomText>
+        </Pressable>
       </View>
     </View>
   );

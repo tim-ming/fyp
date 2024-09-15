@@ -1,19 +1,63 @@
-import React from "react";
-import { View, Text, TextInput, Pressable } from "react-native";
-import { Link } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
+import React, { useEffect, useState } from "react";
+import { View, TextInput, Pressable } from "react-native";
+import { router } from "expo-router";
 import CustomText from "@/components/CustomText";
 import { Colors } from "@/constants/Colors";
+import { getGuidedJournalEntry, postGuidedJournalEntry } from "@/api/api";
+import { GuidedJournalBody, GuidedJournalEntryCreate } from "@/types/models";
+import { useHydration, useJournalStore } from "@/state/state";
+import { capitalizeFirstLetter, getDayOfWeek } from "@/utils/helpers";
+import { format } from "date-fns";
 
 const GuidedJournalStep1: React.FC = () => {
+  const today = new Date();
+  const date = today.toISOString().split("T")[0];
+  const isHydrated = useHydration();
+
+  const { guidedJournalEntry, setGuidedJournalEntry } = useJournalStore();
+
+  const [step1Text, setStep1Text] = useState<string>(
+    guidedJournalEntry?.step1_text || ""
+  );
+
+  useEffect(() => {
+    if (!isHydrated || guidedJournalEntry?.step1_text) return;
+    const fetchData = async () => {
+      const data = await getGuidedJournalEntry(date);
+      if (data) {
+        setStep1Text(data.body.step1_text ?? "");
+        setGuidedJournalEntry({
+          ...data.body,
+          step1_text: data.body.step1_text ?? "",
+        });
+      }
+    };
+    fetchData();
+  }, [isHydrated]);
+
+  const handleNext = () => {
+    const updatedEntry: GuidedJournalBody = {
+      ...guidedJournalEntry,
+      step1_text: step1Text,
+    };
+
+    setGuidedJournalEntry(updatedEntry);
+    postGuidedJournalEntry({
+      body: updatedEntry,
+      date: today.toISOString().split("T")[0],
+    } as GuidedJournalEntryCreate);
+
+    router.push("/guided-journal/step2");
+  };
+
   return (
     <View className="flex-1 justify-between bg-blue100 px-2 pt-12">
       <View>
         <CustomText className="text-[16px] font-semibold text-center text-gray200">
-          Wednesday
+          {capitalizeFirstLetter(getDayOfWeek(today.toISOString()))}
         </CustomText>
         <CustomText className="text-[20px] font-semibold text-center text-gray200">
-          21 Aug 2024
+          {format(date, "dd MMM yyyy")}
         </CustomText>
       </View>
 
@@ -39,16 +83,19 @@ const GuidedJournalStep1: React.FC = () => {
         placeholder="I can't stop overthinking about my..."
         multiline
         placeholderTextColor={Colors.gray100}
+        value={step1Text}
+        onChangeText={(text) => setStep1Text(text)}
       />
 
       <View className="flex-1 justify-end mb-6 mx-2">
-        <Link href="/guided-journal/step2" asChild>
-          <Pressable className="h-14 bg-blue200 items-center justify-center rounded-full">
-            <CustomText className="text-white text-base font-medium">
-              Next
-            </CustomText>
-          </Pressable>
-        </Link>
+        <Pressable
+          onPress={handleNext}
+          className="h-14 bg-blue200 items-center justify-center rounded-full"
+        >
+          <CustomText className="text-white text-base font-medium">
+            Next
+          </CustomText>
+        </Pressable>
       </View>
     </View>
   );

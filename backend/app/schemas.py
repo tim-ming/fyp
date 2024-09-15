@@ -1,4 +1,5 @@
-from typing import Optional
+from enum import Enum
+from typing import Optional, List
 from pydantic import BaseModel
 from datetime import datetime, date
 
@@ -192,13 +193,30 @@ class JournalEntry(JournalEntryBase):
     class Config:
         from_attributes = True
 
+class CognitiveDistortion(str, Enum):
+    fortune_telling = "Fortune-telling"
+    should_statements = "Should statements"
+    mind_reading = "Mind Reading"
+    catastrophising = "Catastrophising"
+    emotional_reasoning = "Emotional Reasoning"
+    all_or_nothing_thinking = "All-or-Nothing Thinking"
+    black_and_white_thinking = "Black and White Thinking"
+    personalisation = "Personalisation"
+    discounting_the_positive = "Discounting the Positive"
+    labelling = "Labelling"
+
+class GuidedJournalBody(BaseModel):
+    step1_text: Optional[str] = None
+    step2_selected_distortions: Optional[List[CognitiveDistortion]] = None
+    step3_text: Optional[str] = None
+    step4_text: Optional[str] = None
 
 class GuidedJournalEntryBase(BaseModel):
     """
     Base Guided Journal Entry Schema
     """
 
-    body: str
+    body: GuidedJournalBody
     date: date
 
 

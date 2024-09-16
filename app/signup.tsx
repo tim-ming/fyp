@@ -28,6 +28,7 @@ import { useAuth } from "@/state/state";
 import Male from "@/assets/icons/male.svg";
 import Female from "@/assets/icons/female.svg";
 import User from "@/assets/icons/user.svg";
+import Briefcase from "@/assets/icons/briefcase.svg";
 import Calendar from "@/assets/icons/calendar.svg";
 import DatePicker from "react-native-date-picker";
 import { Sex } from "@/types/globals";
@@ -56,15 +57,17 @@ const UserDetails: React.FC<{
   setSelectedSex,
   onSubmit,
 }) => {
+  type Errors = {
+    name?: string;
+    dob?: string;
+    sex?: string;
+    occupation?: string;
+  };
   const [open, setOpen] = useState(false);
   const [day, setDay] = useState("");
   const [month, setMonth] = useState("");
   const [year, setYear] = useState("");
-  const [errors, setErrors] = useState<{
-    name?: string;
-    dob?: string;
-    sex?: string;
-  }>({});
+  const [errors, setErrors] = useState<Errors>({});
   const [loading, setLoading] = useState(false);
 
   const handleDateChange = (value: string, type: "day" | "month" | "year") => {
@@ -78,8 +81,9 @@ const UserDetails: React.FC<{
   };
 
   const validateForm = (): boolean => {
-    const newErrors: { name?: string; dob?: string; sex?: string } = {};
+    const newErrors: Errors = {};
     if (!name.trim()) newErrors.name = "Full name is required";
+    if (!occupation.trim()) newErrors.occupation = "Occupation is required";
     if (!selectedSex) newErrors.sex = "Sex is required";
     if (!day || !month || !year) {
       newErrors.dob = "Complete date of birth is required";
@@ -169,7 +173,7 @@ const UserDetails: React.FC<{
                 value={occupation}
                 onChangeText={setOccupation}
               />
-              <User
+              <Briefcase
                 width={24}
                 height={24}
                 strokeWidth={1.5}
@@ -178,6 +182,12 @@ const UserDetails: React.FC<{
               />
             </View>
           </Pressable>
+
+          {errors.occupation && (
+            <CustomText className="text-red-500 mb-4">
+              {errors.occupation}
+            </CustomText>
+          )}
           {/* Sex Selection */}
           <CustomText className="mb-2 text-base text-black font-medium">
             Sex

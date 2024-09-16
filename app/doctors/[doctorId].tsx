@@ -45,63 +45,63 @@ const DoctorDetails = () => {
         <View className="bg-white p-5 rounded-[20px] mb-8">
           <View className="flex-row items-center mt-1 mx-1 mb-4">
             <View className="flex-1">
-              <CustomText className="text-[16px] text-gray300 mb-1">
+              <CustomText className="text-[16px] text-gray100 mb-1">
                 Date of Birth
               </CustomText>
-              <CustomText className="text-[16px] text-black font-medium">
+              <CustomText className="text-[16px] text-black">
                 {doctor.dob}
               </CustomText>
             </View>
 
             <View className="flex-1">
-              <CustomText className="text-[16px] text-gray300 mb-1">
+              <CustomText className="text-[16px] text-gray100 mb-1">
                 Sex
               </CustomText>
-              <CustomText className="text-[16px] text-black font-medium">
+              <CustomText className="text-[16px] text-black">
                 {doctor.sex}
               </CustomText>
             </View>
           </View>
 
-          <View className="flex-row items-center mt-1 mx-1 mb-1">
+          <View className="flex-row items-center mt-1 mx-1 mb-4">
             <View className="flex-1">
-              <CustomText className="text-[16px] text-gray300 mb-1">
+              <CustomText className="text-[16px] text-gray100 mb-1">
                 Qualifications
               </CustomText>
-              <CustomText className="text-[16px] text-black font-medium">
+              <CustomText className="text-[16px] text-black">
                 {doctor.qualifications}
               </CustomText>
             </View>
           </View>
 
-          <View className="flex-row items-center mt-1 mx-1 mb-1">
+          <View className="flex-row items-center mt-1 mx-1 mb-4">
             <View className="flex-1">
-              <CustomText className="text-[16px] text-gray300 mb-1">
+              <CustomText className="text-[16px] text-gray100 mb-1">
                 Expertise
               </CustomText>
-              <CustomText className="text-[16px] text-black font-medium">
+              <CustomText className="text-[16px] text-black">
                 {doctor.expertise}
               </CustomText>
             </View>
           </View>
 
-          <View className="flex-row items-center mt-1 mx-1 mb-1">
+          <View className="flex-row items-center mt-1 mx-1 mb-4">
             <View className="flex-1">
-              <CustomText className="text-[16px] text-gray300 mb-1">
+              <CustomText className="text-[16px] text-gray100 mb-1">
                 Bio
               </CustomText>
-              <CustomText className="text-[16px] text-black font-medium">
+              <CustomText className="text-[16px] text-black">
                 {doctor.bio}
               </CustomText>
             </View>
           </View>
 
-          <View className="flex-row items-center mt-1 mx-1 mb-1">
+          <View className="flex-row items-center mt-1 mx-1 mb-4">
             <View className="flex-1">
-              <CustomText className="text-[16px] text-gray300 mb-1">
+              <CustomText className="text-[16px] text-gray100 mb-1">
                 Treatment Approach
               </CustomText>
-              <CustomText className="text-[16px] text-black font-medium">
+              <CustomText className="text-[16px] text-black">
                 {doctor.treatmentApproach}
               </CustomText>
             </View>

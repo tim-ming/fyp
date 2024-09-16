@@ -314,7 +314,7 @@ const HomeScreen = () => {
           <CustomText letterSpacing="tight" className="font-medium text-2xl">
             Suggestions for you
           </CustomText>
-          <CustomText className="text-base mt-1 text-gray300 mb-4">
+          <CustomText className=" mt-1 text-gray300 mb-4">
             Based on your day
           </CustomText>
           <View className="flex-row">
@@ -345,6 +345,14 @@ const HomeScreen = () => {
           <View className="w-full py-6">
             <View style={styles.line} className="h-0.5 w-full rounded-full" />
           </View>
+
+          <CustomText letterSpacing="tight" className="font-medium text-2xl">
+            Therapists
+          </CustomText>
+          <CustomText className=" mt-1 text-gray300 mb-4">
+            Share your data with our trusted professionals to get better
+            insights on your mental health.
+          </CustomText>
           {convertToPairs(doctorsData).map(([[id1, doc1], [id2, doc2]]) => (
             <View key={id1}>
               <View className="flex-row mb-2">

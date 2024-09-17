@@ -17,8 +17,9 @@ import {
   SafeAreaProvider,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import { useAuth, useHydration } from "@/state/state";
 import { getUser } from "@/api/api";
+import { useHydratedEffect } from "@/hooks/hooks";
+import { useAuth } from "@/state/auth";
 
 NativeWindStyleSheet.setOutput({
   default: "native",
@@ -33,12 +34,8 @@ export default function RootLayout() {
     PlusJakartaSans: require("../assets/fonts/PlusJakartaSans.ttf"),
   });
   const auth = useAuth();
-  const isHydrated = useHydration();
 
-  useEffect(() => {
-    if (!isHydrated) {
-      return;
-    }
+  useHydratedEffect(() => {
     const fetchData = async () => {
       try {
         if (auth.user) return;
@@ -59,7 +56,7 @@ export default function RootLayout() {
       }
     };
     fetchData();
-  }, [isHydrated]);
+  }, []);
 
   useEffect(() => {
     console.log(auth);
@@ -124,7 +121,7 @@ export default function RootLayout() {
             name="therapist/dashboard"
             options={{ headerShown: false }}
           />
-          <Stack.Screen name="moodtracking" options={{ headerShown: false }} />
+          <Stack.Screen name="mood" options={{ headerShown: false }} />
           <Stack.Screen
             name="read/[articleId]/chapter/[chapterId]/page/[pageId]"
             options={({ route, navigation }) => ({
@@ -144,6 +141,10 @@ export default function RootLayout() {
               },
             })}
           />
+
+          <Stack.Screen name="vault/history/guided-journal/[date]" />
+          <Stack.Screen name="vault/history/journal/[date]" />
+          <Stack.Screen name="vault/history/mood/[date]" />
         </Stack>
       </SafeAreaProvider>
     </ThemeProvider>

@@ -24,7 +24,7 @@ import * as SecureStore from "expo-secure-store";
 import { checkEmailExists, getUser, postSignin, postSignup } from "@/api/api";
 import { SignInWithGoogle, SignInWithApple } from "@/components/SignInWith";
 import { WEBSITE_URL } from "@/constants/globals";
-import { useAuth } from "@/state/state";
+import { useAuth } from "@/state/auth";
 import Male from "@/assets/icons/male.svg";
 import Female from "@/assets/icons/female.svg";
 import User from "@/assets/icons/user.svg";

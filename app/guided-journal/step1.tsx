@@ -5,14 +5,15 @@ import CustomText from "@/components/CustomText";
 import { Colors } from "@/constants/Colors";
 import { getGuidedJournalEntry, postGuidedJournalEntry } from "@/api/api";
 import { GuidedJournalBody, GuidedJournalEntryCreate } from "@/types/models";
-import { useHydration, useJournalStore } from "@/state/state";
+import { useJournalStore } from "@/state/data";
 import { capitalizeFirstLetter, getDayOfWeek } from "@/utils/helpers";
 import { format } from "date-fns";
+import { useHydratedEffect } from "@/hooks/hooks";
+import { STEPS_TEXT } from "./constants";
 
 const GuidedJournalStep1: React.FC = () => {
   const today = new Date();
   const date = today.toISOString().split("T")[0];
-  const isHydrated = useHydration();
 
   const { guidedJournalEntry, setGuidedJournalEntry } = useJournalStore();
 
@@ -20,8 +21,8 @@ const GuidedJournalStep1: React.FC = () => {
     guidedJournalEntry?.step1_text || ""
   );
 
-  useEffect(() => {
-    if (!isHydrated || guidedJournalEntry?.step1_text) return;
+  useHydratedEffect(() => {
+    if (guidedJournalEntry?.step1_text) return;
     const fetchData = async () => {
       const data = await getGuidedJournalEntry(date);
       if (data) {
@@ -33,7 +34,7 @@ const GuidedJournalStep1: React.FC = () => {
       }
     };
     fetchData();
-  }, [isHydrated]);
+  }, []);
 
   const handleNext = () => {
     const updatedEntry: GuidedJournalBody = {
@@ -69,7 +70,7 @@ const GuidedJournalStep1: React.FC = () => {
       </View>
 
       <CustomText className="mt-4 text-[20px] font-semibold text-gray-800 px-4">
-        An unhelpful thought you have?
+        {STEPS_TEXT.ONE}
       </CustomText>
 
       <View className="mt-4 mx-2 p-4 bg-white rounded-3xl">

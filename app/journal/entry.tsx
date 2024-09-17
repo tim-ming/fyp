@@ -2,7 +2,7 @@ import { getJournalEntry, postJournalEntry } from "@/api/api";
 import Plus from "@/assets/icons/plus.svg";
 import CustomText from "@/components/CustomText";
 import { Colors } from "@/constants/Colors";
-import { useHydration } from "@/state/state";
+import { useHydratedEffect } from "@/hooks/hooks";
 import { JournalEntry, JournalEntryCreate } from "@/types/models";
 import { capitalizeFirstLetter, getDayOfWeek } from "@/utils/helpers";
 import { useRoute } from "@react-navigation/native";
@@ -55,12 +55,8 @@ const Entry: React.FC = () => {
     useState<JournalInput>(BASE_JOURNAL_ENTRY);
 
   const dateObj = new Date(date);
-  const isHydrated = useHydration();
 
-  useEffect(() => {
-    if (!isHydrated) {
-      return;
-    }
+  useHydratedEffect(() => {
     const fetchData = async () => {
       const data = await getJournalEntryHandler(date);
       if (data) {
@@ -68,7 +64,7 @@ const Entry: React.FC = () => {
       }
     };
     fetchData();
-  }, [isHydrated]);
+  }, []);
 
   console.log(date);
 

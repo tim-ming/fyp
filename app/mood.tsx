@@ -84,6 +84,7 @@ export default function MoodScreen() {
   const [sleeping, setSleeping] = useState(0.5);
 
   const submit = async (mood: number, eat: number, sleep: number) => {
+    console.log(mood, eat, sleep);
     try {
       const data = await postMoodEntry({
         mood: mood,

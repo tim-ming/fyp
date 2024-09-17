@@ -5,22 +5,23 @@ import CustomText from "@/components/CustomText";
 import { Colors } from "@/constants/Colors";
 import { getGuidedJournalEntry, postGuidedJournalEntry } from "@/api/api";
 import { GuidedJournalEntryCreate } from "@/types/models";
-import { useHydration, useJournalStore } from "@/state/state";
+import { useJournalStore } from "@/state/data";
 import { capitalizeFirstLetter, getDayOfWeek } from "@/utils/helpers";
 import { format } from "date-fns";
+import { useHydratedEffect } from "@/hooks/hooks";
+import { STEPS_TEXT } from "./constants";
 
 const GuidedJournalStep3: React.FC = () => {
   const today = new Date();
   const date = today.toISOString().split("T")[0];
-  const isHydrated = useHydration();
 
   const { guidedJournalEntry, setGuidedJournalEntry } = useJournalStore();
   const [step3Text, setStep3Text] = useState<string>(
     guidedJournalEntry?.step3_text || ""
   );
 
-  useEffect(() => {
-    if (!isHydrated || guidedJournalEntry?.step3_text) return;
+  useHydratedEffect(() => {
+    if (guidedJournalEntry?.step3_text) return;
     const fetchData = async () => {
       const data = await getGuidedJournalEntry(date);
       if (data) {
@@ -32,7 +33,7 @@ const GuidedJournalStep3: React.FC = () => {
       }
     };
     fetchData();
-  }, [isHydrated]);
+  }, []);
 
   const handleNext = () => {
     const updatedEntry = {
@@ -73,9 +74,7 @@ const GuidedJournalStep3: React.FC = () => {
 
       <View className="mt-4 mx-2 p-4 bg-white rounded-3xl">
         <CustomText className=" text-black100 leading-4 text-[14px] ">
-          {`Realising your thought [I can't stop overthinking about my...] is distorted in these ways:\n
-Fortune-telling, Catastrophising.\n
-Think about it again. Oppose your thoughts rationally.`}
+          {STEPS_TEXT.THREE}
         </CustomText>
       </View>
 

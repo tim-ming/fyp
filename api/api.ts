@@ -1,5 +1,5 @@
 import { BACKEND_URL } from "@/constants/globals";
-import { useAuth } from "@/state/state";
+import { useAuth } from "@/state/auth";
 import { Sex } from "@/types/globals";
 import {
   GuidedJournalEntry,
@@ -53,7 +53,7 @@ export const checkEmailExists = async (email: string): Promise<Response> => {
   return response;
 };
 
-export const getUser = async (): Promise<User> => {
+export const getUser = async (): Promise<UserWithoutSensitiveData> => {
   const { token } = useAuth.getState();
 
   const response = await fetch(`${BACKEND_URL}/users/me`, {
@@ -64,7 +64,7 @@ export const getUser = async (): Promise<User> => {
 
   await handleNotOk(response);
 
-  const profile = (await response.json()) as User;
+  const profile = (await response.json()) as UserWithoutSensitiveData;
   return profile;
 };
 
@@ -170,7 +170,7 @@ export const getPatients = async (): Promise<UserWithoutSensitiveData[]> => {
 
   await handleNotOk(response);
 
-  const patients: User[] = await response.json();
+  const patients: UserWithoutSensitiveData[] = await response.json();
   return patients;
 };
 
@@ -211,6 +211,29 @@ export const getGuidedJournalEntry = async (
   return data;
 };
 
+export const getGuidedJournalEntries = async (
+  limit = 30
+): Promise<GuidedJournalEntry[]> => {
+  const { token } = useAuth.getState();
+
+  const response = await fetch(
+    `${BACKEND_URL}/guided-journals?limit=${limit}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token?.access_token}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch journal entries: ${response.status} ${response.statusText}`
+    );
+  }
+
+  const journals: GuidedJournalEntry[] = await response.json();
+  return journals;
+};
 export const postGuidedJournalEntry = async (
   guidedJournal: GuidedJournalEntryCreate
 ): Promise<GuidedJournalEntry> => {
@@ -247,6 +270,25 @@ export const getMoodEntry = async (date: string): Promise<MoodEntry> => {
 
   const data: MoodEntry = await response.json();
   return data;
+};
+
+export const getMoodEntries = async (limit = 30): Promise<MoodEntry[]> => {
+  const { token } = useAuth.getState();
+
+  const response = await fetch(`${BACKEND_URL}/mood?limit=${limit}`, {
+    headers: {
+      Authorization: `Bearer ${token?.access_token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch journal entries: ${response.status} ${response.statusText}`
+    );
+  }
+
+  const journals: MoodEntry[] = await response.json();
+  return journals;
 };
 
 export const postMoodEntry = async (

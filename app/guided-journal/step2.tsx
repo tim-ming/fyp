@@ -6,7 +6,9 @@ import { CognitiveDistortion, GuidedJournalEntryCreate } from "@/types/models";
 import { getGuidedJournalEntry, postGuidedJournalEntry } from "@/api/api";
 import { capitalizeFirstLetter, getDayOfWeek } from "@/utils/helpers";
 import { format } from "date-fns";
-import { useHydration, useJournalStore } from "@/state/state";
+import { useJournalStore } from "@/state/data";
+import { useHydratedEffect } from "@/hooks/hooks";
+import { STEPS_TEXT } from "./constants";
 
 const distortionOptions = [
   {
@@ -64,7 +66,6 @@ const distortionOptions = [
 const GuidedJournalStep2: React.FC = () => {
   const today = new Date();
   const date = today.toISOString().split("T")[0];
-  const isHydrated = useHydration();
 
   const { guidedJournalEntry, setGuidedJournalEntry } = useJournalStore();
   const [selectedDistortions, setSelectedDistortions] = useState<
@@ -79,8 +80,8 @@ const GuidedJournalStep2: React.FC = () => {
     );
   };
 
-  useEffect(() => {
-    if (!isHydrated || guidedJournalEntry?.step2_selected_distortions) return;
+  useHydratedEffect(() => {
+    if (guidedJournalEntry?.step2_selected_distortions) return;
     const fetchData = async () => {
       const data = await getGuidedJournalEntry(date);
       if (data) {
@@ -93,7 +94,7 @@ const GuidedJournalStep2: React.FC = () => {
       }
     };
     fetchData();
-  }, [isHydrated]);
+  }, []);
 
   const handleNext = () => {
     const updatedEntry = {
@@ -134,8 +135,7 @@ const GuidedJournalStep2: React.FC = () => {
 
       <View className="mt-4 mx-2 p-4 bg-white rounded-3xl">
         <CustomText className="text-black100 leading-4 text-[14px]">
-          {`Look at your thought again.\n
-Test whether any of the common distortions apply to your thoughts.`}
+          {STEPS_TEXT.TWO}
         </CustomText>
       </View>
 

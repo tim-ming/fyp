@@ -120,7 +120,7 @@ def upsert_mood_entry(
         db_mood_entry = models.MoodEntry(
             mood=mood_entry.mood,
             eat = mood_entry.eat,
-            leep = mood_entry.sleep,
+            sleep = mood_entry.sleep,
             date=mood_entry.date, 
             patient_data_id=db_patient_data.id
         )

@@ -4,9 +4,10 @@ import { useRouter } from "expo-router";
 import CustomText from "@/components/CustomText";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { shadows } from "@/constants/styles";
-import { useAuth, useHydration } from "@/state/state";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { getPatients } from "@/api/api";
+import { useHydratedEffect } from "@/hooks/hooks";
+import { useAuth } from "@/state/auth";
 
 interface Patient {
   id: number;
@@ -46,12 +47,7 @@ const PatientsList: React.FC = () => {
     [key: string]: Patient[];
   }>({});
 
-  const isHydrated = useHydration();
-
-  useEffect(() => {
-    if (!isHydrated) {
-      return;
-    }
+  useHydratedEffect(() => {
     const fetchPatients = async () => {
       try {
         const patients = await getPatients();
@@ -69,7 +65,7 @@ const PatientsList: React.FC = () => {
     };
 
     fetchPatients();
-  }, [isHydrated]);
+  }, []);
 
   const getSortedData = (
     key: keyof Patient,

@@ -2,7 +2,7 @@ import articlesData from "@/assets/articles/articles.json";
 import ArrowLeft from "@/assets/icons/arrow-left.svg";
 import ArrowRight from "@/assets/icons/arrow-right.svg";
 import CustomText from "@/components/CustomText";
-import { useAuth } from "@/state/state";
+import { useAuth } from "@/state/auth";
 import {
   clearAllData,
   loadChapterProgress,

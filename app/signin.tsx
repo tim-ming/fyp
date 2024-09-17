@@ -5,7 +5,7 @@ import Mail from "@/assets/icons/mail.svg";
 import CustomText from "@/components/CustomText";
 import { SignInWithApple, SignInWithGoogle } from "@/components/SignInWith";
 import { shadows } from "@/constants/styles";
-import { useAuth } from "@/state/state";
+import { useAuth } from "@/state/auth";
 import { router } from "expo-router";
 import {} from "nativewind";
 import React, { useEffect, useMemo, useRef, useState } from "react";

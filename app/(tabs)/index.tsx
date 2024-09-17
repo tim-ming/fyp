@@ -5,7 +5,7 @@ import CustomText from "@/components/CustomText";
 import TopNav from "@/components/TopNav";
 import { Colors } from "@/constants/Colors";
 import { shadows } from "@/constants/styles";
-import { useAuth, useHydration } from "@/state/state";
+import { useAuth } from "@/state/auth";
 import { JournalEntry } from "@/types/models";
 import { capitalizeFirstLetter, getDayOfWeek } from "@/utils/helpers";
 import { addDays, format, isSameDay, isToday, isYesterday } from "date-fns";
@@ -28,6 +28,7 @@ import Carousel, {
 } from "react-native-snap-carousel";
 import doctorsData from "@/assets/data/doctors.json";
 import { Doctor } from "@/types/globals";
+import { useHydratedEffect } from "@/hooks/hooks";
 
 type JournalEntryCard = {
   journal: JournalEntry | null;
@@ -235,11 +236,7 @@ const HomeScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [journals, setJournals] = useState<JournalEntryCard[]>([]);
   const auth = useAuth();
-  const isHydrated = useHydration();
-  useEffect(() => {
-    if (!isHydrated) {
-      return;
-    }
+  useHydratedEffect(() => {
     const fetchData = async () => {
       getJournalEntries()
         .then((journalEntries) =>
@@ -250,7 +247,7 @@ const HomeScreen = () => {
         });
     };
     fetchData();
-  }, [isHydrated]);
+  }, []);
 
   const onRefresh = useCallback(() => {
     const fetchData = async () => {

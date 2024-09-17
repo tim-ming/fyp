@@ -2,12 +2,20 @@ import CustomText from "@/components/CustomText";
 import TopNav from "@/components/TopNav";
 import { getStatus } from "@/constants/globals";
 import React from "react";
-import { View, ScrollView } from "react-native";
+import { View, ScrollView, Pressable } from "react-native";
 import { format, isToday, isYesterday } from "date-fns";
 import { StyleSheet } from "react-native";
 import { shadows } from "@/constants/styles";
 import { Colors } from "@/constants/Colors";
-import jsonData from "@/assets/data/vault.json";
+import { useNavigation } from "expo-router";
+import { GuidedJournalEntry, JournalEntry, MoodEntry } from "@/types/models";
+import { useHydratedEffect } from "@/hooks/hooks";
+import {
+  getJournalEntries,
+  getGuidedJournalEntries,
+  getMoodEntries,
+} from "@/api/api";
+import { STEPS_TEXT } from "../guided-journal/constants";
 
 const formatDateHeader = (date: string) => {
   const parsedDate = new Date(date);
@@ -20,28 +28,21 @@ const formatDateHeader = (date: string) => {
     return format(parsedDate, "dd MMM");
   }
 };
+
 interface JournalProps {
-  data: Journal;
+  data: JournalEntry;
 }
-interface Journal {
-  title: string;
-  content: string;
+
+interface GuidedJournalProps {
+  data: GuidedJournalEntry;
 }
-interface GuidedWritingProps {
-  data: GuidedWriting;
+interface MoodProps {
+  data: MoodEntry;
 }
-interface GuidedWriting {
-  content: string;
-}
-interface TrackingProps {
-  data: Tracking;
-}
-interface Tracking {
-  mood: number;
-  sleep: number;
-  diet: number;
-}
-const JournalCard: React.FC<JournalProps> = ({ data }: JournalProps) => {
+
+const JournalCard: React.FC<JournalProps> = ({ data }) => {
+  const navigation = useNavigation<any>();
+
   const truncatedTitle =
     !data.title || data.title.trim().length === 0
       ? "Untitled"
@@ -50,13 +51,18 @@ const JournalCard: React.FC<JournalProps> = ({ data }: JournalProps) => {
       : data.title;
 
   const truncatedContent =
-    !data.content || data.content.trim().length === 0
+    !data.body || data.body.trim().length === 0
       ? "Empty Journal"
-      : data.content.length > 100
-      ? `${data.content.substring(0, 100)}...`
-      : data.content;
+      : data.body.length > 100
+      ? `${data.body.substring(0, 100)}...`
+      : data.body;
+
+  const route = () => {
+    navigation.navigate("/vault/history/[journal]", { date: data.date });
+  };
+
   return (
-    <View style={styles.container}>
+    <Pressable onPress={route} style={styles.container}>
       <CustomText
         letterSpacing="wide"
         className="text-sm font-semibold text-gray100"
@@ -70,25 +76,28 @@ const JournalCard: React.FC<JournalProps> = ({ data }: JournalProps) => {
       <CustomText className="text-sm text-gray200">
         {truncatedContent}
       </CustomText>
-    </View>
+    </Pressable>
   );
 };
 
-const GuidedWritingCard: React.FC<GuidedWritingProps> = ({ data }) => {
+const GuidedJournalCard: React.FC<GuidedJournalProps> = ({ data }) => {
   return (
     <View style={styles.container}>
       <CustomText
         letterSpacing="wide"
-        className="text-sm font-semibold text-gray100"
+        className="text-sm font-semibold text-gray100 mb-4"
       >
         GUIDED WRITING
       </CustomText>
-      <CustomText className="text-sm text-gray200">{data.content}</CustomText>
+      <CustomText className="text-sm text-gray100">{STEPS_TEXT.ONE}</CustomText>
+      <CustomText className="text-sm text-gray200">
+        {data.body.step1_text}
+      </CustomText>
     </View>
   );
 };
 
-const TrackingCard: React.FC<TrackingProps> = ({ data }) => {
+const MoodCard: React.FC<MoodProps> = ({ data }) => {
   return (
     <View style={styles.container}>
       <CustomText
@@ -103,7 +112,7 @@ const TrackingCard: React.FC<TrackingProps> = ({ data }) => {
       <CustomText className="text-sm leading-4 text-gray200">
         You also{" "}
         <CustomText className="text-sm leading-4 text-black100">
-          ate {getStatus(data.diet)}
+          ate {getStatus(data.eat)}
         </CustomText>{" "}
         and{" "}
         <CustomText className="text-sm leading-4 text-black100">
@@ -114,9 +123,12 @@ const TrackingCard: React.FC<TrackingProps> = ({ data }) => {
     </View>
   );
 };
+
+type CardType = "journal" | "guidedWriting" | "mood";
+
 type DataItem = {
-  type: "journal" | "guidedWriting" | "tracking";
-  data: Journal | GuidedWriting | Tracking;
+  type: CardType;
+  data: JournalEntry | GuidedJournalEntry | MoodEntry;
   created: string;
 };
 
@@ -124,8 +136,61 @@ type Section = {
   date: string;
   data: DataItem[];
 };
+
 export default function VaultScreen() {
-  const data = jsonData as Section[];
+  const [data, setData] = React.useState<Section[]>([]);
+  useHydratedEffect(() => {
+    const fetchData = async () => {
+      const journalEntries = await getJournalEntries();
+      const guidedJournalEntries = await getGuidedJournalEntries();
+      const moodEntries = await getMoodEntries();
+
+      const allEntries: DataItem[] = [
+        ...journalEntries.map((entry) => ({
+          type: "journal" as CardType,
+          data: entry,
+          created: entry.date,
+        })),
+        ...guidedJournalEntries.map((entry) => ({
+          type: "guidedWriting" as CardType,
+          data: entry,
+          created: entry.date,
+        })),
+        ...moodEntries.map((entry) => ({
+          type: "mood" as CardType,
+          data: entry,
+          created: entry.date,
+        })),
+      ];
+
+      console.log(allEntries);
+
+      const sortedEntries = allEntries.sort(
+        (a, b) => new Date(b.created).getTime() - new Date(a.created).getTime()
+      );
+
+      const groupedEntries: Section[] = [];
+      sortedEntries.forEach((entry) => {
+        const date = new Date(entry.created).toDateString();
+        const sectionIndex = groupedEntries.findIndex(
+          (section) => section.date === date
+        );
+
+        if (sectionIndex === -1) {
+          groupedEntries.push({
+            date,
+            data: [entry],
+          });
+        } else {
+          groupedEntries[sectionIndex].data.push(entry);
+        }
+      });
+
+      setData(groupedEntries);
+    };
+
+    fetchData();
+  }, []);
   return (
     <ScrollView className="bg-blue100 flex-1">
       <TopNav />
@@ -145,15 +210,15 @@ export default function VaultScreen() {
                   {(() => {
                     switch (item.type) {
                       case "journal":
-                        return <JournalCard data={item.data as Journal} />;
+                        return <JournalCard data={item.data as JournalEntry} />;
                       case "guidedWriting":
                         return (
-                          <GuidedWritingCard
-                            data={item.data as GuidedWriting}
+                          <GuidedJournalCard
+                            data={item.data as GuidedJournalEntry}
                           />
                         );
-                      case "tracking":
-                        return <TrackingCard data={item.data as Tracking} />;
+                      case "mood":
+                        return <MoodCard data={item.data as MoodEntry} />;
                       default:
                         return null;
                     }

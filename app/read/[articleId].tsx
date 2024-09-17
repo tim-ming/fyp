@@ -2,7 +2,7 @@ import articlesData from "@/assets/articles/articles.json";
 import Check from "@/assets/icons/check.svg";
 import ChevronRight from "@/assets/icons/chevron-right.svg";
 import CustomText from "@/components/CustomText";
-import { useAuth } from "@/state/state";
+import { useAuth } from "@/state/auth";
 import { loadChapterProgress } from "@/utils/progressStorage";
 import {
   Href,

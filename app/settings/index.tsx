@@ -11,7 +11,7 @@ import Support from "@/assets/icons/support.svg";
 import UserHeart from "@/assets/icons/user-heart.svg";
 import CustomText from "@/components/CustomText";
 import { shadows } from "@/constants/styles";
-import { useAuth } from "@/state/state";
+import { useAuth } from "@/state/auth";
 import { Image } from "expo-image";
 import { Href, router } from "expo-router";
 import React, { useEffect, useMemo, useRef, useState } from "react";

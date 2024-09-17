@@ -1,7 +1,7 @@
 import articlesData from "@/assets/articles/articles.json";
 import CustomText from "@/components/CustomText";
 import { shadows } from "@/constants/styles";
-import { useAuth } from "@/state/state";
+import { useAuth } from "@/state/auth";
 import { loadChapterProgress } from "@/utils/progressStorage";
 import { useFocusEffect, useRouter } from "expo-router";
 import React, { useCallback, useState } from "react";

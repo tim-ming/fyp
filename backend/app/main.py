@@ -486,22 +486,16 @@ def assign_therapist(
     :raises (HTTPException): If current user is a therapist
     """
     _therapist = commands.get_user_by_id(db, therapist_id)
-    if _therapist is None or not _therapist.is_therapist:
+    if _therapist is None or _therapist.role != "therapist":
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Given ID is not a therapist ID"
         )
 
-    if current_user.is_therapist:
+    if current_user.role == "therapist":
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Therapists cannot have therapists"
-        )
-    
-    if current_user.therapist_id is not None:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="User already has a therapist assigned"
         )
 
     commands.assign_therapist_to_patient(db, current_user, therapist_id)
@@ -519,22 +513,16 @@ def unassign_therapist(
     :return (dict): Success message
     :raises (HTTPException): If current user is not assigned a therapist
     """
-    if current_user.is_therapist:
+    if current_user.role == "therapist":
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Therapists cannot have therapists"
         )
     
-    if current_user.therapist_id is None:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="User does not have a therapist assigned"
-        )
-    
     commands.remove_therapist_from_patient(db, current_user)
     return {"detail": "Therapist unassigned"}
 
-@app.get("/therapist", response_model=schemas.UserWithoutSensitiveData)
+@app.get("/therapist", response_model=Optional[schemas.UserWithoutSensitiveData])
 def get_therapist(
     current_user: Annotated[schemas.User, Depends(get_current_user)],
     db: Session = Depends(get_db),
@@ -545,21 +533,15 @@ def get_therapist(
     :param db (Session): Database session
     :return (schemas.UserWithoutSensitiveData): Therapist
     """
-    if current_user.is_therapist:
+    if current_user.role == "therapist":
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Therapists cannot have therapists"
         )
     
-    if current_user.therapist_id is None:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="User does not have a therapist assigned"
-        )
-    
     return commands.get_therapist_by_patient(db, current_user)
 
-@app.get("/patients", response_model=List[schemas.UserWithoutSensitiveData])
+@app.get("/patients", response_model=List[schemas.UserWithPatientData])
 def get_patients(
     current_user: Annotated[schemas.User, Depends(get_current_user)],
     db: Session = Depends(get_db),
@@ -568,14 +550,8 @@ def get_patients(
     Get patients assigned to a therapist
     :param current_user (schemas.User): Current user
     :param db (Session): Database session
-    :return (List[schemas.UserWithoutSensitiveData]): Patients
+    :return (List[schemas.UserWithPatientData]): Patients
     """
-    if not current_user.is_therapist:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Only therapists can view patients"
-        )
-
     return commands.get_patients_by_therapist(db, current_user)
 
 @app.get("/patient-data/{patient_id}", response_model=schemas.UserWithPatientData)
@@ -591,18 +567,16 @@ def get_patient_data(
     """
     return commands.get_user_by_id(db, patient_id)
 
-@app.patch("/severity")
+@app.patch("/patient-data", response_model=schemas.PatientData)
 def update_severity(
-    user_id: int,
-    severity: str,
+    patient_data: schemas.PatientDataUpdate,
     db: Session = Depends(get_db),
 ):
     """
-    Update severity for a user
-    :param user_id (int): User ID
-    :param severity (str): Severity
+    Update patient data
+    :param patient_id (int): Patient ID
+    :param patient_data (schemas.PatientDataUpdate): Updated patient data
     :param db (Session): Database session
     :return (dict): Success message
     """
-    commands.update_severity(db, user_id, severity)
-    return {"detail": "Severity updated"}
+    return commands.update_patient_data(db, patient_data)

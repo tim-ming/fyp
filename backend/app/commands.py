@@ -35,13 +35,19 @@ def create_user(db: Session, user: schemas.UserCreate) -> models.User:
         sex=user.sex, 
         occupation=user.occupation,
         hashed_password=user.password, 
-        is_therapist=user.is_therapist
+        role=user.role
     )
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
 
-    if not user.is_therapist:
+    if user.role == "therapist":
+        db_therapist_data = models.TherapistData(user_id=db_user.id)
+        db.add(db_therapist_data)
+        db.commit()
+        db.refresh(db_therapist_data)
+        
+    elif user.role == "patient":
         db_patient_data = models.PatientData(user_id=db_user.id)
         db.add(db_patient_data)
         db.commit()
@@ -402,7 +408,7 @@ def create_social_accounts(
     return db_social_accounts
 
 
-def update_user(db: Session, user: schemas.UserUpdate) -> models.User:
+def update_user(db: Session, user_update: schemas.UserUpdate, user: schemas.User) -> models.User:
     """
     Update a user
     :param db (Session): Database session
@@ -410,12 +416,10 @@ def update_user(db: Session, user: schemas.UserUpdate) -> models.User:
     :return (models.User): Updated user
     """
     db_user = db.query(models.User).filter(models.User.email == user.email).first()
-    if user.name is not None:
-        db_user.name = user.name
-    if user.is_active is not None:
-        db_user.is_active = user.is_active
-    if user.has_onboarded is not None:
-        db_user.has_onboarded = user.has_onboarded
+    if user_update.name is not None:
+        db_user.name = user_update.name
+    if user_update.is_active is not None:
+        db_user.is_active = user_update.is_active
     db.commit()
     db.refresh(db_user)
     return db_user
@@ -490,7 +494,18 @@ def assign_therapist_to_patient(
     :return (models.User): Updated patient
     """
     db_patient = db.query(models.User).filter(models.User.email == patient.email).first()
-    db_patient.therapist_id = therapist_id
+    if db_patient.patient_data is None:
+        raise Exception("Patient data not found")
+
+    if db_patient.patient_data.therapist_id is not None:
+        raise Exception("Patient already has a therapist")
+    
+    db_therapist_data = (
+        db.query(models.TherapistData)
+        .filter(models.TherapistData.user_id == therapist_id)
+        .first()
+    )
+    db_patient.patient_data.therapist_id = db_therapist_data.id
     db.commit()
     db.refresh(db_patient)
     return db_patient
@@ -504,7 +519,13 @@ def remove_therapist_from_patient(
     :return (models.User): Updated patient
     """
     db_patient = db.query(models.User).filter(models.User.email == patient.email).first()
-    db_patient.therapist_id = None
+    if db_patient.patient_data is None:
+        raise Exception("Patient data not found")
+
+    if db_patient.patient_data.therapist_id is None:
+        raise Exception("Patient does not have a therapist")
+
+    db_patient.patient_data.therapist_id = None
     db.commit()
     db.refresh(db_patient)
     return db_patient
@@ -517,7 +538,16 @@ def get_therapist_by_patient(
     :param patient (schemas.User): Patient
     :return (Optional[models.User]): Therapist if found, None if not found
     """
-    return db.query(models.User).filter(models.User.id == patient.therapist_id).first()
+    db_patient = db.query(models.User).filter(models.User.email == patient.email).first()
+    if db_patient.patient_data is None or db_patient.patient_data.therapist_id is None:
+        return None
+    
+    return (
+        db.query(models.User)
+        .join(models.TherapistData)
+        .filter(models.TherapistData.id == db_patient.patient_data.therapist_id)
+        .first()
+    )
 
 def get_patients_by_therapist(
     db: Session, therapist: schemas.User) -> List[models.User]:
@@ -529,9 +559,14 @@ def get_patients_by_therapist(
     :param limit (int): Number of entries to return
     :return (List[models.User]): Patients
     """
+    db_therapist = db.query(models.TherapistData).filter(models.TherapistData.user_id == therapist.id).first()
+    if db_therapist is None:
+        return []
+
     return (
         db.query(models.User)
-        .filter(models.User.therapist_id == therapist.id)
+        .join(models.PatientData)
+        .filter(models.PatientData.therapist_id == db_therapist.id)
         .options(
             joinedload(models.User.patient_data).noload(models.PatientData.mood_entries),
             joinedload(models.User.patient_data).noload(models.PatientData.journal_entries),
@@ -540,19 +575,28 @@ def get_patients_by_therapist(
         .all()
     )
 
-def update_severity(
-    db: Session, user_id: int, severity: str) -> models.PatientData.severity:
+def update_patient_data(
+    db: Session, patient_data: schemas.PatientDataUpdate) -> models.PatientData:
     """
     Update severity for a patient
     :param db (Session): Database session
-    :param user_id (int): User ID
+    :param patient_id (int): User ID
     :param severity (str): Severity
     :return (models.PatientData.severity): Updated severity
     """
-    db_patient_data = db.query(models.PatientData).filter(models.PatientData.user_id == user_id).first()
+    db_patient_data = db.query(models.PatientData).filter(models.PatientData.user_id == patient_data.user_id).first()
     if db_patient_data is None:
         raise Exception("Patient data not found")
-    db_patient_data.severity = severity
+    
+    if patient_data.has_onboarded is not None:
+        db_patient_data.has_onboarded = patient_data.has_onboarded
+    if patient_data.severity is not None:
+        db_patient_data.severity = patient_data.severity
     db.commit()
     db.refresh(db_patient_data)
-    return db_patient_data.severity
+    return {
+        "user_id": db_patient_data.user_id,
+        "id": db_patient_data.id,
+        "has_onboarded": db_patient_data.has_onboarded,
+        "severity": db_patient_data.severity
+    }

@@ -29,13 +29,12 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String)
     is_active = Column(Boolean, default=True)
-    has_onboarded = Column(Boolean, default=False)
-    is_therapist = Column(Boolean, default=False)
-    therapist_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    role = Column(String)
 
-    therapist = relationship("User", remote_side=[id], backref="patients")
     patient_data = relationship("PatientData", back_populates="user", uselist=False)
+    therapist_data = relationship("TherapistData", back_populates="user", uselist=False)
     social_accounts = relationship("SocialAccount", back_populates="user")
+
 
 class PatientData(Base):
     """
@@ -46,12 +45,35 @@ class PatientData(Base):
 
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"), index=True)
+    therapist_id = Column(Integer, ForeignKey("therapist_data.id"), index=True)
+    has_onboarded = Column(Boolean, default=False)
     severity = Column(String, default="Unknown")
+
     mood_entries = relationship("MoodEntry", back_populates="patient_data")
     journal_entries = relationship("JournalEntry", back_populates="patient_data")
     guided_journal_entries = relationship("GuidedJournalEntry", back_populates="patient_data")
 
+    therapist = relationship("TherapistData", back_populates="patients", uselist=False)
     user = relationship("User", back_populates="patient_data")
+
+
+class TherapistData(Base):
+    """
+    Therapist Data Model
+    """
+
+    __tablename__ = "therapist_data"
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), index=True)
+    qualifications = Column(String)
+    expertise = Column(String)
+    bio = Column(String)
+    treatment_approach = Column(String)
+
+    patients = relationship("PatientData", back_populates="therapist")
+    user = relationship("User", back_populates="therapist_data")
+
 
 class SocialAccount(Base):
     """
@@ -111,6 +133,7 @@ class JournalEntry(Base):
     __table_args__ = (
         Index("ix_journal_entries_date_desc", date.desc()),
     )  # Index for date in descending order
+
 
 class GuidedJournalEntry(Base):
     """

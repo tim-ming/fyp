@@ -133,7 +133,10 @@ const SocialMediaScreen = () => {
         className="bg-blue200 rounded-full py-3"
         onPress={handleSkipPress}
       >
-        <CustomText className="text-white text-center text-lg" onPress={skip}>
+        <CustomText
+          className="text-white text-center text-lg"
+          onPress={handleSkipPress}
+        >
           Skip
         </CustomText>
       </Pressable>

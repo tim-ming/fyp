@@ -1,3 +1,23 @@
+// Enum for distortion types
+export enum CognitiveDistortion {
+  FortuneTelling = "Fortune-telling",
+  ShouldStatements = "Should statements",
+  MindReading = "Mind Reading",
+  Catastrophising = "Catastrophising",
+  EmotionalReasoning = "Emotional Reasoning",
+  AllOrNothingThinking = "All-or-Nothing Thinking",
+  BlackAndWhiteThinking = "Black and White Thinking",
+  Personalisation = "Personalisation",
+  DiscountingThePositive = "Discounting the Positive",
+  Labelling = "Labelling",
+}
+
+// Enum for user roles
+export enum UserRole {
+  Patient = "patient",
+  Therapist = "therapist",
+}
+
 // Base User Schema
 export interface UserBase {
   email: string;
@@ -10,14 +30,13 @@ export interface UserCreate extends UserBase {
   sex: string | null;
   occupation: string;
   password: string;
-  is_therapist?: boolean; // Optional with a default value of false
+  role?: UserRole;
 }
 
 // User Update Schema
 export interface UserUpdate extends UserBase {
   name?: string;
   is_active?: boolean;
-  has_onboarded?: boolean;
 }
 
 // User Schema
@@ -29,10 +48,9 @@ export interface User extends UserBase {
   occupation: string;
   hashed_password: string;
   is_active: boolean;
-  has_onboarded: boolean;
-  is_therapist: boolean;
-  therapist_id?: number | null;
-  patients?: UserWithoutSensitiveData[]; // Optional array of users without sensitive data
+  role: UserRole;
+  patient_data?: PatientData;
+  therapist_data?: TherapistData;
 }
 
 // User Schema without sensitive data
@@ -43,20 +61,17 @@ export interface UserWithoutSensitiveData extends UserBase {
   sex: string | null;
   occupation: string;
   is_active: boolean;
-  has_onboarded: boolean;
-  is_therapist: boolean;
-  therapist_id?: number | null;
-  patient_data?: PatientData;
+  role: UserRole;
 }
 
 // User Schema with patient data
-export interface UserWithPatientData extends UserBase {
-  id: number;
-  name: string;
-  dob?: string;
-  sex?: string | null;
-  occupation?: string;
+export interface UserWithPatientData extends UserWithoutSensitiveData {
   patient_data?: PatientData;
+}
+
+// User Schema with therapist data
+export interface UserWithTherapistData extends UserWithoutSensitiveData {
+  therapist_data?: TherapistData;
 }
 
 // Base Social Account Schema
@@ -123,20 +138,6 @@ export interface JournalEntry extends JournalEntryBase {
   id: number;
 }
 
-// Enum for distortion types
-export enum CognitiveDistortion {
-  FortuneTelling = "Fortune-telling",
-  ShouldStatements = "Should statements",
-  MindReading = "Mind Reading",
-  Catastrophising = "Catastrophising",
-  EmotionalReasoning = "Emotional Reasoning",
-  AllOrNothingThinking = "All-or-Nothing Thinking",
-  BlackAndWhiteThinking = "Black and White Thinking",
-  Personalisation = "Personalisation",
-  DiscountingThePositive = "Discounting the Positive",
-  Labelling = "Labelling",
-}
-
 // Base Guided Journal Body Schema
 export interface GuidedJournalBody {
   step1_text?: string | null;
@@ -159,7 +160,7 @@ export interface GuidedJournalEntry extends GuidedJournalEntryBase {
   id: number;
 }
 
-// Patient Data Schema
+// Base Patient Data Schema
 export interface PatientDataBase {
   user_id: number;
 }
@@ -167,11 +168,41 @@ export interface PatientDataBase {
 // Patient Data Create Schema
 export interface PatientDataCreate extends PatientDataBase {}
 
+// Patient Data Update Schema
+export interface PatientDataUpdate extends PatientDataBase {
+  has_onboarded?: boolean;
+  severity?: string;
+}
+
 // Patient Data Schema
 export interface PatientData extends PatientDataBase {
   id: number;
+  has_onboarded: boolean;
   severity: string;
   mood_entries?: MoodEntry[];
   journal_entries?: JournalEntry[];
   guided_journal_entries?: GuidedJournalEntry[];
+}
+
+// Base Therapist Data Schema
+export interface TherapistDataBase {
+  user_id: number;
+}
+
+// Therapist Data Create Schema
+export interface TherapistDataCreate extends TherapistDataBase {
+  qualifications?: string;
+  expertise?: string;
+  bio?: string;
+  treatment_approach?: string;
+}
+
+// Therapist Data Schema
+export interface TherapistData extends TherapistDataBase {
+  id: number;
+  qualifications?: string;
+  expertise?: string;
+  bio?: string;
+  treatment_approach?: string;
+  patients?: PatientData[];
 }

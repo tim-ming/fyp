@@ -33,13 +33,12 @@ export const updateOnboarded = async (): Promise<Response> => {
     throw new Error("User not found");
   }
 
-  const response = await fetch(`${BACKEND_URL}/users/me`, {
+  const response = await fetch(`${BACKEND_URL}/patient-data`, {
     method: "PATCH",
     headers: {
-      Authorization: `Bearer ${token?.access_token}`,
+      "Content-Type": "application/json",
     },
-
-    body: JSON.stringify({ user: { ...user, has_onboarded: true } }),
+    body: JSON.stringify({ user_id: user.id, has_onboarded: true }),
   });
 
   return response;

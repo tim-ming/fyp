@@ -1,4 +1,4 @@
-import { getUser, postSignin } from "@/api/api";
+import { getPatientData, getUser, postSignin } from "@/api/api";
 import Check from "@/assets/icons/check.svg";
 import Lock from "@/assets/icons/lock.svg";
 import Mail from "@/assets/icons/mail.svg";
@@ -48,13 +48,13 @@ const SignInScreen = () => {
       const user = await getUser();
       auth.setUser(user);
 
-      const onboarded = user.has_onboarded;
-      const isTherapist = user.is_therapist;
+      const isTherapist = user.role === "therapist";
 
       if (isTherapist) {
         router.push("/therapist/dashboard");
       } else {
-        if (onboarded) {
+        const patient = await getPatientData(user.id);
+        if (patient.patient_data?.has_onboarded) {
           router.push("/(tabs)");
         } else {
           router.push("/understand");

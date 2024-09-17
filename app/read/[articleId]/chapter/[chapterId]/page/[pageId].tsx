@@ -2,6 +2,7 @@ import articlesData from "@/assets/articles/articles.json";
 import ArrowLeft from "@/assets/icons/arrow-left.svg";
 import ArrowRight from "@/assets/icons/arrow-right.svg";
 import CustomText from "@/components/CustomText";
+import { useHydratedEffect } from "@/hooks/hooks";
 import { useAuth } from "@/state/auth";
 import {
   clearAllData,
@@ -28,43 +29,43 @@ const ReadingPage = () => {
   const totalPages = pages.length;
   const pageIdInt = parseInt(pageId as string);
 
-  useEffect(() => {
-    const fetchProgress = async () => {
-      if (!auth.user?.id) {
-        console.error("User ID is undefined");
-        return;
-      }
-      const progress = await loadChapterProgress(
-        auth.user?.id.toString(),
-        articleId as string
-      );
-      const updatedProgress = progress || {};
+  const fetchProgress = async () => {
+    if (!auth.user?.id) {
+      console.error("User ID is undefined");
+      return;
+    }
+    const progress = await loadChapterProgress(
+      auth.user?.id.toString(),
+      articleId as string
+    );
+    const updatedProgress = progress || {};
 
-      if (!updatedProgress[chapterId as string]) {
-        if (pageIdInt === totalPages) {
-          updatedProgress[chapterId as string] = true;
-          await saveChapterProgress(
-            auth.user?.id.toString(),
-            articleId as string,
-            chapterId as string,
-            true,
-            chapterId as string,
-            pageId as string
-          );
-        } else {
-          updatedProgress[chapterId as string] = false;
-          await saveChapterProgress(
-            auth.user?.id.toString(),
-            articleId as string,
-            chapterId as string,
-            false,
-            chapterId as string,
-            pageId as string
-          );
-        }
+    if (!updatedProgress[chapterId as string]) {
+      if (pageIdInt === totalPages) {
+        updatedProgress[chapterId as string] = true;
+        await saveChapterProgress(
+          auth.user?.id.toString(),
+          articleId as string,
+          chapterId as string,
+          true,
+          chapterId as string,
+          pageId as string
+        );
+      } else {
+        updatedProgress[chapterId as string] = false;
+        await saveChapterProgress(
+          auth.user?.id.toString(),
+          articleId as string,
+          chapterId as string,
+          false,
+          chapterId as string,
+          pageId as string
+        );
       }
-    };
+    }
+  };
 
+  useHydratedEffect(() => {
     fetchProgress();
   }, [articleId, pageIdInt, totalPages, chapterId]);
 

@@ -58,7 +58,7 @@ const JournalCard: React.FC<JournalProps> = ({ data }) => {
       : data.body;
 
   const route = () => {
-    navigation.navigate("/vault/history/[journal]", { date: data.date });
+    navigation.navigate("vault/history/journal/[date]", { date: data.date });
   };
 
   return (
@@ -81,8 +81,14 @@ const JournalCard: React.FC<JournalProps> = ({ data }) => {
 };
 
 const GuidedJournalCard: React.FC<GuidedJournalProps> = ({ data }) => {
+  const navigation = useNavigation<any>();
+  const route = () => {
+    navigation.navigate("vault/history/guided-journal/[date]", {
+      date: data.date,
+    });
+  };
   return (
-    <View style={styles.container}>
+    <Pressable onPress={route} style={styles.container}>
       <CustomText
         letterSpacing="wide"
         className="text-sm font-semibold text-gray100 mb-4"
@@ -93,18 +99,22 @@ const GuidedJournalCard: React.FC<GuidedJournalProps> = ({ data }) => {
       <CustomText className="text-sm text-gray200">
         {data.body.step1_text}
       </CustomText>
-    </View>
+    </Pressable>
   );
 };
 
 const MoodCard: React.FC<MoodProps> = ({ data }) => {
+  const navigation = useNavigation<any>();
+  const route = () => {
+    navigation.navigate("vault/history/mood/[date]", { date: data.date });
+  };
   return (
-    <View style={styles.container}>
+    <Pressable onPress={route} style={styles.container}>
       <CustomText
         letterSpacing="wide"
-        className="text-sm font-semibold text-gray100"
+        className="text-sm uppercase font-semibold text-gray100"
       >
-        MOOD TRACKING
+        Tracking
       </CustomText>
       <CustomText className="text-xl mb-5 font-medium">
         You felt {getStatus(data.mood)}
@@ -118,9 +128,9 @@ const MoodCard: React.FC<MoodProps> = ({ data }) => {
         <CustomText className="text-sm leading-4 text-black100">
           slept {getStatus(data.sleep)}
         </CustomText>{" "}
-        in the previous night.
+        last night.
       </CustomText>
-    </View>
+    </Pressable>
   );
 };
 

@@ -1,6 +1,7 @@
 import articlesData from "@/assets/articles/articles.json";
 import CustomText from "@/components/CustomText";
 import { shadows } from "@/constants/styles";
+import { useHydratedEffect } from "@/hooks/hooks";
 import { useAuth } from "@/state/auth";
 import { loadChapterProgress } from "@/utils/progressStorage";
 import { useFocusEffect, useRouter } from "expo-router";
@@ -71,15 +72,13 @@ const ArticlePage = () => {
     setArticles(filteredArticles);
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchProgress();
-    }, [])
-  );
+  useHydratedEffect(() => {
+    fetchProgress();
+  }, []);
 
   return (
     <SafeAreaView className="flex-1 bg-blue100">
-      <View>
+      <View className="pt-20">
         <CustomText
           letterSpacing="tight"
           className="mb-6 text-2xl font-medium text-center text-black200"

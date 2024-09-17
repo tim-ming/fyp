@@ -1,12 +1,14 @@
-import React, { useState } from "react";
-import { ScrollView, TextInput, View } from "react-native";
+import React, { useRef, useState } from "react";
+import { Pressable, ScrollView, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Card, { CardProps } from "@/components/Card";
 import CustomText from "@/components/CustomText";
 import TopNav from "@/components/TopNav";
+import Search from "@/assets/icons/search.svg";
 
 const ExploreScreen: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const searchInputRef = useRef<TextInput>(null);
 
   const cardsData: Array<
     Pick<CardProps, "title" | "subtitle" | "href" | "icon">
@@ -42,26 +44,42 @@ const ExploreScreen: React.FC = () => {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-blue100">
+    <View className="flex-1 bg-blue100">
       <TopNav />
 
-      <View>
-        <CustomText
-          letterSpacing="tight"
-          className="text-[24px] font-medium text-center text-black200"
+      <View className="px-4 border-b-[1px] border-gray50">
+        <View>
+          <CustomText
+            letterSpacing="tight"
+            className="text-[24px] font-medium text-center text-black200"
+          >
+            Explore
+          </CustomText>
+        </View>
+        <Pressable
+          className="my-3"
+          tabIndex={-1}
+          onPress={() => searchInputRef.current?.focus()}
         >
-          Explore
-        </CustomText>
+          <View className="relative">
+            <TextInput
+              className="h-12 bg-white text-base rounded-full pl-12 pr-4 font-[PlusJakartaSans] placeholder:text-gray100"
+              placeholder="Search stuff"
+              ref={searchInputRef}
+              placeholderTextColor="#8B8B8B"
+              value={searchTerm}
+              onChangeText={setSearchTerm}
+            />
+            <Search
+              width={24}
+              height={24}
+              strokeWidth={1.5}
+              pointerEvents="none"
+              className="stroke-gray200 absolute left-4 top-0 h-full w-6 items-center justify-center"
+            />
+          </View>
+        </Pressable>
       </View>
-
-      <TextInput
-        className="bg-white rounded-full px-4 py-2 mx-4 my-4"
-        placeholder="Search stuff"
-        placeholderTextColor="#8B8B8B"
-        value={searchTerm}
-        onChangeText={setSearchTerm}
-      />
-
       <ScrollView className="px-4 py-4">
         {filteredCards.map((card, index) => (
           <Card
@@ -73,7 +91,7 @@ const ExploreScreen: React.FC = () => {
           />
         ))}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 

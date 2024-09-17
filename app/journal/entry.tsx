@@ -33,11 +33,11 @@ const getJournalEntryHandler = async (date: string) => {
   }
 };
 
-const postJournalEntryHandler = async (journal: JournalInput) => {
+const postJournalEntryHandler = async (journal: JournalInput, date: string) => {
   try {
     const data = await postJournalEntry({
       ...journal,
-      date: new Date().toISOString().split("T")[0],
+      date: new Date(date).toISOString().split("T")[0],
     } as JournalEntryCreate);
     console.log(data);
   } catch (error) {
@@ -49,7 +49,9 @@ const postJournalEntryHandler = async (journal: JournalInput) => {
 
 const Entry: React.FC = () => {
   const today = new Date();
-  const date = useRoute().params?.date ?? format(today, "yyyy-MM-dd");
+  const route = useRoute();
+  const params = route.params as { date: string };
+  const date = params?.date ?? format(today, "yyyy-MM-dd");
 
   const [journalEntry, setJournalEntry] =
     useState<JournalInput>(BASE_JOURNAL_ENTRY);
@@ -120,7 +122,7 @@ const Entry: React.FC = () => {
         <Pressable
           className="h-14 bg-blue200 items-center justify-center rounded-full"
           onPress={() => {
-            postJournalEntryHandler(journalEntry);
+            postJournalEntryHandler(journalEntry, date);
           }}
         >
           <CustomText className="text-white text-base font-medium">

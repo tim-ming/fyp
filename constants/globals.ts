@@ -5,10 +5,10 @@ import * as SecureStore from "expo-secure-store";
 import { Token } from "@/types/models";
 
 export const getStatus = (value: number) => {
-  if (value < 0.2) return "horrible";
-  if (value < 0.4) return "bad";
-  if (value < 0.6) return "fine";
-  if (value < 0.85) return "well";
+  if (value < 20) return "horrible";
+  if (value < 40) return "bad";
+  if (value < 60) return "fine";
+  if (value < 85) return "well";
   return "excellent";
 };
 

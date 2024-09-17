@@ -1,4 +1,4 @@
-import { getJournalEntries } from "@/api/api";
+import { getJournalEntries, getMoodEntry } from "@/api/api";
 import EditPen from "@/assets/icons/edit-pen.svg";
 import Plus from "@/assets/icons/plus.svg";
 import CustomText from "@/components/CustomText";
@@ -6,7 +6,7 @@ import TopNav from "@/components/TopNav";
 import { Colors } from "@/constants/Colors";
 import { shadows } from "@/constants/styles";
 import { useAuth } from "@/state/auth";
-import { JournalEntry } from "@/types/models";
+import { JournalEntry, MoodEntry } from "@/types/models";
 import { capitalizeFirstLetter, getDayOfWeek } from "@/utils/helpers";
 import { addDays, format, isSameDay, isToday, isYesterday } from "date-fns";
 import { Image } from "expo-image";
@@ -29,6 +29,7 @@ import Carousel, {
 import doctorsData from "@/assets/data/doctors.json";
 import { Doctor } from "@/types/globals";
 import { useHydratedEffect } from "@/hooks/hooks";
+import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 
 type JournalEntryCard = {
   journal: JournalEntry | null;
@@ -36,6 +37,10 @@ type JournalEntryCard = {
 };
 
 const ICON_SIZE = 28;
+const CARD = {
+  HEIGHT: 270,
+  WIDTH: 210,
+};
 
 const ref = React.createRef<Carousel<any>>();
 
@@ -75,7 +80,7 @@ const renderCard = (journal: JournalEntryCard) => {
             className="rounded-full bg-white flex justify-center items-center"
             style={[styles.shadow, styles.circle]}
           >
-            {journal ? (
+            {journal.journal ? (
               <EditPen
                 width={ICON_SIZE}
                 height={ICON_SIZE}
@@ -165,8 +170,6 @@ const getJournalEntriesHandler = (journalEntries: JournalEntry[]) => {
     journal: journalEntries.find(({ date }) => isSameDay(d, date)) || null,
   }));
 
-  console.log(days);
-
   return days;
 };
 
@@ -232,20 +235,30 @@ const convertToPairs = (data: DoctorsData): DoctorPair[] => {
 };
 
 const HomeScreen = () => {
-  const today = new Date();
   const [refreshing, setRefreshing] = useState(false);
-  const [journals, setJournals] = useState<JournalEntryCard[]>([]);
+  const date = format(new Date(), "yyyy-MM-dd");
+  const [journals, setJournals] = useState<JournalEntryCard[] | null>(null);
+  const [moodEntry, setMoodEntry] = useState<MoodEntry | null>(null);
+  const [doneFetch, setDoneFetch] = useState(false);
   const auth = useAuth();
+
+  const lotusImage = require("@/assets/images/lotus.png");
+
+  const fetchData = async () => {
+    setDoneFetch(false);
+    try {
+      const journalEntries = await getJournalEntries();
+      setJournals(getJournalEntriesHandler(journalEntries));
+
+      const moodEntry = await getMoodEntry(date);
+      setMoodEntry(moodEntry);
+    } catch (error) {
+      console.error(error);
+    }
+    setDoneFetch(true);
+  };
+
   useHydratedEffect(() => {
-    const fetchData = async () => {
-      getJournalEntries()
-        .then((journalEntries) =>
-          setJournals(getJournalEntriesHandler(journalEntries))
-        )
-        .catch((error) => {
-          console.error(error);
-        });
-    };
     fetchData();
   }, []);
 
@@ -263,6 +276,10 @@ const HomeScreen = () => {
     setRefreshing(true);
     fetchData().then(() => setRefreshing(false));
   }, []);
+
+  if (!doneFetch) {
+    return null;
+  }
 
   return (
     <SafeAreaView style={styles.container} className="bg-blue100">
@@ -284,27 +301,79 @@ const HomeScreen = () => {
         </View>
 
         <View className="w-full pt-4 flex flex-row justify-center items-center relative">
-          <Carousel
-            data={journals}
-            firstItem={journals.length - 1}
-            enableSnap={true}
-            enableMomentum={true}
-            snapToAlignment="center"
-            renderItem={({ item }) => renderCard(item)}
-            sliderWidth={wp(100)}
-            containerCustomStyle={styles.slider}
-            contentContainerCustomStyle={styles.sliderContentContainer}
-            scrollInterpolator={scrollInterpolator2}
-            itemWidth={styles.mainCard.width}
-            ref={ref}
-            // @ts-ignore
-            slideInterpolatedStyle={animatedStyles2}
-            useScrollView={true}
-          />
+          {journals ? (
+            <Carousel
+              data={journals}
+              firstItem={journals.length - 1}
+              enableSnap={true}
+              enableMomentum={true}
+              snapToAlignment="center"
+              renderItem={({ item }) => renderCard(item)}
+              sliderWidth={wp(100)}
+              containerCustomStyle={styles.slider}
+              contentContainerCustomStyle={styles.sliderContentContainer}
+              scrollInterpolator={scrollInterpolator2}
+              itemWidth={styles.mainCard.width}
+              ref={ref}
+              // @ts-ignore
+              slideInterpolatedStyle={animatedStyles2}
+              useScrollView={true}
+            />
+          ) : (
+            <View
+              style={{ height: CARD.HEIGHT }}
+              className="items-center justify-center"
+            >
+              <CustomText>Loading journals...</CustomText>
+            </View>
+          )}
         </View>
 
+        {!moodEntry && (
+          <View className="px-4">
+            <View className="w-full py-8">
+              <View style={styles.line} className="h-0.5 w-full rounded-full" />
+            </View>
+
+            <CustomText letterSpacing="tight" className="font-medium text-2xl">
+              Daily check-in
+            </CustomText>
+            <CustomText className="mt-1 text-gray300 mb-4">
+              You have not checked in today. How are you feeling?
+            </CustomText>
+            <Link href={"/mood"} asChild>
+              <Pressable>
+                {({ pressed }) => (
+                  <View
+                    style={[
+                      styles.card,
+                      { transform: [{ scale: pressed ? 0.95 : 1 }] },
+                    ]}
+                    className="border-gray50 border-[1px]"
+                  >
+                    <Image
+                      source={lotusImage}
+                      className="w-32 h-32 opacity-60"
+                    />
+                    <CustomText letterSpacing="tight" style={styles.title}>
+                      Tracking
+                    </CustomText>
+                    <CustomText
+                      letterSpacing="tight"
+                      className="text-gray100 mt-2 text-center"
+                    >
+                      Track your mood, sleep, appetite for better insights on
+                      your mental health.
+                    </CustomText>
+                  </View>
+                )}
+              </Pressable>
+            </Link>
+          </View>
+        )}
+
         <View className="px-4">
-          <View className="w-full py-6">
+          <View className="w-full py-8">
             <View style={styles.line} className="h-0.5 w-full rounded-full" />
           </View>
 
@@ -312,7 +381,7 @@ const HomeScreen = () => {
             Suggestions for you
           </CustomText>
           <CustomText className=" mt-1 text-gray300 mb-4">
-            Based on your day
+            Based on your day.
           </CustomText>
           <View className="flex-row">
             <View className="w-1/2">
@@ -428,11 +497,11 @@ const styles = StyleSheet.create({
     transform: "scale(0.7)",
   },
   mainCard: {
-    width: 210,
+    width: CARD.WIDTH,
     borderRadius: 20,
   },
   mainCardHeight: {
-    height: 270,
+    height: CARD.HEIGHT,
   },
   circle: {
     height: 48,

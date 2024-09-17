@@ -49,7 +49,8 @@ const MoodSliderSection: React.FC<MoodSliderSectionProps> = ({
           value={value}
           onValueChange={(v) => setValue(v[0])}
           minimumValue={0}
-          maximumValue={1}
+          maximumValue={100}
+          step={1}
           containerStyle={{ height: "auto" }}
           minimumTrackTintColor={Colors.blue200}
           maximumTrackTintColor={Colors.blue200}
@@ -71,17 +72,10 @@ const MoodSliderSection: React.FC<MoodSliderSectionProps> = ({
   );
 };
 
-const scale = (value: number, scale = 100) => {
-  if (value < 0 || value > 1) {
-    throw new Error("Value must be in the range 0.0 - 1.0");
-  }
-  return Math.round(value * scale);
-};
-
 export default function MoodScreen() {
-  const [feeling, setFeeling] = useState(0.5);
-  const [eating, setEating] = useState(0.5);
-  const [sleeping, setSleeping] = useState(0.5);
+  const [feeling, setFeeling] = useState(50);
+  const [eating, setEating] = useState(50);
+  const [sleeping, setSleeping] = useState(50);
 
   const submit = async (mood: number, eat: number, sleep: number) => {
     console.log(mood, eat, sleep);
@@ -147,7 +141,7 @@ export default function MoodScreen() {
       <View className="flex-1 justify-end w-full">
         <Pressable
           onPress={() => {
-            submit(scale(feeling), scale(eating), scale(sleeping));
+            submit(feeling, eating, sleeping);
           }}
           className="w-full h-14 bg-blue200 rounded-full justify-center items-center mb-2"
         >

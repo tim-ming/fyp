@@ -5,6 +5,7 @@ import { sleep } from "@/utils/helpers";
 import { format } from "date-fns";
 import { router } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
+import { useNavigation } from "@react-navigation/native";
 import {
   Animated,
   Easing,
@@ -32,6 +33,8 @@ const getTimeLeft = (progress: number) => {
 };
 
 const BreathingScreen = () => {
+  const navigation = useNavigation();
+
   const progressValue = new Animated.Value(0);
 
   const [progress, setProgress] = useState(0);
@@ -101,13 +104,12 @@ const BreathingScreen = () => {
 
   const complete = () => {
     // TODO: log something
-    router.push("/relax");
+    router.back();
   };
 
   const endEarly = () => {
     // TODO: log something
-
-    router.push("/relax");
+    router.back();
   };
 
   useEffect(() => {}, [menuOpen]);

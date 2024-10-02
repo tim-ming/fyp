@@ -1,9 +1,15 @@
 import React from "react";
 import { View, Pressable } from "react-native";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import CustomText from "@/components/CustomText";
 
 const GuidedWritingComplete: React.FC = () => {
+  const handleComplete = () => {
+    router.push({
+      pathname: "/(tabs)/explore",
+    });
+  };
+
   return (
     <View className="flex-1 bg-blue100 px-2 pt-20">
       <View className="flex-1 justify-center items-center my-60">
@@ -19,13 +25,14 @@ const GuidedWritingComplete: React.FC = () => {
       </View>
 
       <View className="flex-1 justify-end mb-6 mx-2">
-        <Link href="/(tabs)/explore" asChild>
-          <Pressable className="h-14 bg-blue200 items-center justify-center rounded-full">
-            <CustomText className="text-white text-base font-medium">
-              Complete
-            </CustomText>
-          </Pressable>
-        </Link>
+        <Pressable
+          onPress={handleComplete}
+          className="h-14 bg-blue200 items-center justify-center rounded-full"
+        >
+          <CustomText className="text-white text-base font-medium">
+            Complete
+          </CustomText>
+        </Pressable>
       </View>
     </View>
   );

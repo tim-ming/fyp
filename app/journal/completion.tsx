@@ -1,12 +1,24 @@
 import React from "react";
 import { View, Pressable } from "react-native";
-import { Link } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
+import { useRoute } from "@react-navigation/native";
 import CustomText from "@/components/CustomText";
-import { useRoute, RouteProp } from "@react-navigation/native";
 import { format } from "date-fns";
 
 const JournalComplete: React.FC = () => {
   const today = new Date();
+  const { source } = useLocalSearchParams();
+
+  const handleComplete = () => {
+    const target = source === "/" ? "/" : "/(tabs)/explore";
+
+    router.push({
+      pathname: target,
+      params: {
+        newJournalAdded: 1,
+      },
+    });
+  };
 
   return (
     <View className="flex-1 bg-blue100 px-2 pt-20">
@@ -23,13 +35,14 @@ const JournalComplete: React.FC = () => {
       </View>
 
       <View className="flex-1 justify-end mb-6 mx-2">
-        <Link href="/(tabs)/explore" asChild>
-          <Pressable className="h-14 bg-blue200 items-center justify-center rounded-full">
-            <CustomText className="text-white text-base font-medium">
-              Complete
-            </CustomText>
-          </Pressable>
-        </Link>
+        <Pressable
+          onPress={handleComplete}
+          className="h-14 bg-blue200 items-center justify-center rounded-full"
+        >
+          <CustomText className="text-white text-base font-medium">
+            Complete
+          </CustomText>
+        </Pressable>
       </View>
     </View>
   );

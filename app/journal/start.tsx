@@ -1,9 +1,11 @@
 import React from "react";
 import { View, Pressable } from "react-native";
-import { Link } from "expo-router";
+import { Link, useLocalSearchParams } from "expo-router";
 import CustomText from "@/components/CustomText";
 
 const JournalStart: React.FC = () => {
+  const { source } = useLocalSearchParams();
+
   return (
     <View className="flex-1 bg-blue100 px-2 pt-20">
       <View className="flex-1 justify-center items-center">
@@ -17,7 +19,11 @@ const JournalStart: React.FC = () => {
       </View>
 
       <View className="flex-1 justify-end mb-6 mx-2">
-        <Link href="/journal/entry" asChild push>
+        <Link
+          href={{ pathname: "/journal/entry", params: { source } }}
+          asChild
+          push
+        >
           <Pressable className="h-14 bg-blue200 items-center justify-center rounded-full">
             <CustomText className="text-white text-base font-medium">
               Get Started

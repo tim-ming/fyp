@@ -21,6 +21,7 @@ import {
   StyleSheet,
   View,
 } from "react-native";
+import { useRoute } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Carousel, {
   CarouselProps,
@@ -29,7 +30,6 @@ import Carousel, {
 import doctorsData from "@/assets/data/doctors.json";
 import { Doctor } from "@/types/globals";
 import { useHydratedEffect } from "@/hooks/hooks";
-import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 
 type JournalEntryCard = {
   journal: JournalEntry | null;
@@ -55,6 +55,7 @@ const renderCard = (journal: JournalEntryCard) => {
           .getDate()
           .toString()
           .padStart(2, "0")}`,
+        source: `/`,
       },
     });
   };
@@ -241,6 +242,8 @@ const HomeScreen = () => {
   const [moodEntry, setMoodEntry] = useState<MoodEntry | null>(null);
   const [doneFetch, setDoneFetch] = useState(false);
   const auth = useAuth();
+  const route = useRoute();
+  const params = route.params as { newJournalAdded: number };
 
   const lotusImage = require("@/assets/images/lotus.png");
 
@@ -260,7 +263,10 @@ const HomeScreen = () => {
 
   useHydratedEffect(() => {
     fetchData();
-  }, []);
+    if (params?.newJournalAdded) {
+      params.newJournalAdded = 0;
+    }
+  }, [params?.newJournalAdded]);
 
   const onRefresh = useCallback(() => {
     const fetchData = async () => {

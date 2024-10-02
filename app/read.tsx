@@ -1,10 +1,10 @@
 import articlesData from "@/assets/articles/articles.json";
 import CustomText from "@/components/CustomText";
 import { shadows } from "@/constants/styles";
-import { useHydratedEffect } from "@/hooks/hooks";
+import { useHydratedFocusEffect } from "@/hooks/hooks";
 import { useAuth } from "@/state/auth";
 import { loadChapterProgress } from "@/utils/progressStorage";
-import { useFocusEffect, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import React, { useCallback, useState } from "react";
 import { Pressable, ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -72,7 +72,7 @@ const ArticlePage = () => {
     setArticles(filteredArticles);
   };
 
-  useHydratedEffect(() => {
+  useHydratedFocusEffect(() => {
     fetchProgress();
   }, []);
 

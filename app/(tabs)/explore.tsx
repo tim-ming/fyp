@@ -16,7 +16,10 @@ const ExploreScreen: React.FC = () => {
     {
       title: "Journal",
       subtitle: "Write about your day.",
-      href: "/journal/start",
+      href: {
+        pathname: "/journal/start",
+        params: { source: "/(tabs)/explore" },
+      },
       icon: "book",
     },
     {

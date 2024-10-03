@@ -140,16 +140,21 @@ def post_signin(
         algorithm=ALGORITHM,
     )
 
-    return schemas.Token(access_token=access_token, token_type="bearer", expires_in=ACCESS_TOKEN_EXPIRE_MINUTES)
+    return schemas.Token(
+        access_token=access_token,
+        token_type="bearer",
+        expires_in=ACCESS_TOKEN_EXPIRE_MINUTES,
+    )
+
 
 @app.get("/users/check-email")
 def get_email_exists(
     email: str = Query(..., title="Email", description="The email address to check"),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """
     Check if the provided email is already registered.
-    
+
     :param email: The email address to check
     :param db: Database session
     :return: A message indicating whether the email exists or not, False or True
@@ -158,6 +163,7 @@ def get_email_exists(
     if existing_user is not None:
         return {"detail": "True"}
     return {"detail": "False"}
+
 
 @app.post("/signup")
 def post_signup(user: schemas.UserCreate, db: Session = Depends(get_db)):
@@ -190,6 +196,7 @@ def get_profile(current_user: Annotated[schemas.User, Depends(get_current_user)]
     """
     return current_user
 
+
 @app.get("/journals/id/{journal_id}", response_model=Optional[schemas.JournalEntry])
 def get_journal_entry(
     journal_id: int,
@@ -204,6 +211,7 @@ def get_journal_entry(
     :return (schemas.JournalEntry): Journal entry
     """
     return commands.get_journal_entry_by_id(db, journal_id, current_user)
+
 
 @app.get("/mood/id/{mood_id}", response_model=Optional[schemas.MoodEntry])
 def get_mood_entry(
@@ -220,7 +228,11 @@ def get_mood_entry(
     """
     return commands.get_mood_entry_by_id(db, mood_id, current_user)
 
-@app.get("/guided-journals/id/{guided_journal_id}", response_model=Optional[schemas.GuidedJournalEntry])
+
+@app.get(
+    "/guided-journals/id/{guided_journal_id}",
+    response_model=Optional[schemas.GuidedJournalEntry],
+)
 def get_guided_journal_entry(
     guided_journal_id: int,
     current_user: Annotated[schemas.User, Depends(get_current_user)],
@@ -235,7 +247,10 @@ def get_guided_journal_entry(
     """
     return commands.get_guided_journal_entry_by_id(db, guided_journal_id, current_user)
 
-@app.get("/guided-journals/date/{date}", response_model=Optional[schemas.GuidedJournalEntry])
+
+@app.get(
+    "/guided-journals/date/{date}", response_model=Optional[schemas.GuidedJournalEntry]
+)
 def get_guided_journal_entries_by_date(
     date: str,
     current_user: Annotated[schemas.User, Depends(get_current_user)],
@@ -248,13 +263,17 @@ def get_guided_journal_entries_by_date(
     :param db (Session): Database session
     :return (List[schemas.GuidedJournalEntry]): Guided journal entries
     """
-        
+
     try:
         parsed_date = datetime.fromisoformat(date).date()
     except ValueError:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid date format. Use YYYY-MM-DD.")
-    
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid date format. Use YYYY-MM-DD.",
+        )
+
     return commands.get_guided_journal_entry_by_date(db, parsed_date, current_user)
+
 
 @app.get("/journals/date/{date}", response_model=Optional[schemas.JournalEntry])
 def get_journal_entries_by_date(
@@ -273,9 +292,13 @@ def get_journal_entries_by_date(
     try:
         parsed_date = datetime.fromisoformat(date).date()
     except ValueError:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid date format. Use YYYY-MM-DD.")
-    
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid date format. Use YYYY-MM-DD.",
+        )
+
     return commands.get_journal_entry_by_date(db, parsed_date, current_user)
+
 
 @app.get("/mood/date/{date}", response_model=Optional[schemas.MoodEntry])
 def get_mood_entries_by_date(
@@ -290,13 +313,17 @@ def get_mood_entries_by_date(
     :param db (Session): Database session
     :return (List[schemas.MoodEntry]): Mood entries
     """
-    
+
     try:
         parsed_date = datetime.fromisoformat(date).date()
     except ValueError:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid date format. Use YYYY-MM-DD.")
-    
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid date format. Use YYYY-MM-DD.",
+        )
+
     return commands.get_mood_entry_by_date(db, parsed_date, current_user)
+
 
 @app.post("/mood", response_model=schemas.MoodEntry)
 def post_mood_entry(
@@ -344,6 +371,41 @@ def get_mood_entries(
         )
 
     return commands.get_mood_entries_by_user(db, current_user, skip, limit)
+
+
+@app.get("/mood/date-range", response_model=List[schemas.MoodEntry])
+def get_mood_entries_by_date_range(
+    current_user: Annotated[schemas.User, Depends(get_current_user)],
+    start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
+    end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
+    db: Session = Depends(get_db),
+):
+    """
+    Get mood entries by date range
+    :param current_user (schemas.User): Current user
+    :param start_date (date): Start date
+    :param end_date (date): End date
+    :param db (Session): Database session
+    :return (List[schemas.MoodEntry]): Mood entries within the date range
+    :raises (HTTPException): If date range is invalid
+    """
+    try:
+        start_date = datetime.fromisoformat(start_date).date()
+        end_date = datetime.fromisoformat(end_date).date()
+        if start_date > end_date:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Start date must be before end date",
+            )
+    except:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid date format. Use YYYY-MM-DD.",
+        )
+
+    return commands.get_mood_entries_by_date_range(
+        db, current_user, start_date, end_date
+    )
 
 
 @app.post("/journals", response_model=schemas.JournalEntry)
@@ -407,8 +469,9 @@ def post_social_accounts(
     :param db (Session): Database session
     :return (List[schemas.SocialAccount]): Created social accounts
     """
-    
+
     return commands.create_social_accounts(db, social_accounts, current_user)
+
 
 @app.patch("/users/me", response_model=schemas.UserWithoutSensitiveData)
 def patch_user(
@@ -425,6 +488,7 @@ def patch_user(
     """
     return commands.update_user(db, user, current_user)
 
+
 @app.post("/guided-journals", response_model=schemas.GuidedJournalEntry)
 def post_guided_journal_entry(
     guided_journal_entry: schemas.GuidedJournalEntryCreate,
@@ -439,6 +503,7 @@ def post_guided_journal_entry(
     :return (schemas.GuidedJournalEntry): Created guided journal entry
     """
     return commands.upsert_guided_journal_entry(db, guided_journal_entry, current_user)
+
 
 @app.get("/guided-journals", response_model=List[schemas.GuidedJournalEntry])
 def get_guided_journal_entries(
@@ -471,6 +536,7 @@ def get_guided_journal_entries(
 
     return commands.get_guided_journal_entries_by_user(db, current_user, skip, limit)
 
+
 @app.post("/assign-therapist/{therapist_id}")
 def assign_therapist(
     therapist_id: int,
@@ -489,17 +555,18 @@ def assign_therapist(
     if _therapist is None or _therapist.role != "therapist":
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Given ID is not a therapist ID"
+            detail="Given ID is not a therapist ID",
         )
 
     if current_user.role == "therapist":
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Therapists cannot have therapists"
+            detail="Therapists cannot have therapists",
         )
 
     commands.assign_therapist_to_patient(db, current_user, therapist_id)
     return {"detail": "Therapist assigned"}
+
 
 @app.delete("/unassign-therapist")
 def unassign_therapist(
@@ -516,11 +583,12 @@ def unassign_therapist(
     if current_user.role == "therapist":
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Therapists cannot have therapists"
+            detail="Therapists cannot have therapists",
         )
-    
+
     commands.remove_therapist_from_patient(db, current_user)
     return {"detail": "Therapist unassigned"}
+
 
 @app.get("/therapist", response_model=Optional[schemas.UserWithoutSensitiveData])
 def get_therapist(
@@ -536,10 +604,11 @@ def get_therapist(
     if current_user.role == "therapist":
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Therapists cannot have therapists"
+            detail="Therapists cannot have therapists",
         )
-    
+
     return commands.get_therapist_by_patient(db, current_user)
+
 
 @app.get("/patients", response_model=List[schemas.UserWithPatientData])
 def get_patients(
@@ -554,6 +623,7 @@ def get_patients(
     """
     return commands.get_patients_by_therapist(db, current_user)
 
+
 @app.get("/patient-data/{patient_id}", response_model=schemas.UserWithPatientData)
 def get_patient_data(
     patient_id: int,
@@ -566,6 +636,7 @@ def get_patient_data(
     :return (schemas.UserWithPatientData): Patient data
     """
     return commands.get_user_by_id(db, patient_id)
+
 
 @app.patch("/patient-data", response_model=schemas.PatientData)
 def update_severity(

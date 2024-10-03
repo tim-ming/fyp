@@ -6,6 +6,7 @@ import GroupedProgressBar from "@/components/GroupedProgressBar";
 import ProgressBar from "@/components/ProgressBar";
 import TopNav from "@/components/TopNav";
 import { Colors } from "@/constants/Colors";
+import { useHydratedEffect } from "@/hooks/hooks";
 import { MoodEntry } from "@/types/models";
 import {
   addDays,
@@ -192,7 +193,7 @@ const InsightsCard = () => {
   const [startDate, setStartDate] = useState(correctDateToMonday(TODAY)); // Set start date to TODAY
   const endDate = useMemo(() => addDays(startDate, 6), [startDate]); // End date is 6 days after start date
 
-  useEffect(() => {
+  useHydratedEffect(() => {
     const getMood = async () => {
       const mood = await getWeekMoodData(startDate);
       setMoodData(mood);
@@ -305,7 +306,7 @@ const JourneyScreen = () => {
     { journals: number; mood: number }[]
   >([]);
 
-  useEffect(() => {
+  useHydratedEffect(() => {
     setMonthData(
       getMonthMoodData(TODAY).map((d) => ({
         journals: d.journal,

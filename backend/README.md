@@ -14,3 +14,8 @@ TOKEN_SECRET_KEY = 'mcs01-is-awesome'
 3. `poetry install`
 4. `poetry shell`
 5. `python3 run.py`
+
+To update the database schema:
+
+1. `cd backend/app`,
+2. `alembic upgrade head `

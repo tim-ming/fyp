@@ -15,27 +15,33 @@ const GroupedProgressBar: React.FC<GroupedProgressBarProps> = ({
 }) => {
   const isHorizontal = orientation === "horizontal";
   return (
-    <View
-      {...props}
-      style={{
-        flexDirection: isHorizontal ? "row" : "column",
-        width: isHorizontal ? "100%" : undefined,
-        height: isHorizontal ? undefined : "100%",
-      }}
-    >
-      {bars.map((bar, index) => (
-        <ProgressBar
-          key={index}
-          progress={bar.progress}
-          barStyle={bar.barStyle}
-          orientation={orientation}
-          style={{
-            flex: 1,
-            marginRight: isHorizontal && index < bars.length - 1 ? 2 : 0,
-            marginBottom: !isHorizontal && index < bars.length - 1 ? 2 : 0,
-          }}
-        />
-      ))}
+    <View {...props}>
+      <View
+        style={{
+          flexDirection: isHorizontal ? "column" : "row",
+          justifyContent: "flex-end",
+          alignItems: "flex-end",
+          width: isHorizontal ? "100%" : undefined,
+          height: isHorizontal ? undefined : "100%",
+        }}
+      >
+        {bars.map((bar, index) => (
+          <View
+            key={index}
+            style={{
+              ...bar.barStyle,
+              flex: 1,
+              ...(isHorizontal
+                ? {
+                    width: `${bar.progress}%`,
+                  }
+                : {
+                    height: `${bar.progress}%`,
+                  }),
+            }}
+          />
+        ))}
+      </View>
     </View>
   );
 };

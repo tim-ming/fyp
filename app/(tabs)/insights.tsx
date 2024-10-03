@@ -1,4 +1,4 @@
-import { getMoodEntries } from "@/api/api";
+import { getJournalEntries, getMoodEntries } from "@/api/api";
 import ChevronLeft from "@/assets/icons/chevron-left.svg";
 import ChevronRight from "@/assets/icons/chevron-right.svg";
 import CustomText from "@/components/CustomText";
@@ -20,20 +20,36 @@ import {
   startOfToday,
   subDays,
 } from "date-fns";
+import { useNavigation } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, View } from "react-native";
 
 const TODAY = startOfToday();
 
-type DummyData = { journal: number; date: Date; mood: number };
+type JournalMood = { journal: number; mood: number; date: Date };
 
-const interpolateColor = (value: number): string => {
+const interpolateColor = (value: number, preset: "r" | "g" | "b"): string => {
   // Ensure value is between 0 and 1
-  value = Math.max(0, Math.min(1, value));
+  value = Math.max(0, Math.min(1, value / 100));
 
-  // Hex colors to interpolate between
-  const startColor = { r: 13, g: 59, b: 100 }; // #0D3B64
-  const endColor = { r: 173, g: 217, b: 255 }; // #ADD9FF
+  // Hex colors for red, green, and blue presets
+  const presets = {
+    r: {
+      startColor: { r: 100, g: 13, b: 13 },
+      endColor: { r: 255, g: 173, b: 173 },
+    }, // Red shades
+    g: {
+      startColor: { r: 13, g: 100, b: 13 },
+      endColor: { r: 173, g: 255, b: 173 },
+    }, // Green shades
+    b: {
+      startColor: { r: 13, g: 59, b: 100 },
+      endColor: { r: 173, g: 217, b: 255 },
+    }, // Blue shades
+  };
+
+  // Choose the appropriate start and end colors based on the preset
+  const { startColor, endColor } = presets[preset];
 
   // Interpolate each RGB component
   const r = Math.round(startColor.r + (endColor.r - startColor.r) * value);
@@ -107,39 +123,6 @@ const interpolateColor = (value: number): string => {
   return `#${toHex(newR)}${toHex(newG)}${toHex(newB)}`;
 };
 
-const dummyMoodData: DummyData[] = [
-  { journal: 2, date: subDays(TODAY, 0), mood: 0.2 },
-  { journal: 1, date: subDays(TODAY, 1), mood: 0.4 },
-  { journal: 1, date: subDays(TODAY, 2), mood: 0.6 },
-  { journal: 0, date: subDays(TODAY, 4), mood: 0.9 },
-  { journal: 0, date: subDays(TODAY, 5), mood: 0.7 },
-  { journal: 2, date: subDays(TODAY, 6), mood: 0.5 },
-  { journal: 1, date: subDays(TODAY, 7), mood: 0.1 },
-  { journal: 3, date: subDays(TODAY, 8), mood: 0.4 },
-  { journal: 1, date: subDays(TODAY, 9), mood: 0.5 },
-  { journal: 1, date: subDays(TODAY, 10), mood: 0.2 },
-  { journal: 2, date: subDays(TODAY, 11), mood: 0.6 },
-  { journal: 1, date: subDays(TODAY, 12), mood: 0.8 },
-  { journal: 0, date: subDays(TODAY, 14), mood: 0.1 },
-  { journal: 1, date: subDays(TODAY, 15), mood: 0.5 },
-  { journal: 0, date: subDays(TODAY, 16), mood: 0.4 },
-  { journal: 0, date: subDays(TODAY, 17), mood: 0.2 },
-  { journal: 2, date: subDays(TODAY, 18), mood: 0.2 },
-  { journal: 0, date: subDays(TODAY, 19), mood: 0.6 },
-];
-
-const getMoodData =
-  (data: DummyData[]) => (startDate: Date) => (endDate: Date) => {
-    const allDates = eachDayOfInterval({ start: startDate, end: endDate });
-
-    const filteredData = allDates.map((date) => {
-      const found = data.find((d) => isSameDay(d.date, date));
-      return found ? found : { journal: 0, date, mood: 0 };
-    });
-
-    return filteredData;
-  };
-
 const correctDateToMonday = (date: Date) => {
   const dayOfWeek = getDay(date);
   if (dayOfWeek !== 1) {
@@ -148,8 +131,39 @@ const correctDateToMonday = (date: Date) => {
   return date;
 };
 
-const getMonthMoodData = (date: Date): DummyData[] => {
-  return getMoodData(dummyMoodData)(startOfMonth(date))(endOfMonth(date));
+const getMonthMoodData = async (date: Date): Promise<JournalMood[]> => {
+  // TODO: super inefficient code :) optimise pls, maybe create backend to get both journal and mood entries
+  const monthData: { [key: string]: JournalMood } = {};
+
+  const startDate = startOfMonth(date);
+  const endDate = endOfMonth(date);
+
+  const allDates = eachDayOfInterval({ start: startDate, end: endDate });
+
+  allDates.forEach((date) => {
+    const formattedDate = format(date, "yyyy-MM-dd");
+    monthData[formattedDate] = { journal: 0, mood: 0, date };
+  });
+
+  const journalEntries = await getJournalEntries(365);
+
+  journalEntries.forEach((entry) => {
+    if (entry.date in monthData) {
+      monthData[entry.date].journal++;
+    }
+  });
+
+  const moodEntries = await getMoodEntries(365);
+
+  moodEntries.forEach((entry) => {
+    if (entry.date in monthData) {
+      monthData[entry.date].mood = entry.mood;
+    }
+  });
+
+  return Object.values(monthData).sort(
+    (a, b) => a.date.getTime() - b.date.getTime()
+  );
 };
 
 const getWeekMoodData = async (startDate: Date): Promise<MoodEntry[]> => {
@@ -189,9 +203,16 @@ const getWeekMoodData = async (startDate: Date): Promise<MoodEntry[]> => {
 };
 
 const InsightsCard = () => {
+  type Variables = "mood" | "eat" | "sleep";
+
   // State for date range
   const [startDate, setStartDate] = useState(correctDateToMonday(TODAY)); // Set start date to TODAY
   const endDate = useMemo(() => addDays(startDate, 6), [startDate]); // End date is 6 days after start date
+  const [showVariables, setShowVariables] = useState<{
+    mood: boolean;
+    eat: boolean;
+    sleep: boolean;
+  }>({ mood: true, eat: true, sleep: true });
 
   useHydratedEffect(() => {
     const getMood = async () => {
@@ -222,6 +243,15 @@ const InsightsCard = () => {
     setMoodData(mood);
   };
 
+  const toggleVariables = (variable: Variables) => {
+    setShowVariables((prev) => ({ ...prev, [variable]: !prev[variable] }));
+  };
+
+  const navigation = useNavigation<any>();
+  const routeTracking = (date: string) => {
+    navigation.navigate("vault/history/mood/[date]", { date });
+  };
+
   return (
     <>
       <View className="bg-white rounded-2xl p-6 shadow-2xl">
@@ -237,7 +267,7 @@ const InsightsCard = () => {
               {format(startDate, "dd MMM")} - {format(endDate, "dd MMM")}
             </CustomText>
             <CustomText className="text-center text-sm text-gray-500">
-              Mood
+              Tracking
             </CustomText>
           </View>
           <Pressable onPress={handleRightChevronClick}>
@@ -246,37 +276,46 @@ const InsightsCard = () => {
         </View>
 
         <View className="flex flex-row w-full justify-center items-center">
-          {moodData.map(({ mood, eat, sleep }, index) => (
-            <View
+          {moodData.map(({ mood, eat, sleep, date }, index) => (
+            <Pressable
+              onPress={() => routeTracking(date)}
+              disabled={mood === 0 && eat === 0 && sleep === 0}
               key={index}
               className="items-center h-full"
               style={{ marginLeft: index > 0 ? 10 : 0 }} // Add margin-left for all items except the first one
             >
               {/* Vertical ProgressBar */}
               <GroupedProgressBar
-                bars={[
-                  {
-                    progress: mood,
-                    barStyle: {
-                      backgroundColor: interpolateColor(mood), // Darker blue for the progress
-                      borderRadius: 4,
-                    },
-                  },
-                  {
-                    progress: eat,
-                    barStyle: {
-                      backgroundColor: interpolateColor(mood), // Darker blue for the progress
-                      borderRadius: 4,
-                    },
-                  },
-                  {
-                    progress: sleep,
-                    barStyle: {
-                      backgroundColor: interpolateColor(mood), // Darker blue for the progress
-                      borderRadius: 4,
-                    },
-                  },
-                ]}
+                className="w-8 bg-gray0 rounded-[4px] h-56 justify-end"
+                orientation="vertical"
+                bars={(() => {
+                  const barsToShow = [];
+                  if (showVariables.mood)
+                    barsToShow.push({
+                      progress: mood,
+                      barStyle: {
+                        backgroundColor: interpolateColor(mood, "b"),
+                        borderRadius: 4,
+                      },
+                    });
+                  if (showVariables.eat)
+                    barsToShow.push({
+                      progress: eat,
+                      barStyle: {
+                        backgroundColor: interpolateColor(eat, "r"),
+                        borderRadius: 4,
+                      },
+                    });
+                  if (showVariables.sleep)
+                    barsToShow.push({
+                      progress: sleep,
+                      barStyle: {
+                        backgroundColor: interpolateColor(sleep, "g"),
+                        borderRadius: 4,
+                      },
+                    });
+                  return barsToShow;
+                })()}
               />
 
               {/* <ProgressBar
@@ -292,150 +331,229 @@ const InsightsCard = () => {
               <CustomText className="text-gray300 mt-1">
                 {dayLabels[index]}
               </CustomText>
-            </View>
+            </Pressable>
           ))}
+        </View>
+
+        <View className="items-center justify-center flex-row mt-4">
+          <View className="items-center justify-center flex-1">
+            <Pressable
+              onPress={() => toggleVariables("mood")}
+              className={`items-center justify-center px-5 py-2 border ${
+                showVariables["mood"]
+                  ? "bg-blue-500 border-transparent text-white"
+                  : "border-blue-500"
+              } rounded-full`}
+            >
+              <CustomText
+                className={`text-center text-sm ${
+                  showVariables["mood"]
+                    ? "bg-blue-500 border-transparent text-white"
+                    : "text-gray300"
+                }`}
+              >
+                Mood
+              </CustomText>
+            </Pressable>
+          </View>
+          <View className="items-center justify-center flex-1">
+            <Pressable
+              onPress={() => toggleVariables("eat")}
+              className={`items-center justify-center px-5 py-2 border ${
+                showVariables["eat"]
+                  ? "bg-red-500 border-transparent text-white"
+                  : "border-red-500"
+              } rounded-full`}
+            >
+              <CustomText
+                className={`text-center text-sm ${
+                  showVariables["eat"]
+                    ? "bg-red-500 border-transparent text-white"
+                    : "text-gray300"
+                }`}
+              >
+                Diet
+              </CustomText>
+            </Pressable>
+          </View>
+          <View className="items-center justify-center flex-1">
+            <Pressable
+              onPress={() => toggleVariables("sleep")}
+              className={`items-center justify-center px-5 py-2 border ${
+                showVariables["sleep"]
+                  ? "bg-green-500 border-transparent text-white"
+                  : "border-green-500"
+              } rounded-full`}
+            >
+              <CustomText
+                className={`text-center text-sm ${
+                  showVariables["sleep"]
+                    ? "bg-green-500 border-transparent text-white"
+                    : "text-gray300"
+                }`}
+              >
+                Sleep
+              </CustomText>
+            </Pressable>
+          </View>
         </View>
       </View>
     </>
   );
 };
 
-const JourneyScreen = () => {
+const CalendarCard = () => {
   // Generate data for the month
-  const [monthData, setMonthData] = useState<
-    { journals: number; mood: number }[]
-  >([]);
+  const [monthData, setMonthData] = useState<JournalMood[]>([]);
 
   useHydratedEffect(() => {
-    setMonthData(
-      getMonthMoodData(TODAY).map((d) => ({
-        journals: d.journal,
-        mood: d.mood,
-      }))
-    );
+    const getMood = async () => {
+      const data = await getMonthMoodData(TODAY);
+
+      setMonthData(data);
+    };
+    getMood();
   }, []);
-
+  const navigation = useNavigation<any>();
+  const viewDay = (day: Date) => {
+    navigation.navigate("vault/history/day/[date]", {
+      date: format(day, "yyyy-MM-dd"),
+    });
+  };
   return (
-    <ScrollView className="bg-blue100 flex-1">
-      <TopNav />
-
-      <View className="mb-8 px-4">
-        <View className="mb-8">
-          <CustomText className="text-center text-2xl font-medium mb-4">
-            Insights
+    <>
+      <CustomText className="text-center mb-1 text-[20px] font-medium">
+        Calendar
+      </CustomText>
+      <CustomText className="text-center text-sm text-gray-500 mb-4">
+        Journals and mood history
+      </CustomText>
+      <View className="bg-white rounded-2xl p-6">
+        <View className="justify-between flex-row mb-5">
+          <CustomText className="font-medium text-base text-black200">
+            {format(TODAY, "MMM")}
           </CustomText>
-
-          <InsightsCard />
+          <CustomText className="font-medium text-base text-gray300">
+            {format(TODAY, "yyyy")}
+          </CustomText>
         </View>
-        <View className="mb-4">
-          <CustomText className="text-center mb-1 text-[20px] font-medium">
-            Calendar
-          </CustomText>
-          <CustomText className="text-center text-sm text-gray-500 mb-4">
-            Journals and mood history
-          </CustomText>
-          <View className="bg-white rounded-2xl p-6">
-            <View className="justify-between flex-row mb-5">
-              <CustomText className="font-medium text-base text-black200">
-                {format(TODAY, "MMM")}
-              </CustomText>
-              <CustomText className="font-medium text-base text-gray300">
-                {format(TODAY, "yyyy")}
-              </CustomText>
-            </View>
-            {/* Grid calendar */}
-            <View className="justify-center items-center">
-              <View className="flex flex-wrap flex-row items-center">
-                {monthData.map(({ journals, mood }, i) => {
-                  const isEndOfRow = (i + 1) % 7 === 0;
-                  return (
-                    <View
-                      key={i}
-                      className={`aspect-square items-center justify-center`}
+        {/* Grid calendar */}
+        <View className="justify-center items-center">
+          <View className="flex flex-wrap flex-row items-center">
+            {monthData.map(({ journal, mood, date }, i) => {
+              const day = i + 1;
+              const isEndOfRow = day % 7 === 0;
+              return (
+                <View
+                  key={day}
+                  className={`aspect-square items-center justify-center`}
+                  style={{
+                    width: `calc(1/7*100% - 3px)`,
+                    marginRight: isEndOfRow ? 0 : 3,
+                    marginBottom: 3,
+                  }}
+                >
+                  {TODAY.getDate() === day ? (
+                    <Pressable
+                      onPress={() => viewDay(date)}
+                      className={`w-full h-full items-center justify-center rounded-[6px] border-[2px] p-[2px] border-blue200`}
+                    >
+                      <View
+                        className={`w-full h-full items-center justify-center rounded-[4px]`}
+                        style={{
+                          backgroundColor:
+                            mood > 0
+                              ? interpolateColor(mood, "b")
+                              : Colors.gray200,
+                        }}
+                      >
+                        <CustomText className="text-white font-medium text-base leading-4 mb-[6px]">
+                          {day}
+                        </CustomText>
+                        <View className="flex-row">
+                          {journal > 0 ? (
+                            Array.from({ length: journal }).map((_, j) => (
+                              <View
+                                key={j}
+                                className={`w-1 h-1 bg-white rounded-full ${
+                                  j > 0 ? "ml-[2px]" : ""
+                                }`}
+                              />
+                            ))
+                          ) : (
+                            <View
+                              className={`w-1 h-1  rounded-full border-[1px] border-white`}
+                            />
+                          )}
+                        </View>
+                      </View>
+                    </Pressable>
+                  ) : (
+                    <Pressable
+                      onPress={() => viewDay(date)}
+                      disabled={day > TODAY.getDate()}
+                      className={`w-full h-full items-center justify-center rounded-[4px]`}
                       style={{
-                        width: `calc(1/7*100% - 3px)`,
-                        marginRight: isEndOfRow ? 0 : 3,
-                        marginBottom: 3,
+                        backgroundColor:
+                          day < TODAY.getDate()
+                            ? mood == 0
+                              ? Colors.gray200
+                              : interpolateColor(mood, "b")
+                            : Colors.gray100,
                       }}
                     >
-                      {TODAY.getDate() === i + 1 ? (
-                        <View
-                          className={`w-full h-full items-center justify-center rounded-[6px] border-[2px] p-[2px] border-blue200`}
-                        >
+                      <CustomText className="text-white font-medium text-base leading-4 mb-[6px]">
+                        {day}
+                      </CustomText>
+                      <View className="flex-row">
+                        {journal > 0 ? (
+                          Array.from({ length: journal }).map((_, j) => (
+                            <View
+                              key={j}
+                              className={`w-1 h-1 bg-white rounded-full ${
+                                j > 0 ? "ml-[2px]" : ""
+                              }`}
+                            />
+                          ))
+                        ) : (
                           <View
-                            className={`w-full h-full items-center justify-center rounded-[4px]`}
-                            style={{
-                              backgroundColor:
-                                i < TODAY.getDate()
-                                  ? interpolateColor(mood)
-                                  : Colors.gray0,
-                            }}
-                          >
-                            <CustomText className="text-white font-medium text-base leading-4 mb-[6px]">
-                              {i + 1}
-                            </CustomText>
-                            <View className="flex-row">
-                              {journals > 0 ? (
-                                Array.from({ length: journals }).map((_, j) => (
-                                  <View
-                                    key={j}
-                                    className={`w-1 h-1 bg-white rounded-full ${
-                                      j > 0 ? "ml-[2px]" : ""
-                                    }`}
-                                  />
-                                ))
-                              ) : (
-                                <View
-                                  className={`w-1 h-1  rounded-full border-[1px] border-white`}
-                                />
-                              )}
-                            </View>
-                          </View>
-                        </View>
-                      ) : (
-                        <View
-                          className={`w-full h-full items-center justify-center rounded-[4px]`}
-                          style={{
-                            backgroundColor:
-                              i < TODAY.getDate()
-                                ? interpolateColor(mood)
-                                : Colors.gray100,
-                          }}
-                        >
-                          <CustomText className="text-white font-medium text-base leading-4 mb-[6px]">
-                            {i + 1}
-                          </CustomText>
-                          <View className="flex-row">
-                            {journals > 0 ? (
-                              Array.from({ length: journals }).map((_, j) => (
-                                <View
-                                  key={j}
-                                  className={`w-1 h-1 bg-white rounded-full ${
-                                    j > 0 ? "ml-[2px]" : ""
-                                  }`}
-                                />
-                              ))
-                            ) : (
-                              <View
-                                className={`w-1 h-1  rounded-full border-[1px] border-white`}
-                              />
-                            )}
-                          </View>
-                        </View>
-                      )}
-                    </View>
-                  );
-                })}
-              </View>
-            </View>
-            <View className="h-px bg-gray0 w-full my-4" />
+                            className={`w-1 h-1  rounded-full border-[1px] border-white`}
+                          />
+                        )}
+                      </View>
+                    </Pressable>
+                  )}
+                </View>
+              );
+            })}
+          </View>
+        </View>
+        {/* <View className="h-px bg-gray0 w-full my-4" />
             <Pressable className="flex-row justify-end">
               <CustomText className="text-blue200 font-medium mr-1">
                 View all days
               </CustomText>
               <ChevronRight className="stroke-blue200" width={20} height={20} />
-            </Pressable>
-          </View>
+            </Pressable> */}
+      </View>
+    </>
+  );
+};
+
+const JourneyScreen = () => {
+  return (
+    <ScrollView className="bg-blue100 flex-1">
+      <TopNav />
+
+      <View className="mb-8 px-4">
+        <CustomText className="text-center text-2xl font-medium mb-4">
+          Insights
+        </CustomText>
+        <View className="mb-8">
+          <InsightsCard />
+        </View>
+        <View className="mb-4">
+          <CalendarCard />
         </View>
       </View>
     </ScrollView>

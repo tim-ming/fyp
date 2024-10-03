@@ -233,6 +233,7 @@ export const getGuidedJournalEntries = async (
   const journals: GuidedJournalEntry[] = await response.json();
   return journals;
 };
+
 export const postGuidedJournalEntry = async (
   guidedJournal: GuidedJournalEntryCreate
 ): Promise<GuidedJournalEntry> => {
@@ -286,8 +287,30 @@ export const getMoodEntries = async (limit = 30): Promise<MoodEntry[]> => {
     );
   }
 
-  const journals: MoodEntry[] = await response.json();
-  return journals;
+  const entries: MoodEntry[] = await response.json();
+  return entries;
+};
+
+export const getMoodEntriesRange = async (start: string, end: string) => {
+  const { token } = useAuth.getState();
+
+  const response = await fetch(
+    `${BACKEND_URL}/mood?start=${start}&end=${end}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token?.access_token}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch journal entries: ${response.status} ${response.statusText}`
+    );
+  }
+
+  const entries: MoodEntry[] = await response.json();
+  return entries;
 };
 
 export const postMoodEntry = async (

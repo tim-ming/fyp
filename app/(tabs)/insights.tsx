@@ -1,9 +1,12 @@
+import { getMoodEntries } from "@/api/api";
 import ChevronLeft from "@/assets/icons/chevron-left.svg";
 import ChevronRight from "@/assets/icons/chevron-right.svg";
 import CustomText from "@/components/CustomText";
+import GroupedProgressBar from "@/components/GroupedProgressBar";
 import ProgressBar from "@/components/ProgressBar";
 import TopNav from "@/components/TopNav";
 import { Colors } from "@/constants/Colors";
+import { MoodEntry } from "@/types/models";
 import {
   addDays,
   eachDayOfInterval,
@@ -102,6 +105,7 @@ const interpolateColor = (value: number): string => {
   const toHex = (component: number) => component.toString(16).padStart(2, "0");
   return `#${toHex(newR)}${toHex(newG)}${toHex(newB)}`;
 };
+
 const dummyMoodData: DummyData[] = [
   { journal: 2, date: subDays(TODAY, 0), mood: 0.2 },
   { journal: 1, date: subDays(TODAY, 1), mood: 0.4 },
@@ -147,22 +151,155 @@ const getMonthMoodData = (date: Date): DummyData[] => {
   return getMoodData(dummyMoodData)(startOfMonth(date))(endOfMonth(date));
 };
 
-const getWeekMoodData = (startDate: Date): DummyData[] => {
+const getWeekMoodData = async (startDate: Date): Promise<MoodEntry[]> => {
   // Check if the first day is not Monday (getDay returns 1 for Monday)
   const correctedStartDate = correctDateToMonday(startDate);
 
   const endDate = addDays(correctedStartDate, 6);
-  return getMoodData(dummyMoodData)(correctedStartDate)(endDate);
+  // Fetch mood entries for the past year
+  const moodEntries = await getMoodEntries(365);
+
+  // Filter mood entries for the current week
+  const weekMoodEntries = moodEntries.filter(
+    (d) => new Date(d.date) >= correctedStartDate && new Date(d.date) <= endDate
+  );
+
+  // Create a map of the fetched mood entries
+  const moodEntriesMap = new Map(
+    weekMoodEntries.map((entry) => [new Date(entry.date).toDateString(), entry])
+  );
+
+  // Generate a list of all dates in the week
+  const allDates = eachDayOfInterval({
+    start: correctedStartDate,
+    end: endDate,
+  });
+
+  // Fill in any missing dates with a MoodEntry with values of 0
+  const filledMoodEntries = allDates.map((date) => {
+    const dateString = date.toDateString();
+    return (
+      moodEntriesMap.get(dateString) ||
+      ({ date: dateString, mood: 0, sleep: 0, eat: 0, id: -1 } as MoodEntry)
+    );
+  });
+
+  return filledMoodEntries;
+};
+
+const InsightsCard = () => {
+  // State for date range
+  const [startDate, setStartDate] = useState(correctDateToMonday(TODAY)); // Set start date to TODAY
+  const endDate = useMemo(() => addDays(startDate, 6), [startDate]); // End date is 6 days after start date
+
+  useEffect(() => {
+    const getMood = async () => {
+      const mood = await getWeekMoodData(startDate);
+      setMoodData(mood);
+    };
+
+    getMood();
+  }, []);
+
+  // Mood data for the week
+  const [moodData, setMoodData] = useState<MoodEntry[]>([]);
+
+  const dayLabels = ["M", "T", "W", "T", "F", "S", "S"];
+  // Handle left chevron click
+  const handleLeftChevronClick = async () => {
+    const newDate = subDays(startDate, 7);
+    setStartDate(newDate);
+    const mood = await getWeekMoodData(newDate);
+    setMoodData(mood);
+  };
+
+  // Handle right chevron click
+  const handleRightChevronClick = async () => {
+    const newDate = addDays(startDate, 7);
+    setStartDate(newDate);
+    const mood = await getWeekMoodData(newDate);
+    setMoodData(mood);
+  };
+
+  return (
+    <>
+      <View className="bg-white rounded-2xl p-6 shadow-2xl">
+        <View className="flex-row justify-between items-center mb-6">
+          <Pressable onPress={handleLeftChevronClick}>
+            <ChevronLeft width={24} height={24} />
+          </Pressable>
+          <View className="">
+            <CustomText
+              letterSpacing="tight"
+              className="text-center mx-8 font-medium text-lg"
+            >
+              {format(startDate, "dd MMM")} - {format(endDate, "dd MMM")}
+            </CustomText>
+            <CustomText className="text-center text-sm text-gray-500">
+              Mood
+            </CustomText>
+          </View>
+          <Pressable onPress={handleRightChevronClick}>
+            <ChevronRight width={24} height={24} />
+          </Pressable>
+        </View>
+
+        <View className="flex flex-row w-full justify-center items-center">
+          {moodData.map(({ mood, eat, sleep }, index) => (
+            <View
+              key={index}
+              className="items-center h-full"
+              style={{ marginLeft: index > 0 ? 10 : 0 }} // Add margin-left for all items except the first one
+            >
+              {/* Vertical ProgressBar */}
+              <GroupedProgressBar
+                bars={[
+                  {
+                    progress: mood,
+                    barStyle: {
+                      backgroundColor: interpolateColor(mood), // Darker blue for the progress
+                      borderRadius: 4,
+                    },
+                  },
+                  {
+                    progress: eat,
+                    barStyle: {
+                      backgroundColor: interpolateColor(mood), // Darker blue for the progress
+                      borderRadius: 4,
+                    },
+                  },
+                  {
+                    progress: sleep,
+                    barStyle: {
+                      backgroundColor: interpolateColor(mood), // Darker blue for the progress
+                      borderRadius: 4,
+                    },
+                  },
+                ]}
+              />
+
+              {/* <ProgressBar
+                progress={mood}
+                barStyle={{
+                  backgroundColor: interpolateColor(mood), // Darker blue for the progress
+                  borderRadius: 4,
+                }}
+                className="w-8 bg-gray0 rounded-[4px] h-56 justify-end"
+                orientation="vertical"
+              /> */}
+
+              <CustomText className="text-gray300 mt-1">
+                {dayLabels[index]}
+              </CustomText>
+            </View>
+          ))}
+        </View>
+      </View>
+    </>
+  );
 };
 
 const JourneyScreen = () => {
-  // Mood data for the week'
-
-  const daysInMonth = getDaysInMonth(TODAY);
-  const [moodData, setMoodData] = useState<number[]>([]);
-
-  const dayLabels = ["M", "T", "W", "T", "F", "S", "S"];
-
   // Generate data for the month
   const [monthData, setMonthData] = useState<
     { journals: number; mood: number }[]
@@ -175,26 +312,7 @@ const JourneyScreen = () => {
         mood: d.mood,
       }))
     );
-    setMoodData(getWeekMoodData(startDate).map((d) => d.mood));
   }, []);
-
-  // State for date range
-  const [startDate, setStartDate] = useState(correctDateToMonday(TODAY)); // Set start date to TODAY
-  const endDate = useMemo(() => addDays(startDate, 6), [startDate]); // End date is 6 days after start date
-
-  // Handle left chevron click
-  const handleLeftChevronClick = () => {
-    const newDate = subDays(startDate, 7);
-    setStartDate(newDate);
-    setMoodData(getWeekMoodData(newDate).map((d) => d.mood));
-  };
-
-  // Handle right chevron click
-  const handleRightChevronClick = () => {
-    const newDate = addDays(startDate, 7);
-    setStartDate(newDate);
-    setMoodData(getWeekMoodData(newDate).map((d) => d.mood));
-  };
 
   return (
     <ScrollView className="bg-blue100 flex-1">
@@ -206,51 +324,7 @@ const JourneyScreen = () => {
             Insights
           </CustomText>
 
-          <View className="bg-white rounded-2xl p-6 shadow-2xl">
-            <View className="flex-row justify-between items-center mb-6">
-              <Pressable onPress={handleLeftChevronClick}>
-                <ChevronLeft width={24} height={24} />
-              </Pressable>
-              <View className="">
-                <CustomText
-                  letterSpacing="tight"
-                  className="text-center mx-8 font-medium text-lg"
-                >
-                  {format(startDate, "dd MMM")} - {format(endDate, "dd MMM")}
-                </CustomText>
-                <CustomText className="text-center text-sm text-gray-500">
-                  Mood
-                </CustomText>
-              </View>
-              <Pressable onPress={handleRightChevronClick}>
-                <ChevronRight width={24} height={24} />
-              </Pressable>
-            </View>
-
-            <View className="flex flex-row w-full justify-center items-center">
-              {moodData.map((mood, index) => (
-                <View
-                  key={index}
-                  className="items-center h-full"
-                  style={{ marginLeft: index > 0 ? 10 : 0 }} // Add margin-left for all items except the first one
-                >
-                  {/* Vertical ProgressBar */}
-                  <ProgressBar
-                    progress={mood}
-                    barStyle={{
-                      backgroundColor: interpolateColor(mood), // Darker blue for the progress
-                      borderRadius: 4,
-                    }}
-                    className="w-8 bg-gray0 rounded-[4px] h-56 justify-end"
-                    orientation="vertical"
-                  />
-                  <CustomText className="text-gray300 mt-1">
-                    {dayLabels[index]}
-                  </CustomText>
-                </View>
-              ))}
-            </View>
-          </View>
+          <InsightsCard />
         </View>
         <View className="mb-4">
           <CustomText className="text-center mb-1 text-[20px] font-medium">

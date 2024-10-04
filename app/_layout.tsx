@@ -107,6 +107,7 @@ export default function RootLayout() {
           <Stack.Screen name="signin" options={{ headerShown: false }} />
           <Stack.Screen name="signup" options={{ headerShown: false }} />
           <Stack.Screen name="understand" options={{ headerShown: false }} />
+          <Stack.Screen name="user-details" options={{ headerShown: false }} />
           <Stack.Screen name="relax/index" />
           <Stack.Screen name="relax/breathe" options={{ headerShown: false }} />
           <Stack.Screen

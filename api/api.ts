@@ -52,6 +52,26 @@ export const checkEmailExists = async (email: string): Promise<Response> => {
   return response;
 };
 
+export const updateUser = async (
+  user: UserUpdate
+): Promise<UserWithoutSensitiveData> => {
+  const { token } = useAuth.getState();
+
+  const response = await fetch(`${BACKEND_URL}/users/me`, {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${token?.access_token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(user),
+  });
+
+  await handleNotOk(response);
+
+  const updatedUser = await response.json();
+  return updatedUser;
+};
+
 export const getUser = async (): Promise<UserWithoutSensitiveData> => {
   const { token } = useAuth.getState();
 

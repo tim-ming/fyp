@@ -63,6 +63,9 @@ class UserUpdate(UserBase):
     """
 
     name: Optional[str] = None
+    dob: Optional[date] = None
+    sex: Optional[str] = None
+    occupation: Optional[str] = None
     is_active: Optional[str] = None
 
 class User(UserBase):

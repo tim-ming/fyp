@@ -548,6 +548,12 @@ def update_user(
         db_user.name = user_update.name
     if user_update.is_active is not None:
         db_user.is_active = user_update.is_active
+    if user_update.dob is not None:
+        db_user.dob = user_update.dob
+    if user_update.sex is not None:
+        db_user.sex = user_update.sex
+    if user_update.occupation is not None:
+        db_user.occupation = user_update.occupation
     db.commit()
     db.refresh(db_user)
     return db_user

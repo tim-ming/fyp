@@ -53,11 +53,15 @@ const SignInScreen = () => {
       if (isTherapist) {
         router.push("/therapist/dashboard");
       } else {
-        const patient = await getPatientData(user.id);
-        if (patient.patient_data?.has_onboarded) {
-          router.push("/(tabs)");
+        if (!user.dob || !user.sex || !user.occupation) {
+          router.push("/user-details");
         } else {
-          router.push("/understand");
+          const patient = await getPatientData(user.id);
+          if (patient.patient_data?.has_onboarded) {
+            router.push("/(tabs)");
+          } else {
+            router.push("/understand");
+          }
         }
       }
     } catch (error) {

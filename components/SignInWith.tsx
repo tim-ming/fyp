@@ -9,7 +9,6 @@ import * as GoogleSignIn from "expo-auth-session/providers/google";
 import { useAuth } from "@/state/auth";
 import { getPatientData, getUser, postSigninGoogle } from "@/api/api";
 import { router } from "expo-router";
-import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 
 const webClientId =
   "893591947282-mpd7sb0pi9av53a3sv4j8j72u5m9hp3o.apps.googleusercontent.com";
@@ -66,11 +65,15 @@ export const SignInWithGoogle = () => {
       if (isTherapist) {
         router.push("/therapist/dashboard");
       } else {
-        const patient = await getPatientData(user.id);
-        if (patient.patient_data?.has_onboarded) {
-          router.push("/(tabs)");
+        if (!user.dob || !user.sex || !user.occupation) {
+          router.push("/user-details");
         } else {
-          router.push("/understand");
+          const patient = await getPatientData(user.id);
+          if (patient.patient_data?.has_onboarded) {
+            router.push("/(tabs)");
+          } else {
+            router.push("/understand");
+          }
         }
       }
     } catch (error) {

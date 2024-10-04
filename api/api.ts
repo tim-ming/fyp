@@ -138,6 +138,14 @@ export const postSignin = async (
   return response;
 };
 
+export const postSigninGoogle = async (token: Token): Promise<Response> => {
+  const response = await fetch(`${BACKEND_URL}/signin/google?token=${token}`, {
+    method: "POST",
+  });
+
+  return response;
+};
+
 export const postJournalEntry = async (
   journal: JournalEntryCreate
 ): Promise<JournalEntry> => {

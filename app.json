@@ -8,7 +8,7 @@
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/images/splash.png",
+      "image": "./assets/images/lotus.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -18,7 +18,9 @@
       "infoPlist": {
         "CFBundleURLTypes": [
           {
-            "CFBundleURLSchemes": ["com.googleusercontent.apps.TODO"]
+            "CFBundleURLSchemes": [
+              "com.googleusercontent.apps.TODO"
+            ]
           }
         ]
       }
@@ -27,7 +29,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.anonymous.dp"
     },
     "web": {
       "bundler": "metro",
@@ -42,6 +45,11 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "5487b4e1-2dfb-412d-a069-9b5cc81e1f82"
+      }
     }
   }
 }

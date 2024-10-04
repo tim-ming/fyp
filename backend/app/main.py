@@ -1,4 +1,5 @@
 import os
+import requests
 from fastapi import FastAPI, Depends, HTTPException, Query, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
@@ -41,6 +42,9 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 30  # 30 days
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
+# Google token
+GOOGLE_TOKEN_INFO_URL = "https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token="
+
 
 def get_db() -> Generator[Session, None, None]:
     """
@@ -70,6 +74,19 @@ def authenticate_user(db: Session, email: str, password: str) -> Optional[schema
         and pwd_context.verify(password, user.hashed_password)
         else None
     )
+
+
+def verify_google_token(token: str) -> dict:
+    """
+    Verify a Google token
+    :param token (str): Google token
+    :return (dict): Token info
+    :raises (HTTPException): If token is invalid
+    """
+    response = requests.get(f"{GOOGLE_TOKEN_INFO_URL}{token}")
+    if response.status_code != 200:
+        raise HTTPException(status_code=401, detail="Invalid Google Token")
+    return response.json()
 
 
 def get_current_user(
@@ -145,6 +162,47 @@ def post_signin(
         token_type="bearer",
         expires_in=ACCESS_TOKEN_EXPIRE_MINUTES,
     )
+
+@app.post("/signin/google", response_model=schemas.Token)
+def google_signin(
+    token: str = Query(..., description="Google OAuth token"),
+    db: Session = Depends(get_db),
+):
+    """
+    Google sign-in endpoint
+    :param token (str): Google OAuth token
+    :param db (Session): Database session
+    :return (schemas.Token): JWT or session token
+    """
+
+    google_data = verify_google_token(token)  
+    user_email = google_data.get("email")
+    user_name = google_data.get("name")
+
+    # create user if doesn't exist
+    user = commands.get_user_by_email(db, user_email)
+    if not user:
+        user = commands.create_google_user(
+            db, 
+            user=schemas.UserCreateGoogle(
+                email=user_email,
+                name=user_name,
+                role=schemas.UserRole.patient,
+            )
+        )  
+
+    # Generate JWT
+    access_token = jwt.encode(
+        {
+            "sub": user.email, 
+            "id": user.id, 
+            "exp": datetime.now(timezone.utc) 
+            + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        },
+        SECRET_KEY,
+        algorithm=ALGORITHM,
+    )
+    return schemas.Token(access_token=access_token, token_type="bearer", expires_in=ACCESS_TOKEN_EXPIRE_MINUTES)
 
 
 @app.get("/users/check-email")

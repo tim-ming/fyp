@@ -59,6 +59,35 @@ def create_user(db: Session, user: schemas.UserCreate) -> models.User:
     return db_user
 
 
+def create_google_user(db: Session, user: schemas.UserCreate) -> models.User:
+    """
+    Create a new Google user
+    :param db (Session): Database session
+    :param user (schemas.UserCreate): User create schema
+    :return (models.User): New user
+    """
+    db_user = models.User(
+        email=user.email,
+        name=user.name,
+        role=user.role)
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    
+    if user.role == "therapist":
+        db_therapist_data = models.TherapistData(user_id=db_user.id)
+        db.add(db_therapist_data)
+        db.commit()
+        db.refresh(db_therapist_data)
+
+    elif user.role == "patient":
+        db_patient_data = models.PatientData(user_id=db_user.id)
+        db.add(db_patient_data)
+        db.commit()
+        db.refresh(db_patient_data)
+
+    return db_user
+
 def update_user(db: Session, user: schemas.User) -> models.User:
     """
     Update a user (currently just the name)

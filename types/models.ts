@@ -23,15 +23,22 @@ export interface UserBase {
   email: string;
 }
 
-// User Create Schema
-export interface UserCreate extends UserBase {
+// Base User Create Schema
+export interface UserCreateBase extends UserBase {
   name: string;
-  dob: string;
-  sex: string | null;
-  occupation: string;
-  password: string;
+  dob?: string;
+  sex?: string | null;
+  occupation?: string;
   role?: UserRole;
 }
+
+// User Create Schema
+export interface UserCreate extends UserCreateBase {
+  password: string;
+}
+
+// User Create Schema for Google Signin
+export interface UserCreateGoogle extends UserCreateBase {}
 
 // User Update Schema
 export interface UserUpdate extends UserBase {

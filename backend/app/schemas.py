@@ -29,18 +29,33 @@ class UserBase(BaseModel):
 
     email: str
 
-
-class UserCreate(UserBase):
+class UserCreateBase(UserBase):
     """
-    User Create Schema
+    Common User Create Schema fields for both normal and Google sign-up.
     """
 
     name: str
-    dob: date
-    sex: str
+    dob: Optional[date] = None
+    sex: Optional[str] = None
     occupation: Optional[str] = None
-    password: str
     role: Optional[UserRole] = UserRole.patient
+
+
+class UserCreate(UserCreateBase):
+    """
+    User Create Schema for normal sign-up, requiring a password.
+    """
+
+    password: str
+
+
+class UserCreateGoogle(UserCreateBase):
+    """
+    User Create Schema for Google sign-up, not requiring a password.
+    """
+
+    pass
+
 
 class UserUpdate(UserBase):
     """

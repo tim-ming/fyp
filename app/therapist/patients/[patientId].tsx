@@ -129,12 +129,17 @@ const PatientDetails = () => {
         </View>
 
         <View className="flex-row justify-center items-center mb-6 gap-4">
-          <View className="p-1 w-14 h-14 items-center justify-center rounded-[20px] border-2 border-blue200">
+          <Pressable
+            onPress={() => {
+              router.push(`/therapist/patients/${patientId}/notes`);
+            }}
+            className="p-1 w-14 h-14 items-center justify-center rounded-[20px] border-2 border-blue200"
+          >
             <Edit width={ICON_SIZE} height={ICON_SIZE} fill="#256CD0" />
-          </View>
-          <View className="p-1 w-14 h-14 items-center justify-center rounded-[20px] border-2 border-blue200">
+          </Pressable>
+          {/* <View className="p-1 w-14 h-14 items-center justify-center rounded-[20px] border-2 border-blue200">
             <Message width={ICON_SIZE} height={ICON_SIZE} fill="#256CD0" />
-          </View>
+          </View> */}
           <View className="flex-1 bg-blue200 items-center justify-center py-4 rounded-[20px]">
             <View className="flex-row items-center gap-3">
               <Notes width={ICON_SIZE} height={ICON_SIZE} fill="#FFFFFF" />
@@ -206,7 +211,7 @@ const PatientDetails = () => {
 
           <View className="bg-white p-4 rounded-[20px]">
             <CustomText className="text-red300 text-[20px] font-medium mb-[14px]">
-              Assess patient’s status
+              Assess patient's status
             </CustomText>
             <CustomText className="text-gray300 text-[16px]">
               Evaluate the patient's current mental health status by reviewing

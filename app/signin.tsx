@@ -170,7 +170,7 @@ const SignInScreen = () => {
 
         <View className="flex flex-col">
           <SignInWithGoogle />
-          <SignInWithApple />
+          {/* <SignInWithApple /> */}
         </View>
 
         <CustomText className="text-center text-gray-500 mt-10">

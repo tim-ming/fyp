@@ -471,8 +471,8 @@ const styles = StyleSheet.create({
     width: "100%",
     justifyContent: "center",
     alignItems: "center",
-
-    ...shadows.card,
+    borderColor: Colors.gray50,
+    borderWidth: 1,
   },
   title: {
     fontSize: 20, // text-[24px]

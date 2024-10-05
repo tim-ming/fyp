@@ -205,43 +205,51 @@ export default function VaultScreen() {
     <ScrollView className="bg-blue100 flex-1">
       <TopNav />
       <View className="mb-8 px-4">
-        {data.map((section, sectionIndex) => (
-          <View key={sectionIndex}>
-            {/* Date Section */}
-            <CustomText className="text-lg font-semibold mb-4">
-              {formatDateHeader(section.date)}
-            </CustomText>
+        {data.length == 0 ? (
+          <CustomText className="text-base text-gray300">
+            No activity yet.
+          </CustomText>
+        ) : (
+          data.map((section, sectionIndex) => (
+            <View key={sectionIndex}>
+              {/* Date Section */}
+              <CustomText className="text-lg font-semibold mb-4">
+                {formatDateHeader(section.date)}
+              </CustomText>
 
-            {/* Render Cards */}
-            {section.data.map((item, index) => {
-              const isLastItem = index === section.data.length - 1;
-              return (
-                <View key={index} className={isLastItem ? `mb-0` : `mb-1`}>
-                  {(() => {
-                    switch (item.type) {
-                      case "journal":
-                        return <JournalCard data={item.data as JournalEntry} />;
-                      case "guidedWriting":
-                        return (
-                          <GuidedJournalCard
-                            data={item.data as GuidedJournalEntry}
-                          />
-                        );
-                      case "mood":
-                        return <MoodCard data={item.data as MoodEntry} />;
-                      default:
-                        return null;
-                    }
-                  })()}
-                </View>
-              );
-            })}
-            {/* Render horizontal bar if it's not the last section */}
-            {sectionIndex < data.length - 1 && (
-              <View className="h-[1px] bg-gray50 my-5" />
-            )}
-          </View>
-        ))}
+              {/* Render Cards */}
+              {section.data.map((item, index) => {
+                const isLastItem = index === section.data.length - 1;
+                return (
+                  <View key={index} className={isLastItem ? `mb-0` : `mb-1`}>
+                    {(() => {
+                      switch (item.type) {
+                        case "journal":
+                          return (
+                            <JournalCard data={item.data as JournalEntry} />
+                          );
+                        case "guidedWriting":
+                          return (
+                            <GuidedJournalCard
+                              data={item.data as GuidedJournalEntry}
+                            />
+                          );
+                        case "mood":
+                          return <MoodCard data={item.data as MoodEntry} />;
+                        default:
+                          return null;
+                      }
+                    })()}
+                  </View>
+                );
+              })}
+              {/* Render horizontal bar if it's not the last section */}
+              {sectionIndex < data.length - 1 && (
+                <View className="h-[1px] bg-gray50 my-5" />
+              )}
+            </View>
+          ))
+        )}
       </View>
     </ScrollView>
   );

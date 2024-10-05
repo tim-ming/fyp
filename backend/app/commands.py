@@ -845,7 +845,7 @@ def update_therapist_data(
     if therapist_data.qualifications is not None:
         db_therapist_data.qualifications = therapist_data.qualifications
     if therapist_data.expertise is not None:
-        db_therapist_data.expertise = therapist_data.exp
+        db_therapist_data.expertise = therapist_data.expertise
     if therapist_data.bio is not None:
         db_therapist_data.bio = therapist_data.bio
     if therapist_data.treatment_approach is not None:

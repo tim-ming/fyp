@@ -39,6 +39,7 @@ class UserCreateBase(UserBase):
     sex: Optional[str] = None
     occupation: Optional[str] = None
     role: Optional[UserRole] = UserRole.patient
+    image: Optional[str] = None
 
 
 class UserCreate(UserCreateBase):
@@ -67,6 +68,7 @@ class UserUpdate(UserBase):
     sex: Optional[str] = None
     occupation: Optional[str] = None
     is_active: Optional[str] = None
+    image: Optional[str] = None
 
 class User(UserBase):
     """
@@ -81,6 +83,7 @@ class User(UserBase):
     hashed_password: str
     is_active: bool
     role: UserRole
+    image: Optional[str] = None
     patient_data: Optional["PatientData"] = None
     therapist_data: Optional["TherapistData"] = None
 
@@ -98,6 +101,7 @@ class UserWithoutSensitiveData(UserBase):
     dob: Optional[date]
     sex: Optional[str]
     occupation: Optional[str]
+    image: Optional[str]
     is_active: bool
     role: UserRole
 
@@ -284,6 +288,7 @@ class PatientDataUpdate(PatientDataBase):
     """
     has_onboarded: Optional[bool] = None
     severity: Optional[str] = None
+    therapist_note: Optional[str] = None
 
 class PatientData(PatientDataBase):
     """
@@ -293,6 +298,7 @@ class PatientData(PatientDataBase):
     id: int
     has_onboarded: bool
     severity: str
+    therapist_note: Optional[str] = None
     mood_entries: Optional[list["MoodEntry"]] = []
     journal_entries: Optional[list["JournalEntry"]] = []
     guided_journal_entries: Optional[list["GuidedJournalEntry"]] = []

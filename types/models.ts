@@ -30,6 +30,7 @@ export interface UserCreateBase extends UserBase {
   sex?: string | null;
   occupation?: string;
   role?: UserRole;
+  image?: string;
 }
 
 // User Create Schema
@@ -44,6 +45,10 @@ export interface UserCreateGoogle extends UserCreateBase {}
 export interface UserUpdate extends UserBase {
   name?: string;
   is_active?: boolean;
+  dob?: string;
+  sex?: string;
+  occupation?: string;
+  image?: string;
 }
 
 // User Schema
@@ -56,6 +61,7 @@ export interface User extends UserBase {
   hashed_password: string;
   is_active: boolean;
   role: UserRole;
+  image: string;
   patient_data?: PatientData;
   therapist_data?: TherapistData;
 }
@@ -69,6 +75,7 @@ export interface UserWithoutSensitiveData extends UserBase {
   occupation: string;
   is_active: boolean;
   role: UserRole;
+  image: string;
 }
 
 // User Schema with patient data
@@ -179,6 +186,7 @@ export interface PatientDataCreate extends PatientDataBase {}
 export interface PatientDataUpdate extends PatientDataBase {
   has_onboarded?: boolean;
   severity?: string;
+  therapist_note?: string;
 }
 
 // Patient Data Schema
@@ -186,6 +194,7 @@ export interface PatientData extends PatientDataBase {
   id: number;
   has_onboarded: boolean;
   severity: string;
+  therapist_note: string;
   mood_entries?: MoodEntry[];
   journal_entries?: JournalEntry[];
   guided_journal_entries?: GuidedJournalEntry[];

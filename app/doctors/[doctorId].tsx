@@ -6,13 +6,17 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
 import doctorsData from "@/assets/data/doctors.json";
 import { Doctor } from "@/types/globals";
+import { useHydratedEffect } from "@/hooks/hooks";
+import { UserWithTherapistData } from "@/types/models";
+import { getTherapistData } from "@/api/api";
+import { parse, set } from "date-fns";
 
 const ICON_SIZE = 24;
 
 const DoctorDetails = () => {
   const router = useRouter();
   const { doctorId } = useLocalSearchParams();
-  const doctor = doctorsData[doctorId as string] as Doctor;
+  const [doctor, setDoctor] = useState<UserWithTherapistData | null>(null);
   const [dataShared, setDataShared] = useState(false);
   const share = () => {
     setDataShared(true);
@@ -20,6 +24,29 @@ const DoctorDetails = () => {
   const unshare = () => {
     setDataShared(false);
   };
+
+  useHydratedEffect(() => {
+    const fetchData = async () => {
+      try {
+        const doctor = await getTherapistData(Number(doctorId));
+        if (doctor) {
+          setDoctor(doctor);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchData();
+  }, []);
+
+  if (!doctor) {
+    return (
+      <SafeAreaView className="flex-1 bg-blue100">
+        <CustomText>Loading doctor details...</CustomText>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView className="flex-1 bg-blue100">
       <ScrollView className="flex-1 p-4">
@@ -69,7 +96,7 @@ const DoctorDetails = () => {
                 Qualifications
               </CustomText>
               <CustomText className="text-[16px] text-black">
-                {doctor.qualifications}
+                {doctor.therapist_data?.qualifications}
               </CustomText>
             </View>
           </View>
@@ -80,7 +107,7 @@ const DoctorDetails = () => {
                 Expertise
               </CustomText>
               <CustomText className="text-[16px] text-black">
-                {doctor.expertise}
+                {doctor.therapist_data?.expertise}
               </CustomText>
             </View>
           </View>
@@ -91,7 +118,7 @@ const DoctorDetails = () => {
                 Bio
               </CustomText>
               <CustomText className="text-[16px] text-black">
-                {doctor.bio}
+                {doctor.therapist_data?.bio}
               </CustomText>
             </View>
           </View>
@@ -102,7 +129,7 @@ const DoctorDetails = () => {
                 Treatment Approach
               </CustomText>
               <CustomText className="text-[16px] text-black">
-                {doctor.treatmentApproach}
+                {doctor.therapist_data?.treatment_approach}
               </CustomText>
             </View>
           </View>

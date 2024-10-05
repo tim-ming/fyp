@@ -1,4 +1,4 @@
-import { getJournalEntries, getMoodEntry } from "@/api/api";
+import { getJournalEntries, getMoodEntry, getTherapists } from "@/api/api";
 import EditPen from "@/assets/icons/edit-pen.svg";
 import Plus from "@/assets/icons/plus.svg";
 import CustomText from "@/components/CustomText";
@@ -6,7 +6,11 @@ import TopNav from "@/components/TopNav";
 import { Colors } from "@/constants/Colors";
 import { shadows } from "@/constants/styles";
 import { useAuth } from "@/state/auth";
-import { JournalEntry, MoodEntry } from "@/types/models";
+import {
+  JournalEntry,
+  MoodEntry,
+  UserWithoutSensitiveData,
+} from "@/types/models";
 import { capitalizeFirstLetter, getDayOfWeek } from "@/utils/helpers";
 import { addDays, format, isSameDay, isToday, isYesterday } from "date-fns";
 import { Image } from "expo-image";
@@ -28,7 +32,6 @@ import Carousel, {
   getInputRangeFromIndexes,
 } from "react-native-snap-carousel";
 import doctorsData from "@/assets/data/doctors.json";
-import { Doctor } from "@/types/globals";
 import { useHydratedEffect } from "@/hooks/hooks";
 
 type JournalEntryCard = {
@@ -220,27 +223,13 @@ const SuggestedCard: React.FC<CardProps> = ({ title, href, icon }) => {
   );
 };
 
-type DoctorsData = {
-  [id: string]: Doctor;
-};
-
-type DoctorPair = [string, Doctor][];
-
-const convertToPairs = (data: DoctorsData): DoctorPair[] => {
-  const entries = Object.entries(data);
-  const pairs: DoctorPair[] = [];
-  for (let i = 0; i < entries.length; i += 2) {
-    pairs.push(entries.slice(i, i + 2) as DoctorPair);
-  }
-  return pairs;
-};
-
 const HomeScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const date = format(new Date(), "yyyy-MM-dd");
   const [journals, setJournals] = useState<JournalEntryCard[] | null>(null);
   const [moodEntry, setMoodEntry] = useState<MoodEntry | null>(null);
   const [doneFetch, setDoneFetch] = useState(false);
+  const [doctors, setDoctors] = useState<UserWithoutSensitiveData[]>([]);
   const auth = useAuth();
   const route = useRoute();
   const params = route.params as { newJournalAdded: number };
@@ -255,6 +244,9 @@ const HomeScreen = () => {
 
       const moodEntry = await getMoodEntry(date);
       setMoodEntry(moodEntry);
+
+      const therapists = await getTherapists();
+      setDoctors(therapists);
     } catch (error) {
       console.error(error);
     }
@@ -425,38 +417,28 @@ const HomeScreen = () => {
             Share your data with our trusted professionals to get better
             insights on your mental health.
           </CustomText>
-          {convertToPairs(doctorsData).map(([[id1, doc1], [id2, doc2]]) => (
-            <View key={id1}>
-              <View className="flex-row mb-2">
+          <View className="flex-wrap flex-row justify-start">
+            {doctors.map((doctor, index) => (
+              <View
+                key={doctor.id}
+                className={`w-1/2 mb-2 ${index % 2 === 0 ? "pr-1" : "pl-1"}`}
+              >
                 <Pressable
-                  onPress={() => router.push(`/doctors/${id1}`)}
+                  onPress={() => router.push(`/doctors/${doctor.id}`)}
                   className="flex-1 justify-center items-center"
                   style={stylesCard.container}
                 >
                   <Image
-                    source={`../assets/images/${doc1.image}`}
+                    source={`../assets/images/${doctor.image}`}
                     className="w-full h-32"
                   />
                   <CustomText className="text-lg text-center">
-                    {doc1.name}
-                  </CustomText>
-                </Pressable>
-                <Pressable
-                  onPress={() => router.push(`/doctors/${id2}`)}
-                  className="flex-1 justify-center items-center ml-2"
-                  style={stylesCard.container}
-                >
-                  <Image
-                    source={`../assets/images/${doc2.image}`}
-                    className="w-full h-32"
-                  />
-                  <CustomText className="text-lg text-center">
-                    {doc2.name}
+                    {doctor.name}
                   </CustomText>
                 </Pressable>
               </View>
-            </View>
-          ))}
+            ))}
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>

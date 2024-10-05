@@ -1,5 +1,5 @@
 from typing import List, Optional
-from sqlalchemy.orm import Session, load_only, joinedload
+from sqlalchemy.orm import Session, joinedload
 from app import models, schemas
 from datetime import date
 
@@ -39,6 +39,7 @@ def create_user(db: Session, user: schemas.UserCreate) -> models.User:
         occupation=user.occupation,
         hashed_password=user.password,
         role=user.role,
+        image=user.image
     )
     db.add(db_user)
     db.commit()
@@ -554,6 +555,8 @@ def update_user(
         db_user.sex = user_update.sex
     if user_update.occupation is not None:
         db_user.occupation = user_update.occupation
+    if user_update.image is not None:
+        db_user.image = user_update.image
     db.commit()
     db.refresh(db_user)
     return db_user
@@ -778,6 +781,8 @@ def update_patient_data(
         db_patient_data.has_onboarded = patient_data.has_onboarded
     if patient_data.severity is not None:
         db_patient_data.severity = patient_data.severity
+    if patient_data.therapist_note is not None:
+        db_patient_data.therapist_note = patient_data.therapist_note
     db.commit()
     db.refresh(db_patient_data)
     return {
@@ -785,4 +790,73 @@ def update_patient_data(
         "id": db_patient_data.id,
         "has_onboarded": db_patient_data.has_onboarded,
         "severity": db_patient_data.severity,
+        "therapist_note": db_patient_data.therapist_note
+    }
+
+
+def get_therapists(
+    db: Session, skip: int = 0, limit: int = 100) -> List[models.User]:
+    """
+    Get therapists
+    :param db (Session): Database session
+    :param skip (int): Number of entries to skip
+    :param limit (int): Number of entries to return
+    :return (List[models.User]): Therapists
+    """
+    return (
+        db.query(models.User)
+        .filter(models.User.role == "therapist")
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+
+
+def get_therapist_by_id(
+    db: Session, therapist_id: int) -> Optional[models.User]:
+    """
+    Get therapist by ID
+    :param db (Session): Database session
+    :param therapist_id (int): Therapist ID
+    :return (Optional[models.User]): Therapist if found, None if not found
+    """
+    return (
+        db.query(models.User)
+        .filter(models.User.id == therapist_id)
+        .options(
+            joinedload(models.User.therapist_data).noload(
+                models.TherapistData.patients
+            )
+        ).first()
+    )
+
+def update_therapist_data(
+    db: Session, therapist_data: schemas.TherapistDataCreate) -> models.TherapistData:
+    """
+    Update therapist data
+    :param db (Session): Database session
+    :param therapist_data (schemas.TherapistDataCreate): Therapist data update schema
+    :return (models.TherapistData): Updated therapist data
+    """
+    db_therapist_data = db.query(models.TherapistData).filter(models.TherapistData.user_id == therapist_data.user_id).first()
+    if db_therapist_data is None:
+        raise Exception("Therapist data not found")
+    
+    if therapist_data.qualifications is not None:
+        db_therapist_data.qualifications = therapist_data.qualifications
+    if therapist_data.expertise is not None:
+        db_therapist_data.expertise = therapist_data.exp
+    if therapist_data.bio is not None:
+        db_therapist_data.bio = therapist_data.bio
+    if therapist_data.treatment_approach is not None:
+        db_therapist_data.treatment_approach = therapist_data.treatment_approach
+    db.commit()
+    db.refresh(db_therapist_data)
+    return {
+        "user_id": db_therapist_data.user_id,
+        "id": db_therapist_data.id,
+        "qualifications": db_therapist_data.qualifications,
+        "expertise": db_therapist_data.expertise,
+        "bio": db_therapist_data.bio,
+        "treatment_approach": db_therapist_data.treatment_approach
     }

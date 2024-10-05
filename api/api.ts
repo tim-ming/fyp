@@ -8,12 +8,15 @@ import {
   JournalEntryCreate,
   MoodEntry,
   MoodEntryCreate,
+  TherapistData,
+  TherapistDataCreate,
   Token,
   User,
   UserCreate,
   UserUpdate,
   UserWithoutSensitiveData,
   UserWithPatientData,
+  UserWithTherapistData,
 } from "@/types/models";
 
 export const handleNotOk = async (response: Response) => {
@@ -358,5 +361,57 @@ export const postMoodEntry = async (
   await handleNotOk(response);
 
   const data: MoodEntry = await response.json();
+  return data;
+};
+
+export const getTherapists = async (): Promise<UserWithoutSensitiveData[]> => {
+  const { token } = useAuth.getState();
+
+  const response = await fetch(`${BACKEND_URL}/therapists`, {
+    headers: {
+      Authorization: `Bearer ${token?.access_token}`,
+    },
+  });
+
+  await handleNotOk(response);
+
+  const therapists: UserWithoutSensitiveData[] = await response.json();
+  return therapists;
+};
+
+export const getTherapistData = async (
+  id: number
+): Promise<UserWithTherapistData> => {
+  const { token } = useAuth.getState();
+
+  const response = await fetch(`${BACKEND_URL}/therapist-data/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token?.access_token}`,
+    },
+  });
+
+  await handleNotOk(response);
+
+  const therapist: UserWithTherapistData = await response.json();
+  return therapist;
+};
+
+export const updateTherapistData = async (
+  therapist_data: TherapistDataCreate
+): Promise<TherapistData> => {
+  const { token } = useAuth.getState();
+
+  const response = await fetch(`${BACKEND_URL}/therapist-data`, {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${token?.access_token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(therapist_data),
+  });
+
+  await handleNotOk(response);
+
+  const data: TherapistData = await response.json();
   return data;
 };

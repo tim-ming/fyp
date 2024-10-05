@@ -30,6 +30,7 @@ class User(Base):
     hashed_password = Column(String)
     is_active = Column(Boolean, default=True)
     role = Column(String)
+    image = Column(String, nullable=True)
 
     patient_data = relationship("PatientData", back_populates="user", uselist=False)
     therapist_data = relationship("TherapistData", back_populates="user", uselist=False)
@@ -48,6 +49,7 @@ class PatientData(Base):
     therapist_id = Column(Integer, ForeignKey("therapist_data.id"), index=True)
     has_onboarded = Column(Boolean, default=False)
     severity = Column(String, default="Unknown")
+    therapist_note = Column(String, nullable=True)
 
     mood_entries = relationship("MoodEntry", back_populates="patient_data")
     journal_entries = relationship("JournalEntry", back_populates="patient_data")

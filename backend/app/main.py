@@ -709,3 +709,43 @@ def update_severity(
     :return (dict): Success message
     """
     return commands.update_patient_data(db, patient_data)
+
+
+@app.get("/therapists", response_model=List[schemas.UserWithoutSensitiveData])
+def get_therapists(
+    db: Session = Depends(get_db),
+):
+    """
+    Get all therapists
+    :param db (Session): Database session
+    :return (List[schemas.UserWithoutSensitiveData]): Therapists
+    """
+    return commands.get_therapists(db)
+
+
+@app.get("/therapist-data/{therapist_id}", response_model=schemas.UserWithTherapistData)
+def get_therapist_data(
+    therapist_id: int,
+    db: Session = Depends(get_db),
+):
+    """
+    Get therapist data
+    :param therapist_id (int): Therapist ID
+    :param db (Session): Database session
+    :return (schemas.UserWithTherapistData): Therapist data
+    """
+    return commands.get_therapist_by_id(db, therapist_id)
+
+
+@app.patch("/therapist-data", response_model=schemas.TherapistData)
+def update_therapist_data(
+    therapist_data: schemas.TherapistDataCreate,
+    db: Session = Depends(get_db),
+):
+    """
+    Update therapist data
+    :param therapist_data (schemas.TherapistDataUpdate): Updated therapist data
+    :param db (Session): Database session
+    :return (dict): Success message
+    """
+    return commands.update_therapist_data(db, therapist_data)

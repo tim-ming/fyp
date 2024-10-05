@@ -25,12 +25,12 @@ const PatientDetails = () => {
     const fetchPatient = async (patientId: number) => {
       try {
         const patients = await getAssignedPatients();
-        const patient = await getPatientData(patientId);
-        if (patient && patients.find((p) => p.id === patient.id)) {
+        const patient = patients.find((p) => p.id === patientId);
+        if (patient) {
           setPatient(data);
           setNotes(data.notes);
         } else {
-          throw new Error("Patient is not assigned to you");
+          throw new Error("Patient is not found");
         }
         console.log(data);
       } catch (error) {

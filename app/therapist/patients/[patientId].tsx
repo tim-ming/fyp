@@ -10,6 +10,7 @@ import Notes from "@/assets/icons/notes.svg";
 import Info from "@/assets/icons/info.svg";
 import { getPatientData } from "@/api/api";
 import { UserWithPatientData } from "@/types/models";
+import { useHydratedEffect } from "@/hooks/hooks";
 
 const ICON_SIZE = 24;
 
@@ -45,7 +46,7 @@ const PatientDetails = () => {
   const [patient, setPatient] = useState<UserWithPatientData | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  useHydratedEffect(() => {
     const fetchPatient = async (patientId: number) => {
       try {
         const data = await getPatientData(patientId);
@@ -140,14 +141,17 @@ const PatientDetails = () => {
           {/* <View className="p-1 w-14 h-14 items-center justify-center rounded-[20px] border-2 border-blue200">
             <Message width={ICON_SIZE} height={ICON_SIZE} fill="#256CD0" />
           </View> */}
-          <View className="flex-1 bg-blue200 items-center justify-center py-4 rounded-[20px]">
+          <Pressable
+            onPress={() => router.push(`/therapist/patients/${patientId}/data`)}
+            className="flex-1 bg-blue200 items-center justify-center py-4 rounded-[20px]"
+          >
             <View className="flex-row items-center gap-3">
               <Notes width={ICON_SIZE} height={ICON_SIZE} fill="#FFFFFF" />
               <CustomText className="text-white text-[16px] font-medium">
                 Patient Data
               </CustomText>
             </View>
-          </View>
+          </Pressable>
         </View>
 
         <View className="bg-white p-5 rounded-[20px] mb-10">
@@ -217,7 +221,12 @@ const PatientDetails = () => {
               Evaluate the patient's current mental health status by reviewing
               their consented data to monitor symptoms and track progress.
             </CustomText>
-            <Pressable className="border border-blue200 rounded-full py-[18px] my-[16px] items-center">
+            <Pressable
+              onPress={() =>
+                router.push(`/therapist/patients/${patientId}/data`)
+              }
+              className="border border-blue200 rounded-full py-[18px] my-[16px] items-center"
+            >
               <CustomText className="text-blue200 text-[16px] font-medium">
                 View patient data
               </CustomText>

@@ -52,7 +52,7 @@ export default function RootLayout() {
         auth.setUser(user);
       } catch (error) {
         console.log("Redirecting to /signin,", error);
-        // router.push("/signin");
+        router.push("/signin");
       }
     };
     fetchData();

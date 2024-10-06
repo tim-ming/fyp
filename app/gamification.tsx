@@ -5,57 +5,84 @@ import CustomText from "@/components/CustomText";
 import { Colors } from "@/constants/Colors";
 import ProgressBar from "@/components/ProgressBar";
 import { Image } from "expo-image";
+import { getUser, getStats } from "@/api/api";
+import { countArticlesRead, countPagesRead } from "@/utils/progressStorage";
+import { useAuth } from "@/state/auth";
+import { useHydratedEffect } from "@/hooks/hooks";
 
 const Gamification = () => {
-  // Step 1: Create an array of badge data objects with descriptions
+  const [loading, setLoading] = React.useState(true);
+  const [stats, setStats] = React.useState({
+    journal_count: 0,
+    guided_journal_count: 0,
+    streak: 0,
+    last_login: "",
+    articles_read: 0,
+    pages_read: 0,
+  });
+  const auth = useAuth();
+
+  useHydratedEffect(() => {
+    const fetchData = async () => {
+      try {
+        const statsData = await getStats();
+        const user = auth.user;
+        const articlesRead = await countArticlesRead(user!.id.toString());
+        const pagesRead = await countPagesRead(user!.id.toString());
+        setStats({
+          journal_count: statsData.journal_count,
+          guided_journal_count: statsData.guided_journal_count,
+          streak: statsData.streak,
+          last_login: statsData.last_login,
+          articles_read: articlesRead,
+          pages_read: pagesRead,
+        });
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   const badges = [
     {
       title: "Newbie Journalist",
-      progress: 9,
+      progress: stats.journal_count,
       total: 10,
       description: "Write @ Journals.",
     },
     {
       title: "Typewriter",
-      progress: 9,
+      progress: stats.journal_count,
       total: 40,
       description: "Write @ Journals.",
     },
     {
       title: "Pro Journalist",
-      progress: 9,
+      progress: stats.journal_count,
       total: 200,
       description: "Write @ Journals.",
     },
     {
       title: "Baby Reader",
-      progress: 9,
+      progress: stats.articles_read,
       total: 10,
       description: "Complete @ articles.",
     },
     {
       title: "Story Teller",
-      progress: 6,
+      progress: stats.guided_journal_count,
       total: 200,
       description: "Write @ Guided Journals.",
     },
     {
       title: "Avid Reader",
-      progress: 135,
+      progress: stats.pages_read,
       total: 200,
       description: "Read @ pages of articles.",
-    },
-    {
-      title: "New realm",
-      progress: 0,
-      total: 5,
-      description: "Complete @ Meditations.",
-    },
-    {
-      title: "Sage",
-      progress: 0,
-      total: 25,
-      description: "Complete all Meditations.",
     },
   ];
 
@@ -69,6 +96,19 @@ const Gamification = () => {
   const sortedBadges = badgesWithProgress.sort(
     (a, b) => b.progressPercentage - a.progressPercentage
   );
+
+  if (loading) {
+    return (
+      <View className="flex-1 bg-blue100 items-center justify-center">
+      <CustomText className="text-black text-[20px] font-semibold">
+        Loading...
+      </CustomText>
+      </View>
+    );
+  }
+
+  const date = new Date(stats.last_login);
+  date.setDate(date.getDate() - stats.streak + 1);
 
   return (
     <ScrollView className="flex-1 bg-blue100 px-4 py-16">
@@ -87,16 +127,18 @@ const Gamification = () => {
           source={require("@/assets/images/doubleheart.png")}
           className="w-28 h-28 opacity-80"
         />
-        <CustomText className="text-6xl font-bold text-center">7</CustomText>
+        <CustomText className="text-6xl font-bold text-center">{stats.streak}</CustomText>
         <CustomText
           letterSpacing="tight"
           className="text-base font-medium text-center text-gray300"
         >
-          Days streak
+          {stats.streak === 1 || stats.streak === 0 ? "Day" : "Days"} streak
         </CustomText>
         <View className="items-center justify-center">
           <CustomText className="text-sm max-w-[50%] leading-4 text-center text-gray200 mt-2">
-            Your streak started on 25 Apr this year.
+            {stats.last_login && stats.streak > 0
+              ? `Your streak started on ${date.toLocaleDateString()}.`
+              : "Start your streak today!"}
           </CustomText>
         </View>
       </View>

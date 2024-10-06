@@ -8,6 +8,7 @@ import {
   JournalEntryCreate,
   MoodEntry,
   MoodEntryCreate,
+  Stats,
   PatientData,
   PatientDataUpdate,
   TherapistData,
@@ -417,6 +418,22 @@ export const updateTherapistData = async (
   const data: TherapistData = await response.json();
   return data;
 };
+
+export const getStats = async (): Promise<Stats> => {
+  const { token } = useAuth.getState();
+
+  const response = await fetch(`${BACKEND_URL}/users/stats`, {
+    headers: {
+      Authorization: `Bearer ${token?.access_token}`,
+    },
+  });
+
+  await handleNotOk(response);
+
+  const data: Stats = await response.json();
+  return data;
+}
+
 
 export const assignTherapist = async (
   therapist_id: number

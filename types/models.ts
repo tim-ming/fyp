@@ -223,3 +223,11 @@ export interface TherapistData extends TherapistDataBase {
   treatment_approach?: string;
   patients?: PatientData[];
 }
+
+// Stats Schema
+export interface Stats {
+  "journal_count": number;
+  "guided_journal_count": number;
+  "streak": number;
+  "last_login": string;
+}

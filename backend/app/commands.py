@@ -1,7 +1,7 @@
 from typing import List, Optional
 from sqlalchemy.orm import Session, joinedload
 from app import models, schemas
-from datetime import date
+from datetime import date, timedelta
 
 
 def get_user_by_email(db: Session, email: str) -> Optional[models.User]:
@@ -188,6 +188,17 @@ def upsert_mood_entry(
         .first()
     )
 
+    db_user = db.query(models.User).filter(models.User.email == user.email).first()
+    if db_user.last_login == mood_entry.date + timedelta(days=1):
+        db_user.streak += 1
+    else:
+        db_user.streak = 1
+    
+    if db_user.last_login is None or mood_entry.date > db_user.last_login:
+        db_user.last_login = mood_entry.date
+    db.commit()
+    db.refresh(db_user)
+    
     if db_mood_entry:
         # Update existing entry
         db_mood_entry.mood = mood_entry.mood

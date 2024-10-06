@@ -71,6 +71,8 @@ class User(Base):
     is_active = Column(Boolean, default=True)
     role = Column(String)
     image = Column(String, nullable=True)
+    last_login = Column(DateTime, nullable=True)
+    streak = Column(Integer, default=0)
 
     chat_participations = relationship("ChatParticipant", back_populates="user")
     patient_data = relationship("PatientData", back_populates="user", uselist=False)

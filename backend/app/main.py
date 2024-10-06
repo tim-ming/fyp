@@ -525,28 +525,6 @@ def post_journal_entry(
         print(f"Error processing journal entry: {str(e)}")
         raise HTTPException(status_code=500, detail="Error processing journal entry")
 
-@app.post("/delete-image/journal/")
-async def delete_image(
-    current_user: Annotated[schemas.User, Depends(get_current_user)], 
-    filename: str,
-    db: Session = Depends(get_db)):
-    """
-    Delete an image file
-    :param current_user (schemas.User): Current user
-    :param filename (str): Image filename
-    :return (dict): Success message
-    """
-
-    if filename.startswith(f"/images/{current_user.id}-"):
-        file_path = os.path.join(UPLOAD_DIRECTORY, filename.split("/")[-1])
-        if os.path.exists(file_path):
-            os.remove(file_path)
-            return {"detail": "Image deleted successfully"}
-    
-    raise HTTPException(status_code=404, detail="Image not found")
-
-    return commands.upsert_journal_entry(db, journal_entry, current_user)
-
 
 @app.get("/journals", response_model=List[schemas.JournalEntry])
 def get_journal_entries(
@@ -579,6 +557,27 @@ def get_journal_entries(
 
     return commands.get_journal_entries_by_user(db, current_user, skip, limit)
 
+@app.get("/users/stats")
+def get_stats(
+    current_user: Annotated[schemas.User, Depends(get_current_user)],
+    db: Session = Depends(get_db),
+):
+    """
+    Get user stats
+    :param current_user (schemas.User): Current user
+    :param db (Session): Database session
+    :return (dict): User stats
+    """
+
+    journal_count = commands.count_journal_entries_by_user(db, current_user)
+    guided_journal_count = commands.count_guided_journal_entries_by_user(db, current_user)
+    stats = commands.get_user_by_id(db, current_user.id)
+    return {
+        "journal_count": journal_count,
+        "guided_journal_count": guided_journal_count,
+        "streak": stats.streak,
+        "last_login": stats.last_login if stats.last_login else "",
+    }
 
 @app.post("/social-accounts", response_model=List[schemas.SocialAccount])
 def post_social_accounts(
@@ -814,3 +813,4 @@ def update_therapist_data(
     :return (dict): Success message
     """
     return commands.update_therapist_data(db, therapist_data)
+    

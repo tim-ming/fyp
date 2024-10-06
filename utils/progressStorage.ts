@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import articlesData from "@/assets/articles/articles.json";
 
 export const saveChapterProgress = async (
   userId: string,
@@ -54,3 +55,54 @@ export const clearAllData = async (userId: string) => {
     console.error("Failed to clear AsyncStorage for user:", e);
   }
 };
+
+
+export const countArticlesRead = async (
+  userId: string,
+): Promise<number> => {
+  try {
+    const keys = await AsyncStorage.getAllKeys();
+    return keys.filter((key) =>
+      key.startsWith(`progress_${userId}_`)
+    ).length;
+  } catch (e) {
+    console.error("Failed to count articles read:", e);
+  }
+  return 0;
+}
+
+export const countPagesRead = async (
+  userId: string,
+): Promise<number> => {
+  try {
+    const keys = await AsyncStorage.getAllKeys();
+    const matches = keys.filter((key) =>
+      key.startsWith(`progress_${userId}_`)
+    )
+    let count = 0;
+
+    for (const key of matches) {
+      const progressString = await AsyncStorage.getItem(key);
+      if (progressString) {
+        const progress = JSON.parse(progressString);
+        const splits = key.split('_');
+        const article_id = splits[splits.length - 1];
+
+        for (const chapter of articlesData.articles.find((article) => article.id === article_id)?.chapters || []) {
+          if (progress[chapter.id] === true) {
+            count += chapter.pages.length;
+          } else if (chapter.id === progress.lastReadChapterId) {
+            const lastReadPage = parseInt(progress.lastReadPageId, 0);
+            count += lastReadPage;
+            break;
+          }
+        }
+      }
+    }
+
+    return count;
+  } catch (e) {
+    console.error("Failed to count pages read:", e);
+  }
+  return 0;
+}

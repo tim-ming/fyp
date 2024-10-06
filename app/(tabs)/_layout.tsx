@@ -4,6 +4,7 @@ import { SafeAreaView, StyleSheet, View } from "react-native";
 
 import VaultIcon from "@/assets/icons/archive.svg";
 import InsightsIcon from "@/assets/icons/chart.svg";
+import MessageIcon from "@/assets/icons/message.svg";
 import HomeIcon from "@/assets/icons/home.svg";
 import ExploreIcon from "@/assets/icons/search.svg";
 import CustomText from "@/components/CustomText";
@@ -145,6 +146,30 @@ export default function TabLayout() {
                   } text-sm font-medium`}
                 >
                   Insights
+                </CustomText>
+              </View>
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="chat"
+          options={{
+            title: "Chat",
+            tabBarIcon: ({ color, focused }) => (
+              <View className="items-center">
+                <MessageIcon
+                  width={28}
+                  height={28}
+                  className={`${
+                    focused ? `stroke-blue200` : `stroke-gray300`
+                  } `}
+                />
+                <CustomText
+                  className={`${
+                    focused ? `text-blue200` : `text-gray300`
+                  } text-sm font-medium`}
+                >
+                  Chat
                 </CustomText>
               </View>
             ),

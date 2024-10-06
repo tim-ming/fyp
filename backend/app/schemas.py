@@ -176,6 +176,8 @@ class User(UserBase):
     image: Optional[str] = None
     patient_data: Optional["PatientData"] = None
     therapist_data: Optional["TherapistData"] = None
+    last_login: Optional[date] = None
+    streak: int
 
     class Config:
         from_attributes = True
@@ -194,6 +196,8 @@ class UserWithoutSensitiveData(UserBase):
     image: Optional[str]
     is_active: bool
     role: UserRole
+    last_login: Optional[date]
+    streak: int
 
     class Config:
         from_attributes = True

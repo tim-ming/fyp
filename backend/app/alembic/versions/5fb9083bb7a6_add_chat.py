@@ -48,6 +48,8 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_chat_participants_id'), 'chat_participants', ['id'], unique=False)
+    op.add_column('patient_data', sa.Column('therapist_note', sa.String(), nullable=True))
+    op.add_column('users', sa.Column('image', sa.String(), nullable=True))
     # ### end Alembic commands ###
 
 
@@ -60,4 +62,6 @@ def downgrade() -> None:
     op.drop_index(op.f('ix_chat_rooms_name'), table_name='chat_rooms')
     op.drop_index(op.f('ix_chat_rooms_id'), table_name='chat_rooms')
     op.drop_table('chat_rooms')
+    op.drop_column('users', 'image')
+    op.drop_column('patient_data', 'therapist_note')
     # ### end Alembic commands ###

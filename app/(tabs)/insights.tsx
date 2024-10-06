@@ -173,10 +173,12 @@ const getWeekMoodData = async (startDate: Date): Promise<MoodEntry[]> => {
   const endDate = addDays(correctedStartDate, 6);
   // Fetch mood entries for the past year
   const moodEntries = await getMoodEntries(365);
-
+  console.log(moodEntries);
   // Filter mood entries for the current week
   const weekMoodEntries = moodEntries.filter(
-    (d) => new Date(d.date) >= correctedStartDate && new Date(d.date) <= endDate
+    (d) =>
+      new Date(d.date) >= correctedStartDate &&
+      new Date(d.date) < addDays(endDate, 1)
   );
 
   // Create a map of the fetched mood entries
@@ -198,7 +200,7 @@ const getWeekMoodData = async (startDate: Date): Promise<MoodEntry[]> => {
       ({ date: dateString, mood: 0, sleep: 0, eat: 0, id: -1 } as MoodEntry)
     );
   });
-
+  console.log(filledMoodEntries);
   return filledMoodEntries;
 };
 

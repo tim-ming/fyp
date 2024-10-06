@@ -150,7 +150,7 @@ export default function TabLayout() {
           options={{
             href:
               auth && auth.user && auth.user.role === "patient"
-                ? "insights"
+                ? "/insights"
                 : null,
             title: "Insights",
             tabBarIcon: ({ color, focused }) => (

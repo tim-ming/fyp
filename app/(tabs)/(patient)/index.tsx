@@ -51,7 +51,7 @@ const ref = React.createRef<Carousel<any>>();
 const renderCard = (journal: JournalEntryCard) => {
   const handlePress = () => {
     router.push({
-      pathname: `/journal/entry`,
+      pathname: `/patient/journal/entry`,
       params: {
         date: `${journal.date.getFullYear()}-${(journal.date.getMonth() + 1)
           .toString()
@@ -441,7 +441,7 @@ const HomeScreen = () => {
                   style={stylesCard.container}
                 >
                   <Image
-                    source={`../assets/images/${doctor.image}`}
+                    source={{ uri: doctor.image }}
                     className="w-full h-32"
                   />
                   <CustomText className="text-lg text-center">

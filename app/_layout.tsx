@@ -77,18 +77,19 @@ export default function RootLayout() {
     } else {
       if (!auth.user) {
         router.push("/signin");
-      } else {
-        switch (auth.user.role) {
-          case "therapist":
-            router.push("/therapist/dashboard");
-            break;
-          case "patient":
-            router.push("/");
-            break;
-          default:
-            console.error("Unknown role: ", auth.user.role);
-        }
       }
+      // else {
+      //   switch (auth.user.role) {
+      //     case "therapist":
+      //       router.push("/therapist/dashboard");
+      //       break;
+      //     case "patient":
+      //       router.push("/");
+      //       break;
+      //     default:
+      //       console.error("Unknown role: ", auth.user.role);
+      //   }
+      // }
     }
   };
   return (
@@ -110,7 +111,7 @@ export default function RootLayout() {
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="+not-found" />
           <Stack.Screen
-            name="settings/index"
+            name="patient/profile/index"
             options={{
               presentation: "modal", // Makes it slide in from the right
               animation: "slide_from_right", // Specifies the slide animation
@@ -120,23 +121,22 @@ export default function RootLayout() {
           <Stack.Screen name="signup" options={{ headerShown: false }} />
           <Stack.Screen name="understand" options={{ headerShown: false }} />
           <Stack.Screen name="user-details" options={{ headerShown: false }} />
-          <Stack.Screen name="relax/index" />
-          <Stack.Screen name="relax/breathe" options={{ headerShown: false }} />
+          <Stack.Screen name="patient/relax/index" />
           <Stack.Screen
-            name="guided-journal/completion"
+            name="patient/relax/breathe"
             options={{ headerShown: false }}
           />
           <Stack.Screen
-            name="journal/completion"
+            name="patient/guided-journal/completion"
             options={{ headerShown: false }}
           />
           <Stack.Screen
-            name="therapist/dashboard"
+            name="patient/journal/completion"
             options={{ headerShown: false }}
           />
-          <Stack.Screen name="mood" options={{ headerShown: false }} />
+          <Stack.Screen name="patient/mood" options={{ headerShown: false }} />
           <Stack.Screen
-            name="read/[articleId]/chapter/[chapterId]/page/[pageId]"
+            name="patient/read/[articleId]/chapter/[chapterId]/page/[pageId]"
             options={({ route, navigation }) => ({
               headerLeft: () => {
                 const { articleId } = route.params as { articleId: string };
@@ -144,7 +144,9 @@ export default function RootLayout() {
                 return (
                   <Pressable
                     onPress={() =>
-                      navigation.navigate("read/[articleId]", { articleId })
+                      navigation.navigate("patient/read/[articleId]", {
+                        articleId,
+                      })
                     }
                     style={{ marginLeft: 16 }}
                   >
@@ -155,9 +157,9 @@ export default function RootLayout() {
             })}
           />
 
-          <Stack.Screen name="vault/history/guided-journal/[date]" />
-          <Stack.Screen name="vault/history/journal/[date]" />
-          <Stack.Screen name="vault/history/mood/[date]" />
+          <Stack.Screen name="patient/vault/history/guided-journal/[date]" />
+          <Stack.Screen name="patient/vault/history/journal/[date]" />
+          <Stack.Screen name="patient/vault/history/mood/[date]" />
         </Stack>
       </SafeAreaProvider>
     </ThemeProvider>

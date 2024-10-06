@@ -5,12 +5,16 @@ import { SafeAreaView, StyleSheet, View } from "react-native";
 import VaultIcon from "@/assets/icons/archive.svg";
 import InsightsIcon from "@/assets/icons/chart.svg";
 import MessageIcon from "@/assets/icons/message.svg";
+import MessageLightIcon from "@/assets/icons/message-light.svg";
 import HomeIcon from "@/assets/icons/home.svg";
 import ExploreIcon from "@/assets/icons/search.svg";
+import SettingsIcon from "@/assets/icons/settings.svg";
+import DashboardIcon from "@/assets/icons/dashboard.svg";
 import CustomText from "@/components/CustomText";
 import { shadows } from "@/constants/styles";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { usePathname } from "expo-router";
+import { useAuth } from "@/state/auth";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -24,6 +28,8 @@ export default function TabLayout() {
   // if screen is in the home or live stack, hide the tab bar
   // segments.includes("search") || segments.includes("explore")
   const hide = false;
+  const auth = useAuth();
+  console.log(auth, "a");
   return (
     <SafeAreaView style={styles.container}>
       <Tabs
@@ -40,7 +46,7 @@ export default function TabLayout() {
         }}
       >
         <Tabs.Screen
-          name="index"
+          name="(patient)/index"
           options={{
             title: "Home",
             tabBarIcon: ({ color, focused }) => (
@@ -62,9 +68,10 @@ export default function TabLayout() {
               </View>
             ),
           }}
+          redirect={Boolean(auth && auth.user && auth.user.role !== "patient")}
         />
         <Tabs.Screen
-          name="explore"
+          name="(patient)/explore"
           options={{
             title: "Explore",
             tabBarIcon: ({ color, focused }) => (
@@ -86,25 +93,35 @@ export default function TabLayout() {
               </View>
             ),
           }}
+          redirect={Boolean(auth && auth.user && auth.user.role !== "patient")}
         />
-        {/* <Tabs.Screen
-          name="journal"
+        <Tabs.Screen
+          name="(patient)/chat"
           options={{
-            title: "",
+            title: "Chat",
             tabBarIcon: ({ color, focused }) => (
-              <View
-                className="items-center rounded-full bg-blue200 w-16 h-16 justify-center bottom-6"
-                style={shadows.card}
-              >
-                <PlusIcon className="stroke-white" />
+              <View className="items-center">
+                <MessageLightIcon
+                  width={28}
+                  height={28}
+                  className={`stroke-[1px]  ${
+                    focused ? `stroke-blue200` : `stroke-gray300`
+                  } `}
+                />
+                <CustomText
+                  className={`${
+                    focused ? `text-blue200` : `text-gray300`
+                  } text-sm font-medium`}
+                >
+                  Chat
+                </CustomText>
               </View>
             ),
-            href: "../journal/entry",
           }}
-        /> */}
-
+          redirect={Boolean(auth && auth.user && auth.user.role !== "patient")}
+        />
         <Tabs.Screen
-          name="vault"
+          name="(patient)/vault"
           options={{
             title: "Vault",
             tabBarIcon: ({ color, focused }) => (
@@ -126,10 +143,15 @@ export default function TabLayout() {
               </View>
             ),
           }}
+          redirect={Boolean(auth && auth.user && auth.user.role !== "patient")}
         />
         <Tabs.Screen
-          name="insights"
+          name="(patient)/insights"
           options={{
+            href:
+              auth && auth.user && auth.user.role === "patient"
+                ? "insights"
+                : null,
             title: "Insights",
             tabBarIcon: ({ color, focused }) => (
               <View className="items-center">
@@ -150,17 +172,45 @@ export default function TabLayout() {
               </View>
             ),
           }}
+          redirect={Boolean(auth && auth.user && auth.user.role !== "patient")}
         />
         <Tabs.Screen
-          name="chat"
+          name="(therapist)/index"
           options={{
-            title: "Chat",
+            title: "Vault",
+            tabBarIcon: ({ color, focused }) => (
+              <View className="items-center">
+                <DashboardIcon
+                  width={28}
+                  height={28}
+                  className={`stroke-[1px] ${
+                    focused ? `stroke-blue200` : `stroke-gray300`
+                  } `}
+                />
+                <CustomText
+                  className={`${
+                    focused ? `text-blue200` : `text-gray300`
+                  } text-sm font-medium`}
+                >
+                  Dashboard
+                </CustomText>
+              </View>
+            ),
+          }}
+          redirect={Boolean(
+            auth && auth.user && auth.user.role !== "therapist"
+          )}
+        />
+        <Tabs.Screen
+          name="(therapist)/chat"
+          options={{
+            title: "Vault",
             tabBarIcon: ({ color, focused }) => (
               <View className="items-center">
                 <MessageIcon
                   width={28}
                   height={28}
-                  className={`${
+                  className={`stroke-[1px] ${
                     focused ? `stroke-blue200` : `stroke-gray300`
                   } `}
                 />
@@ -174,8 +224,44 @@ export default function TabLayout() {
               </View>
             ),
           }}
+          redirect={Boolean(
+            auth && auth.user && auth.user.role !== "therapist"
+          )}
+        />
+
+        <Tabs.Screen
+          name="(therapist)/settings"
+          options={{
+            title: "Vault",
+            tabBarIcon: ({ color, focused }) => (
+              <View className="items-center">
+                <SettingsIcon
+                  width={28}
+                  height={28}
+                  className={`stroke-[1px] ${
+                    focused ? `stroke-blue200` : `stroke-gray300`
+                  } `}
+                />
+                <CustomText
+                  className={`${
+                    focused ? `text-blue200` : `text-gray300`
+                  } text-sm font-medium`}
+                >
+                  Settings
+                </CustomText>
+              </View>
+            ),
+          }}
+          redirect={Boolean(
+            auth && auth.user && auth.user.role !== "therapist"
+          )}
         />
       </Tabs>
+      {/* {auth && auth.user && auth.user.role === "patient" ? (
+        <PatientTabLayout />
+      ) : auth && auth.user && auth.user.role === "therapist" ? (
+        <TherapistTabLayout />
+      ) : null} */}
     </SafeAreaView>
   );
 }

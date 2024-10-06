@@ -21,7 +21,7 @@ const TopNav: React.FC = () => {
     >
       {isIndexPage ? (
         <Pressable>
-          <Link href="/gamification">
+          <Link href="/patient/gamification">
             <DoubleHeart fill="#535353" width={ICON_SIZE} height={ICON_SIZE} />
           </Link>
         </Pressable>
@@ -29,7 +29,7 @@ const TopNav: React.FC = () => {
         <View />
       )}
       <Pressable>
-        <Link href="/settings">
+        <Link href="/patient/profile">
           <User fill="#535353" width={ICON_SIZE} height={ICON_SIZE} />
         </Link>
       </Pressable>

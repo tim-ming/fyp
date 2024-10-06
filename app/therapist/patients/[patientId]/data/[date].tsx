@@ -4,7 +4,7 @@ import {
   getPatientData,
   getPatients,
 } from "@/api/api";
-import { STEPS_TEXT } from "@/app/guided-journal/constants";
+import { STEPS_TEXT } from "@/app/patient/guided-journal/constants";
 import CustomText from "@/components/CustomText";
 import { getStatus } from "@/constants/globals";
 import { useHydratedEffect } from "@/hooks/hooks";

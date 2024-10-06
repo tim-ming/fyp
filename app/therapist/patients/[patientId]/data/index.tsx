@@ -29,7 +29,7 @@ import {
   getPatientData,
   getPatients,
 } from "@/api/api";
-import { STEPS_TEXT } from "@/app/guided-journal/constants";
+import { STEPS_TEXT } from "@/app/patient/guided-journal/constants";
 
 const formatDateHeader = (date: string) => {
   const parsedDate = new Date(date);

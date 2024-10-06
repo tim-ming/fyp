@@ -51,14 +51,14 @@ const SignInScreen = () => {
       const isTherapist = user.role === "therapist";
 
       if (isTherapist) {
-        router.push("/therapist/dashboard");
+        router.push("/");
       } else {
         if (!user.dob || !user.sex || !user.occupation) {
           router.push("/user-details");
         } else {
           const patient = await getPatientData(user.id);
           if (patient.patient_data?.has_onboarded) {
-            router.push("/(tabs)");
+            router.push("/");
           } else {
             router.push("/understand");
           }

@@ -9,7 +9,7 @@ import {
 import { useRouter, useLocalSearchParams } from "expo-router";
 import CustomText from "@/components/CustomText";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { getPatientData } from "@/api/api";
+import { getPatientData, getPatients } from "@/api/api";
 import { UserWithPatientData } from "@/types/models";
 import { shadows } from "@/constants/styles";
 
@@ -24,11 +24,14 @@ const PatientDetails = () => {
   useEffect(() => {
     const fetchPatient = async (patientId: number) => {
       try {
-        const patients = await getAssignedPatients();
-        const patient = patients.find((p) => p.id === patientId);
+        const patients = await getPatients();
+        if (!patients.find((p) => p.id === patientId)) {
+          throw new Error("Patient is not found");
+        }
+        const data = await getPatientData(patientId);
         if (patient) {
           setPatient(data);
-          setNotes(data.notes);
+          setNotes(data.patient_data!.notes);
         } else {
           throw new Error("Patient is not found");
         }

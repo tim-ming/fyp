@@ -8,7 +8,7 @@ import Edit from "@/assets/icons/edit.svg";
 import Message from "@/assets/icons/message.svg";
 import Notes from "@/assets/icons/notes.svg";
 import Info from "@/assets/icons/info.svg";
-import { getPatientData } from "@/api/api";
+import { getPatientData, getPatients } from "@/api/api";
 import { UserWithPatientData } from "@/types/models";
 import { useHydratedEffect } from "@/hooks/hooks";
 
@@ -49,6 +49,10 @@ const PatientDetails = () => {
   useHydratedEffect(() => {
     const fetchPatient = async (patientId: number) => {
       try {
+        const patients = await getPatients();
+        if (!patients.find((p) => p.id === patientId)) {
+          throw new Error("Patient is not found");
+        }
         const data = await getPatientData(patientId);
         setPatient(data);
         console.log(data);

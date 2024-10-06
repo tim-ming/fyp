@@ -191,7 +191,7 @@ export const postJournalEntry = async (
   return data;
 };
 
-export const getPatients = async (): Promise<UserWithoutSensitiveData[]> => {
+export const getPatients = async (): Promise<UserWithPatientData[]> => {
   const { token } = useAuth.getState();
 
   const response = await fetch(`${BACKEND_URL}/patients`, {
@@ -202,7 +202,7 @@ export const getPatients = async (): Promise<UserWithoutSensitiveData[]> => {
 
   await handleNotOk(response);
 
-  const patients: UserWithoutSensitiveData[] = await response.json();
+  const patients: UserWithPatientData[] = await response.json();
   return patients;
 };
 
@@ -467,4 +467,4 @@ export const updatePatientData = async (
 
   const data: PatientData = await response.json();
   return data;
-}
+};

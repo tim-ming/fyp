@@ -1,4 +1,5 @@
 from typing import List, Optional
+from sqlalchemy import or_
 from sqlalchemy.orm import Session, joinedload
 from app import models, schemas
 from datetime import date, datetime, timedelta
@@ -921,21 +922,26 @@ def insert_chat_message(
     return db_chat_message
 
 def get_chat_messages(
-    db: Session, user: schemas.User, recipient_id: int, skip: int = 0, limit: int = 100
+    db: Session, user: schemas.User, other_user_id: int, skip: int = 0, limit: int = 100
 ) -> List[models.ChatMessage]:
     """
-    Get chat messages
+    Get chat messages between two users
     :param db (Session): Database session
-    :param user (schemas.User): User
-    :param recipient_id (int): Recipient ID
+    :param user (schemas.User): Current user
+    :param other_user_id (int): ID of the other user in the conversation
     :param skip (int): Number of entries to skip
     :param limit (int): Number of entries to return
     :return (List[models.ChatMessage]): Chat messages
     """
     return (
         db.query(models.ChatMessage)
-        .filter(models.ChatMessage.sender_id == user.id)
-        .filter(models.ChatMessage.recipient_id == recipient_id)
+        .filter(
+            or_(
+                (models.ChatMessage.sender_id == user.id) & (models.ChatMessage.recipient_id == other_user_id),
+                (models.ChatMessage.sender_id == other_user_id) & (models.ChatMessage.recipient_id == user.id)
+            )
+        )
+        .order_by(models.ChatMessage.timestamp)  # Assuming there's a timestamp field
         .offset(skip)
         .limit(limit)
         .all()

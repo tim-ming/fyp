@@ -926,9 +926,9 @@ async def process_message(db: Session, sender: schemas.User, message_data: str, 
     await manager.send_personal_message(converted, recipient_id)
     await manager.send_personal_message(converted, sender.id)
 
-@app.get("/chat/messages/{recipient_id}", response_model=List[schemas.ChatMessage])
+@app.get("/chat/messages/{other_user_id}", response_model=List[schemas.ChatMessage])
 async def get_chat_messages(
-    recipient_id: int = -1,
+    other_user_id: int,
     skip: int = 0,
     limit: int = 100,
     current_user: schemas.User = Depends(get_current_user),
@@ -936,11 +936,11 @@ async def get_chat_messages(
 ):
     """
     Get chat messages
-    :param recipient_id (int): Recipient ID (-1 for all messages)
+    :param other_user_id (int): Other user ID
     :param skip (int): Number of entries to skip
     :param limit (int): Number of entries to return
     :param current_user (schemas.User): Current user
     :param db (Session): Database session
     :return (List[schemas.ChatMessage]): Chat messages
     """
-    return commands.get_chat_messages(db, current_user, recipient_id, skip, limit)
+    return commands.get_chat_messages(db, current_user, other_user_id, skip, limit)

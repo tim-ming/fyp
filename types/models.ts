@@ -231,3 +231,11 @@ export interface Stats {
   "streak": number;
   "last_login": string;
 }
+
+// Message Schema
+export interface Message {
+  id: number;
+  content: string;
+  sender_id: number;
+  timestamp: string;
+}

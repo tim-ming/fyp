@@ -1,11 +1,12 @@
 import base64
 import io
+import json
 import os
 import shutil
 import uuid
 from fastapi.staticfiles import StaticFiles
 import requests
-from fastapi import FastAPI, Depends, File, HTTPException, Query, UploadFile, status
+from fastapi import FastAPI, Depends, File, HTTPException, Query, UploadFile, WebSocket, WebSocketDisconnect, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from PIL import Image
 from pydantic import ValidationError
@@ -13,7 +14,7 @@ from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from jose import JWTError, jwt
 from datetime import datetime, timedelta, timezone
-from typing import Annotated, Generator, List, Optional
+from typing import Annotated, Dict, Generator, List, Optional
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -758,7 +759,7 @@ def get_patient_data(
     :param db (Session): Database session
     :return (schemas.UserWithPatientData): Patient data
     """
-    return commands.get_user_by_id(db, patient_id)
+    return commands.get_patient_by_id(db, patient_id)
 
 
 @app.patch("/patient-data", response_model=schemas.PatientData)
@@ -814,3 +815,132 @@ def update_therapist_data(
     """
     return commands.update_therapist_data(db, therapist_data)
     
+
+# WebSocket connection manager
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: Dict[int, WebSocket] = {}
+
+    async def connect(self, websocket: WebSocket, user_id: int):
+        await websocket.accept()
+        self.active_connections[user_id] = websocket
+
+    def disconnect(self, user_id: int):
+        if user_id in self.active_connections:
+            del self.active_connections[user_id]
+
+    async def send_personal_message(self, message: str, user_id: int):
+        if user_id in self.active_connections:
+            await self.active_connections[user_id].send_json(message)
+            return True
+        return False
+
+manager = ConnectionManager()
+
+async def get_current_user_ws(
+    websocket: WebSocket,
+    token: Optional[str] = Query(None),
+    db: Session = Depends(get_db)
+) -> schemas.User:
+    """
+    :param websocket (WebSocket): WebSocket connection
+    :param token (Optional[str]): JWT
+    :param db (Session): Database session
+    :return (schemas.User): Current user
+    """
+    if token is None:
+        await websocket.close(code=1008)
+        return None
+
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_email: str = payload.get("sub")
+        if user_email is None:
+            await websocket.close(code=1008)
+            return None
+    except JWTError:
+        await websocket.close(code=1008)
+        return None
+
+    user = commands.get_user_by_email(db, user_email)
+    if user is None:
+        await websocket.close(code=1008)
+        return None
+
+    return user
+
+@app.websocket("/ws/chat")
+async def websocket_endpoint(
+    websocket: WebSocket,
+    db: Session = Depends(get_db),
+    current_user: schemas.User = Depends(get_current_user_ws)
+):
+    """
+    :param websocket (WebSocket): WebSocket connection
+    :param db (Session): Database session
+    :param current_user (schemas.User): Current user
+    """
+    if not current_user:
+        return
+
+    await manager.connect(websocket, current_user.id)
+
+    try:
+        if current_user.role == "patient":
+            while True:
+                data = await websocket.receive_json()
+                print(data, current_user.patient_data.therapist_user_id)
+                if current_user.patient_data.therapist_user_id != data["recipient_id"]:
+                    continue
+                await process_message(db, current_user, data["content"], data["recipient_id"])
+        elif current_user.role == "therapist":
+            patients = [patient.id for patient in commands.get_patients_by_therapist(db, current_user)]
+            while True:
+                data = await websocket.receive_json()
+                print(data, patients)
+                if data["recipient_id"] not in patients:
+                    continue
+                await process_message(db, current_user, data["content"], data["recipient_id"])
+    except WebSocketDisconnect:
+        manager.disconnect(current_user.id)
+
+async def process_message(db: Session, sender: schemas.User, message_data: str, recipient_id: int):
+    """
+    send a message to a recipient
+    :param db (Session): Database session
+    :param sender (schemas.User): Sender
+    :param message_data (str): Message content
+    :param recipient_id (int): Recipient ID
+    """
+    message_create = schemas.ChatMessageCreate(
+        content=message_data,
+        recipient_id=recipient_id,
+        sender_id=sender.id
+    )
+    
+    chat_message = commands.insert_chat_message(db, message_create)
+    chat_message_schema = schemas.ChatMessage.model_validate(chat_message)
+    converted = chat_message_schema.model_dump()
+    converted["timestamp"] = chat_message_schema.timestamp.isoformat()
+
+    await manager.send_personal_message(converted, recipient_id)
+    await manager.send_personal_message(converted, sender.id)
+
+@app.get("/chat/messages/{recipient_id}", response_model=List[schemas.ChatMessage])
+async def get_chat_messages(
+    recipient_id: int = -1,
+    skip: int = 0,
+    limit: int = 100,
+    current_user: schemas.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get chat messages
+    :param recipient_id (int): Recipient ID (-1 for all messages)
+    :param skip (int): Number of entries to skip
+    :param limit (int): Number of entries to return
+    :param current_user (schemas.User): Current user
+    :param db (Session): Database session
+    :return (List[schemas.ChatMessage]): Chat messages
+    """
+    return commands.get_chat_messages(db, current_user, recipient_id, skip, limit)

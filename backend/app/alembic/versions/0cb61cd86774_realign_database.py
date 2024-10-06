@@ -1,8 +1,8 @@
-"""Realign baseline
+"""Realign database
 
-Revision ID: 221e6bf8672c
+Revision ID: 0cb61cd86774
 Revises: 
-Create Date: 2024-10-04 09:27:53.122197
+Create Date: 2024-10-06 20:50:05.312245
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '221e6bf8672c'
+revision: str = '0cb61cd86774'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -30,9 +30,23 @@ def upgrade() -> None:
     sa.Column('hashed_password', sa.String(), nullable=True),
     sa.Column('is_active', sa.Boolean(), nullable=True),
     sa.Column('role', sa.String(), nullable=True),
+    sa.Column('image', sa.String(), nullable=True),
+    sa.Column('last_login', sa.DateTime(), nullable=True),
+    sa.Column('streak', sa.Integer(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_users_email'), 'users', ['email'], unique=True)
+    op.create_table('chat_messages',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('content', sa.String(), nullable=True),
+    sa.Column('timestamp', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+    sa.Column('recipient_id', sa.Integer(), nullable=True),
+    sa.Column('sender_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['recipient_id'], ['users.id'], ),
+    sa.ForeignKeyConstraint(['sender_id'], ['users.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_chat_messages_id'), 'chat_messages', ['id'], unique=False)
     op.create_table('social_accounts',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
@@ -60,8 +74,10 @@ def upgrade() -> None:
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('therapist_id', sa.Integer(), nullable=True),
+    sa.Column('therapist_user_id', sa.Integer(), nullable=True),
     sa.Column('has_onboarded', sa.Boolean(), nullable=True),
     sa.Column('severity', sa.String(), nullable=True),
+    sa.Column('therapist_note', sa.String(), nullable=True),
     sa.ForeignKeyConstraint(['therapist_id'], ['therapist_data.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
@@ -129,6 +145,8 @@ def downgrade() -> None:
     op.drop_table('therapist_data')
     op.drop_index(op.f('ix_social_accounts_user_id'), table_name='social_accounts')
     op.drop_table('social_accounts')
+    op.drop_index(op.f('ix_chat_messages_id'), table_name='chat_messages')
+    op.drop_table('chat_messages')
     op.drop_index(op.f('ix_users_email'), table_name='users')
     op.drop_table('users')
     # ### end Alembic commands ###

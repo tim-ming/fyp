@@ -4,41 +4,19 @@ from typing import Optional, List
 from pydantic import BaseModel
 from datetime import datetime, date
 
-
-class ChatRoomBase(BaseModel):
-    """
-    Chat Room Base Schema
-    """
-    name: str
-
-class ChatRoomCreate(ChatRoomBase):
-    """
-    Chat Room Create Schema
-    """
-    participants: List[ChatParticipant]
-
-class ChatRoom(ChatRoomBase):
-    """
-    Chat Room Schema
-    """
-    id: int
-    created_at: datetime
-
-    class Config:
-        from_attributes = True
-
 class ChatMessageBase(BaseModel):
     """
     Chat Message Base Schema
     """
     content: str
+    sender_id: int
+    recipient_id: int
 
 class ChatMessageCreate(ChatMessageBase):
     """
     Chat Message Create Schema
     """
-    chat_room_id: int
-    sender_id: int
+    pass
 
 class ChatMessage(ChatMessageBase):
     """
@@ -46,47 +24,9 @@ class ChatMessage(ChatMessageBase):
     """
     id: int
     timestamp: datetime
-    chat_room_id: int
-    sender: UserWithoutSensitiveData
 
     class Config:
         from_attributes = True
-
-class ChatParticipantBase(BaseModel):
-    """
-    Chat Participant Base Schema
-    """
-    user_id: int
-    chat_room_id: int
-
-class ChatParticipantCreate(ChatParticipantBase):
-    """
-    Chat Participant Create Schema
-    """
-    pass
-
-class ChatParticipant(ChatParticipantBase):
-    """
-    Chat Participant Schema
-    """
-    id: int
-    joined_at: datetime
-    user: UserWithoutSensitiveData
-
-    class Config:
-        from_attributes = True
-
-class ChatRoomWithParticipants(ChatRoom):
-    """
-    Chat Room Schema with Participants
-    """
-    participants: List[ChatParticipant]
-
-class ChatRoomWithMessages(ChatRoom):
-    """
-    Chat Room Schema with Messages
-    """
-    messages: List[ChatMessage]
 
 class CognitiveDistortion(str, Enum):
     """

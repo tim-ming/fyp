@@ -1,7 +1,7 @@
 from typing import List, Optional
 from sqlalchemy.orm import Session, joinedload
 from app import models, schemas
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 
 
 def get_user_by_email(db: Session, email: str) -> Optional[models.User]:
@@ -198,7 +198,7 @@ def upsert_mood_entry(
         db_user.last_login = mood_entry.date
     db.commit()
     db.refresh(db_user)
-    
+
     if db_mood_entry:
         # Update existing entry
         db_mood_entry.mood = mood_entry.mood
@@ -843,6 +843,32 @@ def get_therapist_by_id(
         ).first()
     )
 
+def get_patient_by_id(
+    db: Session, patient_id: int) -> Optional[models.User]:
+    """
+    Get patient by ID
+    :param db (Session): Database session
+    :param patient_id (int): Patient ID
+    :return (Optional[models.User]): Patient if found, None if not found
+    """
+
+    return (
+        db.query(models.User)
+        .filter(models.User.id == patient_id)
+        .options(
+            joinedload(models.User.patient_data).noload(
+                models.PatientData.mood_entries
+            ),
+            joinedload(models.User.patient_data).noload(
+                models.PatientData.journal_entries
+            ),
+            joinedload(models.User.patient_data).noload(
+                models.PatientData.guided_journal_entries
+            )
+        ).first()
+    )
+
+
 def update_therapist_data(
     db: Session, therapist_data: schemas.TherapistDataCreate) -> models.TherapistData:
     """
@@ -873,3 +899,44 @@ def update_therapist_data(
         "bio": db_therapist_data.bio,
         "treatment_approach": db_therapist_data.treatment_approach
     }
+
+def insert_chat_message(
+    db: Session, chat_message: schemas.ChatMessageCreate
+) -> models.ChatMessage:
+    """
+    Insert a chat message
+    :param db (Session): Database session
+    :param chat_message (schemas.ChatMessageCreate): Chat message create schema
+    :return (models.ChatMessage): New chat message
+    """
+    db_chat_message = models.ChatMessage(
+        sender_id=chat_message.sender_id,
+        content=chat_message.content,
+        recipient_id=chat_message.recipient_id,
+        timestamp=datetime.now()
+    )
+    db.add(db_chat_message)
+    db.commit()
+    db.refresh(db_chat_message)
+    return db_chat_message
+
+def get_chat_messages(
+    db: Session, user: schemas.User, recipient_id: int, skip: int = 0, limit: int = 100
+) -> List[models.ChatMessage]:
+    """
+    Get chat messages
+    :param db (Session): Database session
+    :param user (schemas.User): User
+    :param recipient_id (int): Recipient ID
+    :param skip (int): Number of entries to skip
+    :param limit (int): Number of entries to return
+    :return (List[models.ChatMessage]): Chat messages
+    """
+    return (
+        db.query(models.ChatMessage)
+        .filter(models.ChatMessage.sender_id == user.id)
+        .filter(models.ChatMessage.recipient_id == recipient_id)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )

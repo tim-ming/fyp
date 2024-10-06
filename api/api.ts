@@ -20,6 +20,7 @@ import {
   UserWithoutSensitiveData,
   UserWithPatientData,
   UserWithTherapistData,
+  Message,
 } from "@/types/models";
 
 export const handleNotOk = async (response: Response) => {
@@ -43,6 +44,7 @@ export const updateOnboarded = async (): Promise<Response> => {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${token?.access_token}`,
     },
     body: JSON.stringify({ user_id: user.id, has_onboarded: true }),
   });
@@ -484,4 +486,34 @@ export const updatePatientData = async (
 
   const data: PatientData = await response.json();
   return data;
-};
+}
+
+export const getTherapistInCharge = async (): Promise<UserWithoutSensitiveData> => {
+  const { token } = useAuth.getState();
+
+  const response = await fetch(`${BACKEND_URL}/therapist`, {
+    headers: {
+      Authorization: `Bearer ${token?.access_token}`,
+    },
+  });
+
+  await handleNotOk(response);
+
+  const therapist: UserWithoutSensitiveData = await response.json();
+  return therapist;
+}
+
+export const getMessages = async (recipient_id: number): Promise<Message[]> => {
+  const { token } = useAuth.getState();
+  const response = await fetch(`${BACKEND_URL}/chat/messages/${recipient_id}`, {
+    headers: {
+      Authorization: `Bearer ${token?.access_token}`,
+    },
+  });
+
+  await handleNotOk(response);
+
+  const messages: Message[] = await response.json();
+  console.log(messages);
+  return messages;
+}

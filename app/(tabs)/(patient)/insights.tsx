@@ -240,6 +240,7 @@ const InsightsCard = () => {
   // Handle right chevron click
   const handleRightChevronClick = async () => {
     const newDate = addDays(startDate, 7);
+    if (newDate > TODAY) return;
     setStartDate(newDate);
     const mood = await getWeekMoodData(newDate);
     setMoodData(mood);

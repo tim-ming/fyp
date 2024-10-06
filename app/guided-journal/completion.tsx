@@ -2,6 +2,7 @@ import React from "react";
 import { View, Pressable } from "react-native";
 import { Link, router } from "expo-router";
 import CustomText from "@/components/CustomText";
+import { format } from "date-fns";
 
 const GuidedWritingComplete: React.FC = () => {
   const handleComplete = () => {
@@ -20,7 +21,7 @@ const GuidedWritingComplete: React.FC = () => {
           Recorded on
         </CustomText>
         <CustomText className="text-[20px] font-medium text-gray300 mt-3 text-center">
-          21 Aug 2024
+          {format(new Date(), "MMM dd yyyy")}
         </CustomText>
       </View>
 

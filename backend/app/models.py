@@ -47,6 +47,7 @@ class PatientData(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"), index=True)
     therapist_id = Column(Integer, ForeignKey("therapist_data.id"), index=True)
+    therapist_user_id = Column(Integer, nullable=True)
     has_onboarded = Column(Boolean, default=False)
     severity = Column(String, default="Unknown")
     therapist_note = Column(String, nullable=True)

@@ -9,7 +9,7 @@ import {
 import { useRouter, useLocalSearchParams } from "expo-router";
 import CustomText from "@/components/CustomText";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { getPatientData, getPatients } from "@/api/api";
+import { getPatientData, getPatients, updatePatientData } from "@/api/api";
 import { UserWithPatientData } from "@/types/models";
 import { shadows } from "@/constants/styles";
 
@@ -25,13 +25,15 @@ const PatientDetails = () => {
     const fetchPatient = async (patientId: number) => {
       try {
         const patients = await getPatients();
+        console.log(patients);
+        console.log(typeof patientId, patientId);
         if (!patients.find((p) => p.id === patientId)) {
           throw new Error("Patient is not found");
         }
         const data = await getPatientData(patientId);
-        if (patient) {
+        if (data) {
           setPatient(data);
-          setNotes(data.patient_data!.notes);
+          setNotes(data.patient_data!.therapist_note || "");
         } else {
           throw new Error("Patient is not found");
         }
@@ -47,7 +49,7 @@ const PatientDetails = () => {
 
   if (loading) {
     return (
-      <View className="flex-1 justify-center items-center">
+      <View className="flex-1 justify-center items-center bg-blue100">
         <ActivityIndicator size="large" color="#256CD0" />
       </View>
     );
@@ -58,7 +60,7 @@ const PatientDetails = () => {
       return;
     }
     setSaving(true);
-    await updatePatientData(patientId, { notes, ...patient });
+    await updatePatientData({ user_id: patient.id, therapist_note: notes });
     setSaving(false);
   }
 

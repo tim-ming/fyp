@@ -298,6 +298,8 @@ class PatientData(PatientDataBase):
     id: int
     has_onboarded: bool
     severity: str
+    therapist_id: Optional[int] = None
+    therapist_user_id: Optional[int] = None
     therapist_note: Optional[str] = None
     mood_entries: Optional[list["MoodEntry"]] = []
     journal_entries: Optional[list["JournalEntry"]] = []

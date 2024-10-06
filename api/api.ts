@@ -8,6 +8,8 @@ import {
   JournalEntryCreate,
   MoodEntry,
   MoodEntryCreate,
+  PatientData,
+  PatientDataUpdate,
   TherapistData,
   TherapistDataCreate,
   Token,
@@ -415,3 +417,54 @@ export const updateTherapistData = async (
   const data: TherapistData = await response.json();
   return data;
 };
+
+export const assignTherapist = async (
+  therapist_id: number
+): Promise<Response> => {
+  const { token } = useAuth.getState();
+
+  const response = await fetch(
+    `${BACKEND_URL}/assign-therapist/${therapist_id}`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token?.access_token}`,
+      },
+    }
+  );
+
+  return response;
+};
+
+export const unassignTherapist = async (): Promise<Response> => {
+  const { token } = useAuth.getState();
+
+  const response = await fetch(`${BACKEND_URL}/unassign-therapist`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token?.access_token}`,
+    },
+  });
+
+  return response;
+};
+
+export const updatePatientData = async (
+  patientData: PatientDataUpdate
+): Promise<PatientData> => {
+  const { token } = useAuth.getState();
+
+  const response = await fetch(`${BACKEND_URL}/patient-data`, {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${token?.access_token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(patientData),
+  });
+
+  await handleNotOk(response);
+
+  const data: PatientData = await response.json();
+  return data;
+}

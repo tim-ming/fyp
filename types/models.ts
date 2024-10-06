@@ -195,6 +195,7 @@ export interface PatientData extends PatientDataBase {
   has_onboarded: boolean;
   severity: string;
   therapist_note: string;
+  therapist_user_id?: number;
   mood_entries?: MoodEntry[];
   journal_entries?: JournalEntry[];
   guided_journal_entries?: GuidedJournalEntry[];

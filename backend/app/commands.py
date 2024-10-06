@@ -671,6 +671,7 @@ def assign_therapist_to_patient(
         .first()
     )
     db_patient.patient_data.therapist_id = db_therapist_data.id
+    db_patient.patient_data.therapist_user_id = therapist_id
     db.commit()
     db.refresh(db_patient)
     return db_patient
@@ -693,6 +694,7 @@ def remove_therapist_from_patient(db: Session, patient: schemas.User) -> models.
         raise Exception("Patient does not have a therapist")
 
     db_patient.patient_data.therapist_id = None
+    db_patient.patient_data.therapist_user_id = None
     db.commit()
     db.refresh(db_patient)
     return db_patient

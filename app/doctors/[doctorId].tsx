@@ -1,33 +1,77 @@
 import React, { useState } from "react";
-import { View, ScrollView, Pressable } from "react-native";
+import {
+  View,
+  ScrollView,
+  Pressable,
+  ActivityIndicator,
+  Modal,
+  Text,
+} from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import CustomText from "@/components/CustomText";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
-import doctorsData from "@/assets/data/doctors.json";
-import { Doctor } from "@/types/globals";
 import { useHydratedEffect } from "@/hooks/hooks";
 import { UserWithTherapistData } from "@/types/models";
-import { getTherapistData } from "@/api/api";
-import { parse, set } from "date-fns";
-
-const ICON_SIZE = 24;
+import {
+  assignTherapist,
+  getPatientData,
+  getTherapistData,
+  unassignTherapist,
+} from "@/api/api";
+import { useAuth } from "@/state/auth";
 
 const DoctorDetails = () => {
   const router = useRouter();
   const { doctorId } = useLocalSearchParams();
   const [doctor, setDoctor] = useState<UserWithTherapistData | null>(null);
   const [dataShared, setDataShared] = useState(false);
-  const share = () => {
-    setDataShared(true);
+  const [hasDoctor, setHasDoctor] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false); // Modal visibility state
+  const auth = useAuth();
+
+  // Function to handle sharing data with the doctor
+  const share = async () => {
+    if (hasDoctor) {
+      setModalVisible(true);
+    } else {
+      const assigned = await assignTherapist(Number(doctorId));
+      setHasDoctor(true);
+      setDataShared(true);
+    }
   };
-  const unshare = () => {
+
+  const handleConfirm = async () => {
+    await unassignTherapist();
+    await assignTherapist(Number(doctorId));
+    setHasDoctor(true);
+    setDataShared(true);
+    setModalVisible(false);
+  };
+
+  const handleCancel = () => {
+    setModalVisible(false);
+  };
+
+  const unshare = async () => {
+    await unassignTherapist();
+    setHasDoctor(false);
     setDataShared(false);
   };
 
   useHydratedEffect(() => {
     const fetchData = async () => {
       try {
+        if (!auth.user) {
+          throw new Error("No user found");
+        }
+        const user = await getPatientData(auth.user?.id);
+        if (user?.patient_data?.therapist_user_id) {
+          setHasDoctor(true);
+        }
+        if (user?.patient_data?.therapist_user_id === Number(doctorId)) {
+          setDataShared(true);
+        }
         const doctor = await getTherapistData(Number(doctorId));
         if (doctor) {
           setDoctor(doctor);
@@ -41,9 +85,9 @@ const DoctorDetails = () => {
 
   if (!doctor) {
     return (
-      <SafeAreaView className="flex-1 bg-blue100">
-        <CustomText>Loading doctor details...</CustomText>
-      </SafeAreaView>
+      <View className="flex-1 justify-center items-center bg-blue100">
+        <ActivityIndicator size="large" color="#256CD0" />
+      </View>
     );
   }
 
@@ -152,7 +196,7 @@ const DoctorDetails = () => {
           ) : (
             <>
               <CustomText className="mb-2 text-center">
-                Share your data with this doctor for personlised insights.
+                Share your data with this doctor for personalised insights.
               </CustomText>
               <Pressable
                 onPress={share}
@@ -165,6 +209,47 @@ const DoctorDetails = () => {
             </>
           )}
         </View>
+
+        <Modal
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <View className="flex-1 justify-center items-center bg-black/40">
+            <View className="bg-white pt-6 pb-4 rounded-3xl w-4/5">
+              <CustomText className="text-lg font-semibold mb-2 text-center px-6">
+                You already have a doctor assigned.
+              </CustomText>
+
+              <CustomText className="text-base mb-4 text-center px-6">
+                Do you want to unassign your current doctor and continue with
+                this doctor?
+              </CustomText>
+
+              <View className="w-full h-[1px] bg-gray-200 mb-2" />
+
+              <View className="flex-row w-full items-stretch">
+                <Pressable
+                  onPress={handleCancel}
+                  className="flex-1 items-center justify-center self-stretch"
+                >
+                  <CustomText className="text-blue-500 font-medium text-lg">
+                    No
+                  </CustomText>
+                </Pressable>
+                <View className="w-[1px] bg-gray-200 self-stretch -my-2 -mb-4" />
+                <Pressable
+                  onPress={handleConfirm}
+                  className="flex-1 items-center justify-center self-stretch"
+                >
+                  <CustomText className="text-blue-500 font-medium text-lg">
+                    Yes
+                  </CustomText>
+                </Pressable>
+              </View>
+            </View>
+          </View>
+        </Modal>
       </ScrollView>
     </SafeAreaView>
   );

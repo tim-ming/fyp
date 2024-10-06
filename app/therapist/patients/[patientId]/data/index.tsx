@@ -84,7 +84,7 @@ const JournalSection: React.FC<JournalSectionProps> = ({ data }) => {
 
   return (
     <>
-      <CustomText className="text-base text-gray200">Journal</CustomText>
+      <CustomText className="text-base text-gray100">Journal</CustomText>
 
       <CustomText className="text-xl mb-5 font-medium">
         {truncatedTitle}
@@ -101,7 +101,7 @@ const MoodSection: React.FC<MoodSectionProps> = ({ data }) => {
     <>
       <View className="flex-row">
         <View className="flex-1">
-          <CustomText className="mb-2 text-gray200">Mood</CustomText>
+          <CustomText className="mb-1 text-gray200">Mood</CustomText>
           <CustomText
             className={`text-xl font-medium ${
               data.mood < 30
@@ -111,11 +111,11 @@ const MoodSection: React.FC<MoodSectionProps> = ({ data }) => {
                 : "text-black100"
             }`}
           >
-            {data.mood}
+            {`${getStatus(data.mood)} (${data.mood})`}
           </CustomText>
         </View>
         <View className="flex-1">
-          <CustomText className="mb-2 text-gray200">Appetite</CustomText>
+          <CustomText className="mb-1 text-gray200">Appetite</CustomText>
           <CustomText
             className={`text-xl font-medium ${
               data.eat < 30
@@ -125,11 +125,11 @@ const MoodSection: React.FC<MoodSectionProps> = ({ data }) => {
                 : "text-black100"
             }`}
           >
-            {data.eat}
+            {`${getStatus(data.eat)} (${data.eat})`}
           </CustomText>
         </View>
         <View className="flex-1">
-          <CustomText className="mb-2 text-gray200">Sleep</CustomText>
+          <CustomText className="mb-1 text-gray200">Sleep</CustomText>
           <CustomText
             className={`text-xl font-medium ${
               data.sleep < 30
@@ -139,7 +139,7 @@ const MoodSection: React.FC<MoodSectionProps> = ({ data }) => {
                 : "text-black100"
             }`}
           >
-            {data.sleep}
+            {`${getStatus(data.sleep)} (${data.sleep})`}
           </CustomText>
         </View>
       </View>
@@ -165,16 +165,27 @@ const Card: React.FC<CardProps> = ({ data, patientId }) => {
   const navigation = useNavigation<any>();
 
   const route = () => {
+    const formattedDate = format(data.date, "yyyy-MM-dd");
     navigation.navigate(
-      `therapist/patients/${patientId}/data/${format(data.date, "yyyy-MM-dd")}`,
-      { date: data.date }
+      `therapist/patients/${patientId}/data/${formattedDate}`,
+      { date: formattedDate }
     );
   };
   return (
     <Pressable onPress={route} style={styles.container} className="gap-y-2">
       {data.mood && <MoodSection data={data.mood} />}
-      {data.journal && <JournalSection data={data.journal} />}
-      {data.guidedJournal && <GuidedJournalSection data={data.guidedJournal} />}
+      {data.journal && (
+        <>
+          <View className="bg-gray50 h-[1px] w-full rounded-full my-2" />
+          <JournalSection data={data.journal} />
+        </>
+      )}
+      {data.guidedJournal && (
+        <>
+          <View className="bg-gray50 h-[1px] w-full rounded-full my-4" />
+          <GuidedJournalSection data={data.guidedJournal} />
+        </>
+      )}
     </Pressable>
   );
 };
@@ -235,7 +246,10 @@ export default function VaultScreen() {
         }
         const patient = await getPatientData(patientId);
         setPatient(patient);
-        setEntries(createMonthlyEntries(patient.patient_data!));
+        const entries = createMonthlyEntries(patient.patient_data!).filter(
+          (entry) => entry.mood || entry.journal || entry.guidedJournal
+        );
+        setEntries(entries);
         console.log(data);
       } catch (error) {
         console.error(error);
@@ -262,7 +276,7 @@ export default function VaultScreen() {
             No patient activity yet.
           </CustomText>
         ) : (
-          entries.map((section, sectionIndex) => (
+          entries.reverse().map((section, sectionIndex) => (
             <View key={sectionIndex}>
               {/* Date Section */}
               <CustomText className="text-lg font-semibold mb-4">

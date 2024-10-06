@@ -142,9 +142,9 @@ const PatientDetails = () => {
           >
             <Edit width={ICON_SIZE} height={ICON_SIZE} fill="#256CD0" />
           </Pressable>
-          {/* <View className="p-1 w-14 h-14 items-center justify-center rounded-[20px] border-2 border-blue200">
+          <View className="p-1 w-14 h-14 items-center justify-center rounded-[20px] border-2 border-blue200">
             <Message width={ICON_SIZE} height={ICON_SIZE} fill="#256CD0" />
-          </View> */}
+          </View>
           <Pressable
             onPress={() => router.push(`/therapist/patients/${patientId}/data`)}
             className="flex-1 bg-blue200 items-center justify-center py-4 rounded-[20px]"

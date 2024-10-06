@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
     width: 100, // Adjust the size as needed
     height: 100, // Adjust the size as needed
     marginBottom: 8, // Add some margin below the image
-    opacity: 0.6, // Adjust the opacity as needed
+    opacity: 0.8, // Adjust the opacity as needed
   },
 });
 

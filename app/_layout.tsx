@@ -6,7 +6,7 @@ import {
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import "react-native-reanimated";
 import { Pressable } from "react-native";
 import { useColorScheme } from "@/hooks/useColorScheme";
@@ -34,7 +34,6 @@ export default function RootLayout() {
     PlusJakartaSans: require("../assets/fonts/PlusJakartaSans.ttf"),
   });
   const auth = useAuth();
-
   useHydratedEffect(() => {
     const fetchData = async () => {
       try {
@@ -76,7 +75,20 @@ export default function RootLayout() {
     if (router.canGoBack()) {
       router.back();
     } else {
-      router.push("/");
+      if (!auth.user) {
+        router.push("/signin");
+      } else {
+        switch (auth.user.role) {
+          case "therapist":
+            router.push("/therapist/dashboard");
+            break;
+          case "patient":
+            router.push("/");
+            break;
+          default:
+            console.error("Unknown role: ", auth.user.role);
+        }
+      }
     }
   };
   return (

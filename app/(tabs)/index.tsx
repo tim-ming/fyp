@@ -33,6 +33,7 @@ import Carousel, {
 } from "react-native-snap-carousel";
 import doctorsData from "@/assets/data/doctors.json";
 import { useHydratedEffect } from "@/hooks/hooks";
+import { BACKEND_URL } from "@/constants/globals";
 
 type JournalEntryCard = {
   journal: JournalEntry | null;
@@ -41,7 +42,7 @@ type JournalEntryCard = {
 
 const ICON_SIZE = 28;
 const CARD = {
-  HEIGHT: 270,
+  HEIGHT: 280,
   WIDTH: 210,
 };
 
@@ -68,6 +69,13 @@ const renderCard = (journal: JournalEntryCard) => {
       style={[styles.mainCard, styles.mainCardHeight, styles.shadow]}
       className="bg-white flex flex-col items-center justify-end relative"
     >
+      {journal.journal?.image && (
+            <Image
+              source={{ uri: `${BACKEND_URL}${journal.journal.image}` }}
+              style={{ position: "absolute", width: "100%", height: "100%" }}
+              resizeMode="cover"
+            />
+          )}
       <CustomText
         letterSpacing="tighter"
         className="text-2xl font-medium text-center"

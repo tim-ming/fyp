@@ -8,11 +8,51 @@ from sqlalchemy import (
     SmallInteger,
     String,
     Date,
-    JSON
+    JSON,
+    func
 )
 from sqlalchemy.orm import relationship
 from app.database import Base
 
+class ChatRoom(Base):
+    """
+    Chat Room Model
+    """
+    __tablename__ = "chat_rooms"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, index=True)
+
+    messages = relationship("ChatMessage", back_populates="chat_room")
+    participants = relationship("ChatParticipant", back_populates="chat_room")
+
+class ChatMessage(Base):
+    """
+    Chat Message Model
+    """
+    __tablename__ = "chat_messages"
+
+    id = Column(Integer, primary_key=True, index=True)
+    content = Column(String)
+    timestamp = Column(DateTime(timezone=True), server_default=func.now())
+    chat_room_id = Column(Integer, ForeignKey("chat_rooms.id"))
+    sender_id = Column(Integer, ForeignKey("users.id"))
+
+    chat_room = relationship("ChatRoom", back_populates="messages")
+
+class ChatParticipant(Base):
+    """
+    Chat Participant Model
+    """
+    __tablename__ = "chat_participants"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    chat_room_id = Column(Integer, ForeignKey("chat_rooms.id"))
+    joined_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    user = relationship("User", back_populates="chat_participations")
+    chat_room = relationship("ChatRoom", back_populates="participants")
 
 class User(Base):
     """
@@ -32,6 +72,7 @@ class User(Base):
     role = Column(String)
     image = Column(String, nullable=True)
 
+    chat_participations = relationship("ChatParticipant", back_populates="user")
     patient_data = relationship("PatientData", back_populates="user", uselist=False)
     therapist_data = relationship("TherapistData", back_populates="user", uselist=False)
     social_accounts = relationship("SocialAccount", back_populates="user")

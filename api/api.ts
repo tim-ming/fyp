@@ -175,7 +175,7 @@ export const postJournalEntry = async (
   journal: JournalEntryCreate
 ): Promise<JournalEntry> => {
   const { token } = useAuth.getState();
-
+  console.log(journal);
   const response = await fetch(`${BACKEND_URL}/journals`, {
     method: "POST",
     headers: {

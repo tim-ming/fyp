@@ -6,6 +6,8 @@ import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Image } from "react-native";
+import { BACKEND_URL } from "@/constants/globals";
 
 export default function JournalScreen() {
   const insets = useSafeAreaInsets();
@@ -47,6 +49,19 @@ export default function JournalScreen() {
         <CustomText className="text-3xl mt-4 mb-10 font-semibold text-black200">
           Journal
         </CustomText>
+
+        {entry.image && (
+          <View className="flex items-center justify-center mb-8">
+            <View className="relative bg-white w-[210px] h-[280px] shadow-2xl rounded-3xl flex justify-center items-center overflow-hidden">
+              <Image
+                source={{ uri: BACKEND_URL + entry.image }}
+                style={{ position: "absolute", width: "100%", height: "100%" }}
+                resizeMode="cover"
+              />
+            </View>
+          </View>
+        )}
+
         <CustomText className="text-lg leading-5 font-medium mb-2 text-black100">
           {entry.title}
         </CustomText>

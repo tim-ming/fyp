@@ -47,7 +47,8 @@
     "zustand": "^4.5.5",
     "expo-apple-authentication": "~6.4.2",
     "expo-auth-session": "~5.5.2",
-    "expo-crypto": "~13.0.2"
+    "expo-crypto": "~13.0.2",
+    "expo-image-picker": "~15.0.7"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

@@ -1,15 +1,20 @@
 import { getJournalEntry, postJournalEntry } from "@/api/api";
 import Plus from "@/assets/icons/plus.svg";
+import X from "@/assets/icons/x.svg";
 import CustomText from "@/components/CustomText";
 import { Colors } from "@/constants/Colors";
 import { useHydratedEffect } from "@/hooks/hooks";
 import { JournalEntry, JournalEntryCreate } from "@/types/models";
 import { capitalizeFirstLetter, getDayOfWeek } from "@/utils/helpers";
 import { useRoute } from "@react-navigation/native";
-import { format, getDay, getMonth } from "date-fns";
+import { format, getDay, getMonth, set } from "date-fns";
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Pressable, TextInput, View } from "react-native";
+import { Pressable, TextInput, View, Image } from "react-native";
+import * as ImagePicker from "expo-image-picker";
+import { BACKEND_URL } from "@/constants/globals";
+
+const ICON_SIZE = 28;
 
 type JournalInput = {
   title: string;
@@ -39,8 +44,21 @@ const postJournalEntryHandler = async (
   source: string
 ) => {
   try {
+    let base64Image = null;
+    if (journal.image) {
+      const imageBlob = await fetch(journal.image).then(r => r.blob());
+      base64Image = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.readAsDataURL(imageBlob);
+      });
+      // Remove the data URL prefix (e.g., "data:image/jpeg;base64,")
+      base64Image = (base64Image as string).split(',')[1];
+    }
+    
     const data = await postJournalEntry({
       ...journal,
+      image: base64Image,
       date: new Date(date).toISOString().split("T")[0],
     } as JournalEntryCreate);
     console.log(data);
@@ -66,6 +84,7 @@ const Entry: React.FC = () => {
 
   const [journalEntry, setJournalEntry] =
     useState<JournalInput>(BASE_JOURNAL_ENTRY);
+  const [loading, setLoading] = useState(true);
 
   const dateObj = new Date(date);
 
@@ -73,15 +92,47 @@ const Entry: React.FC = () => {
     const fetchData = async () => {
       const data = await getJournalEntryHandler(date);
       if (data) {
-        setJournalEntry(data);
+        setJournalEntry({
+          ...data,
+          image: data.image ? `${BACKEND_URL}${data.image}` : null,
+        });
       }
+      setLoading(false);
     };
     fetchData();
   }, []);
 
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      const image = result.assets[0];
+
+      if (
+        (image.type && image.type !== "image") ||
+        (image.mimeType && !image.mimeType.startsWith("image"))
+      ) {
+        return;
+      }
+
+      setJournalEntry({ ...journalEntry, image: image.uri });
+    }
+  };
+
   console.log(date);
 
-  return (
+  return loading ? (
+    <View className="flex-1 justify-center items-center bg-blue100">
+      <CustomText className="text-black text-[20px] font-semibold">
+        Loading...
+      </CustomText>
+    </View>
+  ) : (
     <View className="flex-1 justify-between bg-blue100 px-2 pt-12">
       <View>
         <CustomText className="text-[16px] font-semibold text-center text-gray200">
@@ -93,15 +144,40 @@ const Entry: React.FC = () => {
       </View>
 
       <View className="w-full pt-8 flex justify-center items-center">
-        <View className="relative bg-white w-[210px] h-[270px] shadow-2xl rounded-3xl flex justify-center items-center">
-          <View className="absolute rounded-full bg-white h-12 w-12 shadow-md flex justify-center items-center">
-            <Pressable>
-              <Plus width={28} height={28} stroke={"rgba(0, 0, 0, 0.7)"} />
-            </Pressable>
-          </View>
-          <CustomText className="absolute bottom-[39px] text-black text-[20px] font-normal">
-            Add a photo
-          </CustomText>
+        <View className="relative bg-white w-[210px] h-[280px] shadow-2xl rounded-3xl flex justify-center items-center overflow-hidden">
+          {journalEntry.image && (
+            <Image
+              source={{ uri: journalEntry.image }}
+              style={{ position: "absolute", width: "100%", height: "100%" }}
+              resizeMode="cover"
+            />
+          )}
+          {!journalEntry.image ? (
+            <>
+              <View className="absolute rounded-full bg-white h-12 w-12 shadow-md flex justify-center items-center">
+                <Pressable onPress={pickImage}>
+                  <Plus
+                    width={ICON_SIZE}
+                    height={ICON_SIZE}
+                    stroke={"rgba(0, 0, 0, 0.7)"}
+                  />
+                </Pressable>
+              </View>
+              <CustomText className="absolute bottom-[39px] text-black text-[20px] font-normal">
+                Add a photo
+              </CustomText>
+            </>
+          ) : (
+            <View className="absolute bottom-[5px] right-[5px] rounded-full bg-white h-8 w-8 shadow-md flex justify-center items-center">
+              <Pressable
+                onPress={() =>
+                  setJournalEntry({ ...journalEntry, image: null })
+                }
+              >
+                <X width="16" height="16" stroke={"rgba(0, 0, 0, 0.7)"} />
+              </Pressable>
+            </View>
+          )}
         </View>
       </View>
 

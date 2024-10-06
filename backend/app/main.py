@@ -1,8 +1,13 @@
+import base64
+import io
 import os
+import shutil
+import uuid
+from fastapi.staticfiles import StaticFiles
 import requests
-from fastapi import FastAPI, Depends, HTTPException, Query, status
+from fastapi import FastAPI, Depends, File, HTTPException, Query, UploadFile, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-
+from PIL import Image
 from pydantic import ValidationError
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
@@ -12,12 +17,8 @@ from typing import Annotated, Generator, List, Optional
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.database import SessionLocal, engine
-from app import commands, models, schemas
-
-# Create database tables if they don't exist
-# Should use Alembic for migrations instead but this is fine for now
-models.Base.metadata.create_all(bind=engine)
+from app.database import SessionLocal
+from app import commands, schemas
 
 # Create FastAPI app
 app = FastAPI()
@@ -45,6 +46,13 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 # Google token
 GOOGLE_TOKEN_INFO_URL = "https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token="
 
+# Create a directory to store uploaded images
+UPLOAD_DIRECTORY = "images"
+if not os.path.exists(UPLOAD_DIRECTORY):
+    os.makedirs(UPLOAD_DIRECTORY)
+
+# Serve the uploaded images
+app.mount("/images", StaticFiles(directory=UPLOAD_DIRECTORY), name="uploaded_images")
 
 def get_db() -> Generator[Session, None, None]:
     """
@@ -479,6 +487,64 @@ def post_journal_entry(
     :param db (Session): Database session
     :return (schemas.JournalEntry): Created journal entry
     """
+
+    """
+    Create a new journal entry
+    :param journal_entry (schemas.JournalEntryCreate): Journal entry data
+    :param current_user (schemas.User): Current user
+    :param db (Session): Database session
+    :return (schemas.JournalEntry): Created journal entry
+    """
+    try:
+        if journal_entry.image:
+            # Decode the base64 string to bytes
+            try:
+                image_data = base64.b64decode(journal_entry.image)
+            except Exception as e:
+                raise HTTPException(status_code=400, detail="Invalid image data")
+            
+            with Image.open(io.BytesIO(image_data)) as image:
+                if image.mode == 'RGBA':
+                    image = image.convert('RGB')
+                
+                # Generate a unique filename
+                filename = f"{current_user.id}-{journal_entry.date.isoformat()}-{uuid.uuid4()}.jpg"
+                file_path = os.path.join(UPLOAD_DIRECTORY, filename)
+                
+                # Save the new image as JPEG
+                image.save(file_path, "JPEG", optimize=True, quality=85)
+            
+            # Update the journal entry with the new image URL
+            journal_entry.image = f"/images/{filename}"
+
+        # Create the journal entry in the database
+        return commands.upsert_journal_entry(db, journal_entry, current_user)
+    
+    except Exception as e:
+        # Log the error
+        print(f"Error processing journal entry: {str(e)}")
+        raise HTTPException(status_code=500, detail="Error processing journal entry")
+
+@app.post("/delete-image/journal/")
+async def delete_image(
+    current_user: Annotated[schemas.User, Depends(get_current_user)], 
+    filename: str,
+    db: Session = Depends(get_db)):
+    """
+    Delete an image file
+    :param current_user (schemas.User): Current user
+    :param filename (str): Image filename
+    :return (dict): Success message
+    """
+
+    if filename.startswith(f"/images/{current_user.id}-"):
+        file_path = os.path.join(UPLOAD_DIRECTORY, filename.split("/")[-1])
+        if os.path.exists(file_path):
+            os.remove(file_path)
+            return {"detail": "Image deleted successfully"}
+    
+    raise HTTPException(status_code=404, detail="Image not found")
+
     return commands.upsert_journal_entry(db, journal_entry, current_user)
 
 
@@ -709,7 +775,6 @@ def update_severity(
     :return (dict): Success message
     """
     return commands.update_patient_data(db, patient_data)
-
 
 @app.get("/therapists", response_model=List[schemas.UserWithoutSensitiveData])
 def get_therapists(

@@ -27,7 +27,7 @@ config.set_main_option(
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-from app import models
+from app.models import *
 from app.database import Base
 target_metadata = Base.metadata
 

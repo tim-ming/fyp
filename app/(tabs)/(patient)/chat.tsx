@@ -1,5 +1,14 @@
 import React, { useRef, useState, useEffect, useCallback } from "react";
-import { FlatList, Pressable, TextInput, View, KeyboardAvoidingView, Platform, ListRenderItemInfo } from "react-native";
+import {
+  FlatList,
+  Pressable,
+  TextInput,
+  View,
+  KeyboardAvoidingView,
+  Platform,
+  ListRenderItemInfo,
+  Image,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import CustomText from "@/components/CustomText";
 import TopNav from "@/components/TopNav";
@@ -9,6 +18,8 @@ import { getMessages, getTherapistInCharge } from "@/api/api";
 import { UserWithoutSensitiveData } from "@/types/models";
 import { Link } from "expo-router";
 import { BACKEND_URL } from "@/constants/globals";
+import { differenceInMinutes } from "date-fns";
+import { format, toZonedTime } from "date-fns-tz";
 
 interface Message {
   id: number;
@@ -25,22 +36,23 @@ const ChatScreen: React.FC = () => {
   const websocketRef = useRef<WebSocket | null>(null);
   const auth = useAuth();
   const [loading, setLoading] = useState(true);
-  
-  const [therapist, setTherapist] = useState<UserWithoutSensitiveData | null>(null);
+
+  const [therapist, setTherapist] = useState<UserWithoutSensitiveData | null>(
+    null
+  );
 
   useHydratedEffect(async () => {
     const token = auth.token?.access_token;
     try {
-        const therapist = await getTherapistInCharge();
-        setTherapist(therapist);
-    
-        if (therapist && therapist.id) {
-          setMessages((await getMessages(therapist.id)).toReversed());
-        }
-        
+      const therapist = await getTherapistInCharge();
+      setTherapist(therapist);
+
+      if (therapist && therapist.id) {
+        setMessages((await getMessages(therapist.id)).toReversed());
+      }
     } catch (error) {
-        setLoading(false);
-        return;
+      setLoading(false);
+      return;
     }
 
     connectWebSocket(token ? token : "");
@@ -70,7 +82,7 @@ const ChatScreen: React.FC = () => {
     const ws = new WebSocket(`${url}/ws/chat?token=${token}`);
 
     ws.onopen = () => {
-      console.log('WebSocket Connected');
+      console.log("WebSocket Connected");
     };
 
     ws.onmessage = (event) => {
@@ -81,11 +93,11 @@ const ChatScreen: React.FC = () => {
     };
 
     ws.onerror = (error) => {
-      console.error('WebSocket Error:', error);
+      console.error("WebSocket Error:", error);
     };
 
     ws.onclose = () => {
-      console.log('WebSocket Disconnected');
+      console.log("WebSocket Disconnected");
       // Attempt to reconnect after a delay
       setTimeout(() => {
         connectWebSocket(token);
@@ -106,17 +118,71 @@ const ChatScreen: React.FC = () => {
     }
   };
 
-  const renderMessage = useCallback(({ item }: ListRenderItemInfo<Message>) => (
-    <View 
-      className={`mb-2 p-4 rounded-2xl max-w-[80%] bg-white border border-gray50 shadow-md ${
-        item.sender_id === 1 ? 'self-end' : 'self-start'
-      }`}
-    >
-      <CustomText className="text-base text-black200">
-        {item.content}
-      </CustomText>
-    </View>
-  ), []);
+  const renderMessage = useCallback(
+    ({ item, index }: ListRenderItemInfo<Message>) => {
+      const isTherapist = item.sender_id == therapist!.id;
+      const previousMessage =
+        index < messages.length - 1 ? messages[index + 1] : null;
+      const nextMessage = index > 0 ? messages[index - 1] : null;
+
+      // Show timestamp for the first message or if there's a significant time gap
+      const showTimestamp =
+        index === messages.length - 1 ||
+        !previousMessage ||
+        differenceInMinutes(
+          new Date(item.timestamp),
+          new Date(previousMessage.timestamp)
+        ) >= 45;
+
+      // Show therapist image for the first message from therapist in a group or the very last message
+      const showTherapistImage =
+        isTherapist &&
+        (index === 0 ||
+          !nextMessage ||
+          nextMessage.sender_id !== item.sender_id ||
+          differenceInMinutes(
+            new Date(nextMessage.timestamp),
+            new Date(item.timestamp)
+          ) >= 45);
+
+      const adjustedDate = toZonedTime(new Date(item.timestamp), "UTC");
+
+      return (
+        <View>
+          {showTimestamp && (
+            <View className="items-center my-2">
+              <CustomText className="text-xs text-gray500">
+                {format(adjustedDate, "MMM d, yyyy h:mm a")}
+              </CustomText>
+            </View>
+          )}
+          <View
+            className={`flex-row mb-2 ${
+              isTherapist ? "justify-start" : "justify-end"
+            }`}
+          >
+            {isTherapist && showTherapistImage && (
+              <Image
+                source={{ uri: therapist?.image }}
+                className="w-8 h-8 rounded-full mr-2"
+              />
+            )}
+            {isTherapist && !showTherapistImage && (
+              <View className="w-8 mr-2" />
+            )}
+            <View
+              className={`p-4 rounded-2xl max-w-[70%] bg-white border border-gray50`}
+            >
+              <CustomText className={`text-base text-black200`}>
+                {item.content}
+              </CustomText>
+            </View>
+          </View>
+        </View>
+      );
+    },
+    [therapist, messages]
+  );
 
   const keyExtractor = useCallback((item: Message) => item.id.toString(), []);
 
@@ -160,7 +226,11 @@ const ChatScreen: React.FC = () => {
           data={messages}
           renderItem={renderMessage}
           keyExtractor={keyExtractor}
-          contentContainerStyle={{ flexGrow: 1, justifyContent: 'flex-end', padding: 16 }}
+          contentContainerStyle={{
+            flexGrow: 1,
+            justifyContent: "flex-end",
+            padding: 16,
+          }}
           inverted
           onLayout={scrollToBottom}
         />
@@ -178,7 +248,9 @@ const ChatScreen: React.FC = () => {
               multiline
             />
             <Pressable onPress={handleSend}>
-              <CustomText className="text-blue500 font-semibold">Send</CustomText>
+              <CustomText className="text-blue500 font-semibold">
+                Send
+              </CustomText>
             </Pressable>
           </View>
         </KeyboardAvoidingView>

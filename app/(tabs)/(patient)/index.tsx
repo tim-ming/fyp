@@ -453,7 +453,7 @@ const HomeScreen = () => {
                   style={stylesCard.container}
                 >
                   <Image
-                    source={{ uri: doctor.image }}
+                    source={{ uri: BACKEND_URL + doctor.image }}
                     className="w-full h-32"
                   />
                   <CustomText className="text-lg text-center">

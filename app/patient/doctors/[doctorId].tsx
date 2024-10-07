@@ -20,6 +20,7 @@ import {
   unassignTherapist,
 } from "@/api/api";
 import { useAuth } from "@/state/auth";
+import { BACKEND_URL } from "@/constants/globals";
 
 const DoctorDetails = () => {
   const router = useRouter();
@@ -100,7 +101,7 @@ const DoctorDetails = () => {
               <Image
                 className="w-full h-full rounded-full"
                 source={{
-                  uri: doctor.image,
+                  uri: BACKEND_URL + doctor.image,
                 }}
               />
             </View>

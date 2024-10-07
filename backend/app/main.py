@@ -256,6 +256,8 @@ def post_signup(user: schemas.UserCreate, db: Session = Depends(get_db)):
             status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered"
         )
 
+    user.image = "/images/user.jpg"
+
     # Hash password
     user.password = pwd_context.hash(user.password)
     commands.create_user(db, user)
@@ -515,7 +517,14 @@ def post_journal_entry(
             
             with Image.open(io.BytesIO(image_data)) as image:
                 if image.mode == 'RGBA':
-                    image = image.convert('RGB')
+                    if image.mode in ('RGBA', 'LA') or (image.mode == 'P' and 'transparency' in image.info):
+                        # Need to convert to RGBA if LA format due to a bug in PIL
+                        alpha = image.convert('RGBA').split()[-1]
+                        bg = Image.new("RGBA", image.size, (255, 255, 255) + (255,))
+                        bg.paste(image, mask=alpha)
+                        image = bg.convert('RGB')
+                    else:
+                        image = image.convert('RGB')
                 
                 # Generate a unique filename
                 filename = f"{current_user.id}-{journal_entry.date.isoformat()}-{uuid.uuid4()}.jpg"
@@ -619,6 +628,35 @@ def patch_user(
     :param db (Session): Database session
     :return (schemas.UserWithoutSensitiveData): Updated user profile
     """
+
+    if user.image:
+        # Decode the base64 string to bytes
+        try:
+            image_data = base64.b64decode(user.image)
+        except Exception as e:
+            raise HTTPException(status_code=400, detail="Invalid image data")
+        
+        with Image.open(io.BytesIO(image_data)) as image:
+            if image.mode == 'RGBA':
+                if image.mode in ('RGBA', 'LA') or (image.mode == 'P' and 'transparency' in image.info):
+                    # Need to convert to RGBA if LA format due to a bug in PIL
+                    alpha = image.convert('RGBA').split()[-1]
+                    bg = Image.new("RGBA", image.size, (255, 255, 255) + (255,))
+                    bg.paste(image, mask=alpha)
+                    image = bg.convert('RGB')
+                else:
+                    image = image.convert('RGB')
+            
+            # Generate a unique filename
+            filename = f"{current_user.id}-icon-{uuid.uuid4()}.jpg"
+            file_path = os.path.join(UPLOAD_DIRECTORY, filename)
+            
+            # Save the new image as JPEG
+            image.save(file_path, "JPEG", optimize=True, quality=85)
+        
+        # Update the user with the new image URL
+        user.image = f"/images/{filename}"
+
     return commands.update_user(db, user, current_user)
 
 

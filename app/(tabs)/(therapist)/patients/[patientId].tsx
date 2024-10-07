@@ -11,6 +11,7 @@ import Info from "@/assets/icons/info.svg";
 import { getPatientData, getPatients } from "@/api/api";
 import { UserWithPatientData } from "@/types/models";
 import { useHydratedEffect } from "@/hooks/hooks";
+import { BACKEND_URL } from "@/constants/globals";
 
 const ICON_SIZE = 24;
 
@@ -97,7 +98,7 @@ const PatientDetails = () => {
               <Image
                 className="w-full h-full rounded-full"
                 source={{
-                  uri: patient?.image,
+                  uri: BACKEND_URL + patient?.image,
                 }}
               />
             </View>

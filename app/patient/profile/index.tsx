@@ -1,3 +1,4 @@
+import UserDetails from "@/app/user-details";
 import ChevronRight from "@/assets/icons/chevron-right.svg";
 import Data from "@/assets/icons/data.svg";
 import Feedback from "@/assets/icons/feedback.svg";
@@ -11,11 +12,12 @@ import Support from "@/assets/icons/support.svg";
 import UserHeart from "@/assets/icons/user-heart.svg";
 import CustomText from "@/components/CustomText";
 import { shadows } from "@/constants/styles";
+import { useHydratedEffect } from "@/hooks/hooks";
 import { useAuth } from "@/state/auth";
-import { Image } from "expo-image";
+import * as ImagePicker from "expo-image-picker";
 import { Href, router } from "expo-router";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Pressable, ScrollView, TextInput, View } from "react-native";
+import { Pressable, ScrollView, TextInput, View, Image } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const Passcode: React.FC = () => {
@@ -222,7 +224,6 @@ const SettingsScreen = () => {
         >
           Profile
         </CustomText>
-
         {/* 
         <View className="flex bg-white rounded-2xl" style={shadows.card}>
           <Pressable
@@ -298,57 +299,24 @@ const SettingsScreen = () => {
         </View> */}
 
         {/* Personalisation Section */}
-        {/* <View className="gap-y-3">
-          <CustomText
-            letterSpacing="tight"
-            className="text-xl font-medium text-black200 ml-4"
-          >
-            Personalisation
-          </CustomText>
+        <View className="gap-y-3">
           <View className="gap-y-1">
             <View className="flex bg-white rounded-2xl" style={shadows.card}>
               <Pressable
                 className="flex-row justify-between items-center py-3 px-4"
-                onPress={() => handlePress("/settings/appearance")}
-              >
-                <View className="flex-row items-center gap-3">
-                  <Moon className="fill-gray300" width={20} height={20} />
-                  <CustomText className=" text-gray300 font-medium">
-                    Appearance
-                  </CustomText>
-                </View>
-                <ChevronRight className="stroke-gray300" />
-              </Pressable>
-              <View className="h-px flex bg-beige300 mx-4"></View>
-              <Pressable
-                className="flex-row justify-between items-center py-3 px-4"
-                onPress={() => handlePress("/settings/preferences")}
+                onPress={() => handlePress("/patient/profile/details")}
               >
                 <View className="flex-row items-center gap-3">
                   <UserHeart className="fill-gray300" width={20} height={20} />
                   <CustomText className=" text-gray300 font-medium">
-                    Preferences
-                  </CustomText>
-                </View>
-                <ChevronRight className="stroke-gray300" />
-              </Pressable>
-            </View>
-            <View className="flex bg-white rounded-2xl" style={shadows.card}>
-              <Pressable
-                className="flex-row justify-between items-center py-3 px-4"
-                onPress={() => handlePress("/settings/helplines")}
-              >
-                <View className="flex-row items-center gap-3">
-                  <Lock className="fill-gray300" width={20} height={20} />
-                  <CustomText className=" text-gray300 font-medium">
-                    Security
+                    User Data
                   </CustomText>
                 </View>
                 <ChevronRight className="stroke-gray300" />
               </Pressable>
             </View>
           </View>
-        </View> */}
+        </View>
 
         {/* Help & Support Section */}
         {/* <View className="gap-y-3">

@@ -175,7 +175,7 @@ const ChatScreen: React.FC = () => {
           >
             {isTherapist && showTherapistImage && (
               <Image
-                source={{ uri: therapist?.image }}
+                source={{ uri: BACKEND_URL + therapist?.image }}
                 className="w-8 h-8 rounded-full mr-2"
               />
             )}
@@ -236,7 +236,7 @@ const ChatScreen: React.FC = () => {
         <View className="px-4 py-2 border-b-[1px] border-gray50 flex items-center flex-row">
           <Image
             className="w-12 h-12 rounded-full mr-2"
-            source={{ uri: therapist?.image }}
+            source={{ uri: BACKEND_URL + therapist?.image }}
           />
           <CustomText
             letterSpacing="tight"

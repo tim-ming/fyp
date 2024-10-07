@@ -10,6 +10,7 @@ import { useRouter } from "expo-router";
 import { format } from "date-fns";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { shadows } from "@/constants/styles";
+import { BACKEND_URL } from "@/constants/globals";
 
 interface PatientWithLastMessage extends UserWithoutSensitiveData {
   lastMessage?: {
@@ -207,7 +208,7 @@ const PatientListScreen = () => {
         style={styles.patientItem}
         onPress={() => router.push(`/(therapist)/chat/${item.id}`)}
       >
-        <Image source={{ uri: item.image }} style={styles.avatar} />
+        <Image source={{ uri: BACKEND_URL + item.image }} style={styles.avatar} />
         <View
           style={[
             styles.riskTag,

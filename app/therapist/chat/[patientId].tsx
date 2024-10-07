@@ -8,11 +8,9 @@ import {
   Platform,
   ListRenderItemInfo,
   Image,
-  TouchableOpacity,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import CustomText from "@/components/CustomText";
-import TopNav from "@/components/TopNav";
 import { useAuth } from "@/state/auth";
 import { useHydratedEffect } from "@/hooks/hooks";
 import { getMessages, getPatients } from "@/api/api";
@@ -29,7 +27,6 @@ interface Message {
   timestamp: string;
 }
 
-
 const ChatScreen = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState("");
@@ -41,14 +38,14 @@ const ChatScreen = () => {
   const intPatientId = parseInt(patientId[0]);
   const auth = useAuth();
   const [loading, setLoading] = useState(true);
-  const [patient, setPatient] = useState<UserWithoutSensitiveData | null>(
-    null
-  );
+  const [patient, setPatient] = useState<UserWithoutSensitiveData | null>(null);
 
   useHydratedEffect(async () => {
     const token = auth.token?.access_token;
     try {
-      const patient = (await getPatients()).find(patient => patient.id === intPatientId);
+      const patient = (await getPatients()).find(
+        (patient) => patient.id === intPatientId
+      );
       if (!patient) {
         throw new Error("Patient not found");
       }
@@ -149,7 +146,7 @@ const ChatScreen = () => {
 
       // Show patient image for the first message from patient in a group or the very last message
       const showPatientImage =
-      isPatient &&
+        isPatient &&
         (index === 0 ||
           !nextMessage ||
           nextMessage.sender_id !== item.sender_id ||
@@ -182,12 +179,9 @@ const ChatScreen = () => {
                 className="w-8 h-8 rounded-full mr-2"
               />
             )}
-            {isPatient && !showPatientImage && (
-              <View className="w-8 mr-2" />
-            )}
-            <TouchableOpacity
+            {isPatient && !showPatientImage && <View className="w-8 mr-2" />}
+            <Pressable
               onPress={() => handleMessagePress(item.id)}
-              activeOpacity={0.7}
               className={`p-4 rounded-2xl max-w-[70%] bg-white border border-gray50 ${
                 isMessageClicked ? "opacity-80" : ""
               }`}
@@ -200,7 +194,7 @@ const ChatScreen = () => {
                   {format(adjustedDate, "h:mm a")}
                 </CustomText>
               )}
-            </TouchableOpacity>
+            </Pressable>
           </View>
         </View>
       );
@@ -209,6 +203,10 @@ const ChatScreen = () => {
   );
 
   const keyExtractor = useCallback((item: Message) => item.id.toString(), []);
+
+  const navigateToPatientProfile = () => {
+    router.push(`/therapist/patients/${patientId}`);
+  };
 
   if (loading) {
     return (
@@ -233,14 +231,21 @@ const ChatScreen = () => {
   return (
     <SafeAreaView className="flex-1 bg-blue100">
       <View className="flex-1">
-        <View className="px-4 py-2 border-b-[1px] border-gray50">
-          <CustomText
-            letterSpacing="tight"
-            className="text-[24px] font-medium text-center text-black200"
-          >
-            {patient?.sex?.toLowerCase() == "m" ? "Mr." : "Ms." } {patient?.name}
-          </CustomText>
-        </View>
+        <Pressable onPress={navigateToPatientProfile}>
+          <View className="px-4 py-2 border-b-[1px] border-gray50 flex justify-center items-center flex-row">
+            <Image
+              className="w-12 h-12 rounded-full mr-2"
+              source={{ uri: patient?.image }}
+            />
+            <CustomText
+              letterSpacing="tight"
+              className="text-[24px] font-medium text-center text-black200"
+            >
+              {patient?.sex?.toLowerCase() == "m" ? "Mr." : "Ms."}{" "}
+              {patient?.name}
+            </CustomText>
+          </View>
+        </Pressable>
         <FlatList
           ref={flatListRef}
           data={messages}

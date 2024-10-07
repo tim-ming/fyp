@@ -8,7 +8,6 @@ import {
   Platform,
   ListRenderItemInfo,
   Image,
-  TouchableOpacity,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import CustomText from "@/components/CustomText";
@@ -179,9 +178,8 @@ const ChatScreen: React.FC = () => {
             {isTherapist && !showTherapistImage && (
               <View className="w-8 mr-2" />
             )}
-            <TouchableOpacity
+            <Pressable
               onPress={() => handleMessagePress(item.id)}
-              activeOpacity={0.7}
               className={`p-4 rounded-2xl max-w-[70%] bg-white border border-gray50 ${
                 isMessageClicked ? "opacity-80" : ""
               }`}
@@ -194,7 +192,7 @@ const ChatScreen: React.FC = () => {
                   {format(adjustedDate, "h:mm a")}
                 </CustomText>
               )}
-            </TouchableOpacity>
+            </Pressable>
           </View>
         </View>
       );
@@ -231,7 +229,11 @@ const ChatScreen: React.FC = () => {
     <SafeAreaView className="flex-1 bg-blue100">
       <TopNav />
       <View className="flex-1">
-        <View className="px-4 py-2 border-b-[1px] border-gray50">
+        <View className="px-4 py-2 border-b-[1px] border-gray50 flex justify-center items-center flex-row">
+          <Image
+            className="w-12 h-12 rounded-full mr-2"
+            source={{ uri: therapist?.image }}
+          />
           <CustomText
             letterSpacing="tight"
             className="text-[24px] font-medium text-center text-black200"

@@ -4,6 +4,35 @@ from sqlalchemy.orm import Session, joinedload
 from app import models, schemas
 from datetime import date, datetime, timedelta
 
+def upsert_depression_risk_log(db: Session, depression_risk_log: schemas.DepressionRiskLogCreate):
+    """
+    Update or insert a depression risk log
+    :param db (Session): Database session
+    :param depression_risk_log (schemas.DepressionRiskLogCreate): Depression risk log create schema
+    :return (models.DepressionRiskLog): New depression risk log
+    """
+    db_depression_risk_log = (
+        db.query(models.DepressionRiskLog)
+        .filter(models.DepressionRiskLog.user_id == depression_risk_log.user_id)
+        .filter(models.DepressionRiskLog.date == depression_risk_log.date)
+        .first()
+    )
+
+    if db_depression_risk_log:
+        # Update existing entry
+        db_depression_risk_log.value = depression_risk_log.value
+    else:
+        # Create new entry
+        db_depression_risk_log = models.DepressionRiskLog(
+            user_id=depression_risk_log.user_id,
+            value=depression_risk_log.value,
+            date=depression_risk_log.date
+        )
+        db.add(db_depression_risk_log)
+
+    db.commit()
+    db.refresh(db_depression_risk_log)
+    return db_depression_risk_log
 
 def get_user_by_email(db: Session, email: str) -> Optional[models.User]:
     """
@@ -957,4 +986,27 @@ def get_chat_messages(
         .offset(skip)
         .limit(limit)
         .all()
+    )
+
+def get_all_patients_with_entries(
+    db: Session, skip: int = 0, limit: int = 64
+) -> List[models.User]:
+    """
+    Get all patients including their journal / guided journal entries
+    :param db (Session): Database session
+    :param skip (int): Number of entries to skip
+    :param limit (int): Number of entries to return
+    :return (List[models.User]): Patients
+    """
+
+    return (
+        db.query(models.User)
+        .join(models.PatientData)
+        .join(models.JournalEntry)
+        .join(models.GuidedJournalEntry)
+        .options(
+            joinedload(models.User.patient_data).noload(
+                models.PatientData.mood_entries
+            )
+        ).offset(skip).limit(limit).all()
     )

@@ -9,10 +9,22 @@ from sqlalchemy import (
     String,
     Date,
     JSON,
-    func
+    func,
+    Float
 )
 from sqlalchemy.orm import relationship
 from app.database import Base
+
+class DepressionRiskLog(Base):
+    """
+    Depression Risk Log Model
+    """
+    __tablename__ = "depression_risk_logs"
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    value = Column(Float)
+    date = Column(Date)
 
 class ChatMessage(Base):
     """

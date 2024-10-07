@@ -1,17 +1,27 @@
 import React, { useState, useEffect, useRef } from "react";
-import { View, FlatList, Pressable, ActivityIndicator } from "react-native";
-import { useRouter } from "expo-router";
-import CustomText from "@/components/CustomText";
+import {
+  View,
+  FlatList,
+  StyleSheet,
+  Image,
+  Pressable,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { shadows } from "@/constants/styles";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import { getPatients } from "@/api/api";
-import { useHydratedEffect } from "@/hooks/hooks";
+import CustomText from "@/components/CustomText";
 import { useAuth } from "@/state/auth";
+import { useHydratedEffect } from "@/hooks/hooks";
+import { getPatients, getMessages } from "@/api/api";
+import { UserWithoutSensitiveData } from "@/types/models";
+import { useRouter } from "expo-router";
+import { format } from "date-fns";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { shadows } from "@/constants/styles";
 
-interface Patient {
-  id: number;
-  name: string;
+interface PatientWithLastMessage extends UserWithoutSensitiveData {
+  lastMessage?: {
+    content: string;
+    timestamp: string;
+  };
   risk: string;
 }
 
@@ -26,49 +36,58 @@ const severityOrder = [
   "Unknown",
 ];
 
-const PatientsList: React.FC = () => {
-  const router = useRouter();
-  const auth = useAuth();
-
-  const [allPatientsData, setAllPatientsData] = useState<Patient[]>([]);
+const PatientListScreen = () => {
+  const [patients, setPatients] = useState<PatientWithLastMessage[]>([]);
+  const [visiblePatients, setVisiblePatients] = useState<
+    PatientWithLastMessage[]
+  >([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
   const [showLess, setShowLess] = useState(false);
+  const auth = useAuth();
+  const router = useRouter();
+
   const [sortConfig, setSortConfig] = useState<{
-    key: keyof Patient;
-    direction: "ascending" | "descending" | null;
+    key: keyof PatientWithLastMessage | "lastMessageTimestamp";
+    direction: "ascending" | "descending";
   }>({
     key: "risk",
     direction: "ascending",
   });
 
   const sortedDataCache = useRef<{
-    [key: string]: Patient[];
+    [key: string]: PatientWithLastMessage[];
   }>({});
 
-  useHydratedEffect(() => {
-    const fetchPatients = async () => {
-      try {
-        const patients = await getPatients();
-        const filteredPatients = patients.map((patient) => ({
-          id: patient.id,
-          name: patient.name,
-          risk: patient.patient_data?.severity || "Unknown",
-        }));
-        setAllPatientsData(filteredPatients);
-      } catch (err) {
-        setError("Failed to fetch patients");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPatients();
+  useHydratedEffect(async () => {
+    try {
+      const fetchedPatients = await getPatients();
+      const patientsWithMessages = await Promise.all(
+        fetchedPatients.map(async (patient) => {
+          const messages = await getMessages(patient.id);
+          const lastMessage = messages[0];
+          return {
+            ...patient,
+            lastMessage: lastMessage
+              ? {
+                  content: lastMessage.content,
+                  timestamp: lastMessage.timestamp,
+                }
+              : undefined,
+            risk: patient.patient_data?.severity || "Unknown",
+          };
+        })
+      );
+      setPatients(patientsWithMessages);
+      setVisiblePatients(patientsWithMessages.slice(0, PAGE_SIZE));
+    } catch (error) {
+      console.error("Error fetching patients:", error);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   const getSortedData = (
-    key: keyof Patient,
+    key: keyof PatientWithLastMessage | "lastMessageTimestamp",
     direction: "ascending" | "descending"
   ) => {
     const cacheKey = `${key}-${direction}`;
@@ -76,12 +95,25 @@ const PatientsList: React.FC = () => {
       return sortedDataCache.current[cacheKey];
     }
 
-    const sortedData = [...allPatientsData].sort((a, b) => {
+    const sortedData = [...patients].sort((a, b) => {
       if (key === "risk") {
         const aIndex = severityOrder.indexOf(a.risk);
         const bIndex = severityOrder.indexOf(b.risk);
         return direction === "ascending" ? aIndex - bIndex : bIndex - aIndex;
+      } else if (key === "lastMessageTimestamp") {
+        const aTimestamp = a.lastMessage?.timestamp ?? "";
+        const bTimestamp = b.lastMessage?.timestamp ?? "";
+        if (aTimestamp < bTimestamp) {
+          return direction === "ascending" ? -1 : 1;
+        }
+        if (aTimestamp > bTimestamp) {
+          return direction === "ascending" ? 1 : -1;
+        }
+        return 0;
       } else {
+        if (a[key] == null || b[key] == null) {
+          return 0;
+        }
         if (a[key] < b[key]) {
           return direction === "ascending" ? -1 : 1;
         }
@@ -96,36 +128,18 @@ const PatientsList: React.FC = () => {
     return sortedData;
   };
 
-  const [visiblePatients, setVisiblePatients] = useState<Patient[]>([]);
-
-  useEffect(() => {
-    if (allPatientsData.length > 0) {
-      setVisiblePatients(
-        getSortedData("risk", "ascending").slice(0, PAGE_SIZE)
-      );
-    }
-  }, [allPatientsData]);
-
   const handleSort = (
-    key: keyof Patient,
+    key: keyof PatientWithLastMessage | "lastMessageTimestamp",
     direction: "ascending" | "descending"
   ) => {
-    if (sortConfig.key === key && sortConfig.direction === direction) {
-      return;
-    }
-
     setSortConfig({ key, direction });
-
     const sortedData = getSortedData(key, direction);
     setVisiblePatients(sortedData.slice(0, visiblePatients.length));
   };
 
   const togglePatientsVisibility = () => {
     const currentLength = visiblePatients.length;
-    const sortedData = getSortedData(
-      sortConfig.key,
-      sortConfig.direction || "ascending"
-    );
+    const sortedData = getSortedData(sortConfig.key, sortConfig.direction);
 
     if (showLess) {
       setVisiblePatients(sortedData.slice(0, PAGE_SIZE));
@@ -137,50 +151,52 @@ const PatientsList: React.FC = () => {
       );
       setVisiblePatients([...visiblePatients, ...nextPatients]);
 
-      if (currentLength + PAGE_SIZE >= allPatientsData.length) {
+      if (currentLength + PAGE_SIZE >= patients.length) {
         setShowLess(true);
       }
     }
   };
 
-  const renderItem = ({ item, index }: { item: Patient; index: number }) => (
+  const renderPatientItem = ({ item }: { item: PatientWithLastMessage }) => (
     <Pressable
-      className={`flex-row justify-between p-4 ${
-        index % 2 === 0 ? "bg-gray0" : "bg-white"
-      }`}
-      onPress={() => router.push(`/therapist/patients/${item.id}`)}
+      style={styles.patientItem}
+      onPress={() => router.push(`/therapist/chat/${item.id}`)}
     >
-      <CustomText className="flex-1 text-gray300">{item.name}</CustomText>
-      <CustomText
-        className={`flex-1 ${
-          item.risk === "Severe"
-            ? "text-red300 font-semibold"
-            : item.risk === "Moderately Severe"
-            ? "text-orange300"
-            : item.risk === "Moderate"
-            ? "text-clay300"
-            : item.risk === "Mild"
-            ? "text-limegreen300"
-            : item.risk === "None"
-            ? "text-gray300"
-            : "text-gray100"
-        }`}
-      >
-        {item.risk}
-      </CustomText>
+      <Image source={{ uri: item.image }} style={styles.avatar} />
+      <View style={styles.riskTag}>
+        <CustomText style={styles.riskText}>{item.risk}</CustomText>
+      </View>
+      <View style={styles.patientInfo}>
+        <CustomText style={styles.patientName}>
+          {item.sex?.toLowerCase() === "m" ? "Mr. " : "Ms. "}
+          {item.name}
+        </CustomText>
+        {item.lastMessage ? (
+          <>
+            <CustomText style={styles.lastMessage} numberOfLines={1}>
+              {item.lastMessage.content}
+            </CustomText>
+            <CustomText style={styles.timestamp}>
+              {format(new Date(item.lastMessage.timestamp), "MMM d, h:mm a")}
+            </CustomText>
+          </>
+        ) : (
+          <CustomText style={styles.noMessage}>No messages yet</CustomText>
+        )}
+      </View>
     </Pressable>
   );
 
   if (loading) {
     return (
-      <View className="flex-1 justify-center items-center bg-blue100">
-        <ActivityIndicator size="large" color="#256CD0" />
+      <View style={styles.loadingContainer}>
+        <CustomText style={styles.loadingText}>Loading patients...</CustomText>
       </View>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1 p-4 bg-blue100">
+    <SafeAreaView style={styles.container} className="flex-1 p-4 bg-blue100">
       <View className="mb-6 mt-16">
         <CustomText className="text-2xl font-medium text-gray300">
           Hi,
@@ -195,7 +211,7 @@ const PatientsList: React.FC = () => {
             style={shadows.card}
           >
             <CustomText className="text-[26px] font-semibold text-gray-800 mb-1">
-              {allPatientsData.length}
+              {patients.length}
             </CustomText>
             <CustomText className="text-[14px] text-black">Patients</CustomText>
           </View>
@@ -204,7 +220,7 @@ const PatientsList: React.FC = () => {
             style={shadows.card}
           >
             <CustomText className="text-[26px] font-semibold text-red-600 mb-1">
-              {allPatientsData.filter((p) => p.risk === "Severe").length}
+              {patients.filter((p) => p.risk === "Severe").length}
             </CustomText>
             <CustomText className="text-[14px] text-black">
               Patients requiring immediate attention
@@ -212,91 +228,41 @@ const PatientsList: React.FC = () => {
           </View>
         </View>
       </View>
-
-      <CustomText className="text-[20px] font-semibold text-black mb-3">
-        Patients
-      </CustomText>
-
-      <View className="flex-row justify-between p-4 bg-white rounded-t-xl mx-[-16px]">
+      <CustomText style={styles.title}>Patients</CustomText>
+      <View style={styles.sortContainer}>
         <Pressable
           onPress={() => handleSort("name", "ascending")}
-          className="flex-1 flex-row items-center"
+          style={styles.sortButton}
         >
-          <CustomText className="text-black font-medium">Name</CustomText>
-          <View className="ml-2">
-            <Ionicons
-              name="caret-up"
-              size={16}
-              color={
-                sortConfig.key === "name" &&
-                sortConfig.direction === "ascending"
-                  ? "#535353"
-                  : "#8B8B8B"
-              }
-              onPress={() => handleSort("name", "ascending")}
-              style={{ marginBottom: -6 }}
-            />
-            <Ionicons
-              name="caret-down"
-              size={16}
-              color={
-                sortConfig.key === "name" &&
-                sortConfig.direction === "descending"
-                  ? "#535353"
-                  : "#8B8B8B"
-              }
-              onPress={() => handleSort("name", "descending")}
-            />
-          </View>
+          <CustomText style={styles.sortButtonText}>Name</CustomText>
+          <Ionicons name="arrow-down" size={16} color="#256CD0" />
         </Pressable>
         <Pressable
           onPress={() => handleSort("risk", "ascending")}
-          className="flex-1 flex-row items-center"
+          style={styles.sortButton}
         >
-          <CustomText className="text-black font-medium">
-            Depression Risk
-          </CustomText>
-          <View className="ml-2">
-            <Ionicons
-              name="caret-up"
-              size={16}
-              color={
-                sortConfig.key === "risk" &&
-                sortConfig.direction === "ascending"
-                  ? "#535353"
-                  : "#8B8B8B"
-              }
-              onPress={() => handleSort("risk", "ascending")}
-              style={{ marginBottom: -6 }}
-            />
-            <Ionicons
-              name="caret-down"
-              size={16}
-              color={
-                sortConfig.key === "risk" &&
-                sortConfig.direction === "descending"
-                  ? "#535353"
-                  : "#8B8B8B"
-              }
-              onPress={() => handleSort("risk", "descending")}
-            />
-          </View>
+          <CustomText style={styles.sortButtonText}>Risk</CustomText>
+          <Ionicons name="arrow-down" size={16} color="#256CD0" />
+        </Pressable>
+        <Pressable
+          onPress={() => handleSort("lastMessageTimestamp", "descending")}
+          style={styles.sortButton}
+        >
+          <CustomText style={styles.sortButtonText}>Latest Message</CustomText>
+          <Ionicons name="arrow-down" size={16} color="#256CD0" />
         </Pressable>
       </View>
-
       <FlatList
         data={visiblePatients}
+        renderItem={renderPatientItem}
         keyExtractor={(item) => item.id.toString()}
-        renderItem={renderItem}
-        className="mx-[-16px] mb-[-16px]"
+        contentContainerStyle={styles.listContent}
         ListFooterComponent={() => (
           <Pressable
-            className={`p-4 ${
-              visiblePatients.length % 2 == 0 ? "bg-gray0" : "bg-white"
-            } items-center rounded-b-xl`}
+            style={styles.showMoreButton}
             onPress={togglePatientsVisibility}
           >
-            <CustomText className="text-blue200 font-medium underline">
+            <CustomText style={styles.showMoreButtonText}>
               {showLess ? "Show less" : "View more patients"}
             </CustomText>
           </Pressable>
@@ -306,4 +272,114 @@ const PatientsList: React.FC = () => {
   );
 };
 
-export default PatientsList;
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#F0F8FF",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#F0F8FF",
+  },
+  loadingText: {
+    fontSize: 18,
+    color: "#333",
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginVertical: 16,
+    color: "#333",
+  },
+  sortContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginBottom: 16,
+  },
+  sortButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#E6F0FF",
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+  },
+  sortButtonText: {
+    color: "#256CD0",
+    marginRight: 4,
+  },
+  listContent: {
+    paddingTop: 16,
+  },
+  patientItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "white",
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  avatar: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    marginRight: 12,
+  },
+  riskTag: {
+    position: "absolute",
+    top: 8,
+    left: 8,
+    backgroundColor: "#E6F0FF",
+    borderRadius: 10,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  riskText: {
+    fontSize: 10,
+    color: "#256CD0",
+  },
+  patientInfo: {
+    flex: 1,
+  },
+  patientName: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 4,
+  },
+  lastMessage: {
+    fontSize: 14,
+    color: "#666",
+    marginBottom: 2,
+  },
+  timestamp: {
+    fontSize: 12,
+    color: "#999",
+  },
+  noMessage: {
+    fontSize: 14,
+    color: "#999",
+    fontStyle: "italic",
+  },
+  showMoreButton: {
+    alignItems: "center",
+    padding: 16,
+    backgroundColor: "#E6F0FF",
+    borderRadius: 12,
+    marginTop: 8,
+  },
+  showMoreButtonText: {
+    color: "#256CD0",
+    fontWeight: "bold",
+  },
+});
+
+export default PatientListScreen;

@@ -96,7 +96,9 @@ const PatientDetails = () => {
             <View className="p-1 w-16 h-16 items-center justify-center bg-gray-50 rounded-full">
               <Image
                 className="w-full h-full rounded-full"
-                source="/assets/images/man.jpg"
+                source={{
+                  uri: patient?.image,
+                }}
               />
             </View>
             <View className="flex-col">
@@ -142,9 +144,12 @@ const PatientDetails = () => {
           >
             <Edit width={ICON_SIZE} height={ICON_SIZE} fill="#256CD0" />
           </Pressable>
-          <View className="p-1 w-14 h-14 items-center justify-center rounded-[20px] border-2 border-blue200">
+          <Pressable className="p-1 w-14 h-14 items-center justify-center rounded-[20px] border-2 border-blue200"
+          onPress={() => {
+            router.push(`/therapist/chat/${patientId}`);
+          }}>
             <Message width={ICON_SIZE} height={ICON_SIZE} fill="#256CD0" />
-          </View>
+          </Pressable>
           <Pressable
             onPress={() => router.push(`/therapist/patients/${patientId}/data`)}
             className="flex-1 bg-blue200 items-center justify-center py-4 rounded-[20px]"

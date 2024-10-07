@@ -1,49 +1,112 @@
+import React, { useEffect, useRef, useState } from "react";
+import {
+  Animated,
+  Easing,
+  Modal,
+  Pressable,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
+import { router } from "expo-router";
 import CustomText from "@/components/CustomText";
 import ProgressBar from "@/components/ProgressBar";
 import { Colors } from "@/constants/Colors";
 import { sleep } from "@/utils/helpers";
 import { format } from "date-fns";
-import { router } from "expo-router";
-import React, { useEffect, useRef, useState } from "react";
-import { useNavigation } from "@react-navigation/native";
-import {
-  Animated,
-  Easing,
-  Pressable,
-  TouchableWithoutFeedback,
-  View,
-} from "react-native";
+import { Slider } from "@miblanchard/react-native-slider";
+import { shadows } from "@/constants/styles";
 
 const RING_SIZES = [168, 168, 168, 168, 168, 168, 168, 168, 168, 168];
 const Animation = {
   BREATHING_STAGGER: 250,
-  SCALE_UP_DURATION: 4000, // Duration for "Breathe In"
-  SCALE_DOWN_DURATION: 4000, // Duration for "Breathe Out"
+  SCALE_UP_DURATION: 4000,
+  SCALE_DOWN_DURATION: 4000,
   BREATHE_IN_MSG: "hold",
   BREATHE_OUT_MSG: "release",
 };
-const SESSION_DURATION_S = 60;
 
-const getTimeLeft = (progress: number) => {
-  const timeLeftInSeconds = SESSION_DURATION_S * (1 - progress);
+type Settings = {
+  duration: number;
+};
+
+const getTimeLeft = (progress: number, duration: number) => {
+  const timeLeftInSeconds = duration * (1 - progress);
   const minutes = Math.floor(timeLeftInSeconds / 60);
   const seconds = Math.floor(timeLeftInSeconds % 60);
-
   return format(new Date(0, 0, 0, 0, minutes, seconds), "mm:ss");
 };
 
-const BreathingScreen = () => {
-  const navigation = useNavigation();
+const SelectionPhase: React.FC<{
+  onStart: () => void;
+  settings: Settings;
+  setSettings: (settings: Settings) => void;
+}> = ({ onStart, settings, setSettings }) => {
+  const TRACK_MARKS = [60, 120, 300, 600];
+  const DESCRIPTIONS = ["1m", "2m", "5m", "10m"];
+  return (
+    <View className="flex-1 justify-center items-center bg-blue100 bg-opacity-50">
+      <View className="w-4/5 p-6 bg-white rounded-lg">
+        <CustomText className="text-xl font-medium mb-4 text-gray800">
+          Set Session Duration
+        </CustomText>
 
-  const progressValue = new Animated.Value(0);
+        <CustomText className="text-base mb-2 text-gray500">
+          {`${settings.duration} seconds`}
+        </CustomText>
 
+        <View className="flex-1 p-1 rounded-full">
+          <Slider
+            value={settings.duration}
+            onValueChange={(v) => setSettings({ ...settings, duration: v[0] })}
+            minimumValue={30}
+            maximumValue={600}
+            step={30}
+            minimumTrackTintColor={Colors.blue200}
+            maximumTrackTintColor={Colors.gray50}
+            containerStyle={{ height: "auto", marginVertical: 16 }}
+            trackMarks={TRACK_MARKS}
+            renderTrackMarkComponent={(index) => (
+              <View className="justify-center ml-[12px] items-center">
+                <View className="h-3 w-[1px] bg-gray200"></View>
+                <CustomText className="absolute top-5 text-xs text-gray300">
+                  {DESCRIPTIONS[index]}
+                </CustomText>
+              </View>
+            )}
+            thumbStyle={{
+              width: 24,
+              height: 24,
+              borderRadius: 9999,
+              backgroundColor: "#fff",
+              borderWidth: 1,
+              borderColor: Colors.gray50,
+              ...shadows.card,
+            }}
+          />
+        </View>
+        <Pressable
+          onPress={onStart}
+          className="mt-6 w-full h-12 bg-blue200 rounded-full justify-center items-center"
+        >
+          <CustomText className="text-white text-base font-medium">
+            Start
+          </CustomText>
+        </Pressable>
+      </View>
+    </View>
+  );
+};
+
+const BreathingPhase: React.FC<{
+  settings: Settings;
+}> = ({ settings }) => {
   const [progress, setProgress] = useState(0);
-
   const [breathingPhase, setBreathingPhase] = useState(
     Animation.BREATHE_OUT_MSG
   );
-
   const [menuOpen, setMenuOpen] = useState(false);
+  const [sliderVisible, setSliderVisible] = useState(false); // State to control the overlay
+  const progressValue = new Animated.Value(0);
 
   const scaleAnims = useRef(
     Array.from({ length: RING_SIZES.length }, () => new Animated.Value(1))
@@ -88,7 +151,7 @@ const BreathingScreen = () => {
   const animateProgress = () => {
     Animated.timing(progressValue, {
       toValue: 1,
-      duration: SESSION_DURATION_S * 1000,
+      duration: settings.duration * 1000, // Use dynamic session duration
       useNativeDriver: false,
       easing: Easing.linear,
     }).start();
@@ -97,22 +160,14 @@ const BreathingScreen = () => {
       setProgress(value);
     });
   };
-
-  const focus = () => {
-    setMenuOpen(!menuOpen);
-  };
-
   const complete = () => {
     // TODO: log something
-    router.back();
+    router.push("/patient/relax");
   };
-
   const endEarly = () => {
     // TODO: log something
-    router.back();
+    router.push("/patient/relax");
   };
-
-  useEffect(() => {}, [menuOpen]);
 
   useEffect(() => {
     animateRing();
@@ -121,11 +176,12 @@ const BreathingScreen = () => {
     return () => {
       progressValue.removeAllListeners();
     };
-  }, []);
+  }, [settings.duration]);
 
   return (
-    <TouchableWithoutFeedback onPress={focus}>
+    <TouchableWithoutFeedback onPress={() => setMenuOpen(!menuOpen)}>
       <View className="flex-1 justify-center items-center bg-blue100 px-4">
+        {/* Progress bar and time left */}
         <View
           className={`${
             !menuOpen ? "opacity-50" : "opacity-100"
@@ -138,17 +194,17 @@ const BreathingScreen = () => {
               barStyle={{ backgroundColor: Colors.blue200 }}
             />
           </View>
-          <CustomText className={` text-sm font-medium text-gray100`}>
-            {getTimeLeft(progress)} Left
+          <CustomText className={`text-sm font-medium text-gray100`}>
+            {getTimeLeft(progress, settings.duration)} Left
           </CustomText>
         </View>
 
+        {/* Rings and breathing phase */}
         <View
           className={`${
             !menuOpen ? "opacity-100" : "opacity-20"
           } absolute flex items-center justify-center`}
         >
-          {/* Dynamically generated rings */}
           {scaleAnims.current.map((scaleAnim, index) => (
             <Animated.View
               key={index}
@@ -160,12 +216,10 @@ const BreathingScreen = () => {
               className="absolute rounded-full border border-gray50"
             ></Animated.View>
           ))}
-          {/* Breathing phase text */}
           <CustomText className="absolute text-xl text-gray300">
             {breathingPhase}
           </CustomText>
         </View>
-
         {!menuOpen && progress == 1 && (
           <View className={` absolute bottom-4 w-full px-4`}>
             <Pressable className="h-14 bg-blue200 items-center justify-center rounded-full">
@@ -215,4 +269,22 @@ const BreathingScreen = () => {
   );
 };
 
-export default BreathingScreen;
+const Screen = () => {
+  const [phase, setPhase] = useState<"selection" | "breathing">("selection");
+  const [settings, setSettings] = useState<Settings>({ duration: 300 });
+  function onStart() {
+    setPhase("breathing");
+  }
+
+  return phase == "selection" ? (
+    <SelectionPhase
+      onStart={onStart}
+      settings={settings}
+      setSettings={setSettings}
+    />
+  ) : (
+    <BreathingPhase settings={settings} />
+  );
+};
+
+export default Screen;

@@ -13,7 +13,7 @@ import { eachDayOfInterval, format, isToday, isYesterday } from "date-fns";
 import { StyleSheet } from "react-native";
 import { shadows } from "@/constants/styles";
 import { Colors } from "@/constants/Colors";
-import { useLocalSearchParams, useNavigation } from "expo-router";
+import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import {
   GuidedJournalEntry,
   JournalEntry,
@@ -166,10 +166,13 @@ const Card: React.FC<CardProps> = ({ data, patientId }) => {
 
   const route = () => {
     const formattedDate = format(data.date, "yyyy-MM-dd");
-    navigation.navigate(
-      `therapist/patients/${patientId}/data/${formattedDate}`,
-      { date: formattedDate }
-    );
+    router.push({
+      pathname: "/therapist/patients/[patientId]/data/[date]",
+      params: {
+        patientId: patientId,
+        date: formattedDate,
+      },
+    });
   };
   return (
     <Pressable onPress={route} style={styles.container} className="gap-y-2">

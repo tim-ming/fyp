@@ -6,7 +6,7 @@ import {
   ActivityIndicator,
   TextInput,
 } from "react-native";
-import { useRouter, useLocalSearchParams } from "expo-router";
+import { useRouter, useLocalSearchParams, router } from "expo-router";
 import CustomText from "@/components/CustomText";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { getPatientData, getPatients, updatePatientData } from "@/api/api";
@@ -62,6 +62,7 @@ const PatientDetails = () => {
     setSaving(true);
     await updatePatientData({ user_id: patient.id, therapist_note: notes });
     setSaving(false);
+    router.back();
   }
 
   return (

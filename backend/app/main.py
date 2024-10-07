@@ -759,7 +759,7 @@ def get_patient_data(
     :param db (Session): Database session
     :return (schemas.UserWithPatientData): Patient data
     """
-    return commands.get_patient_by_id(db, patient_id)
+    return commands.get_user_by_id(db, patient_id)
 
 
 @app.patch("/patient-data", response_model=schemas.PatientData)

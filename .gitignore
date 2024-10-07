@@ -11,6 +11,7 @@ npm-debug.*
 web-build/
 backend/.env
 backend/app/db
+backend/images
 __pycache__
 
 # macOS

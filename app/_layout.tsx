@@ -4,7 +4,7 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
+import { Stack, usePathname } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
 import "react-native-reanimated";
@@ -33,6 +33,7 @@ export default function RootLayout() {
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
     PlusJakartaSans: require("../assets/fonts/PlusJakartaSans.ttf"),
   });
+  const pathname = usePathname();
   const auth = useAuth();
   useHydratedEffect(() => {
     const fetchData = async () => {
@@ -54,7 +55,7 @@ export default function RootLayout() {
         router.push("/signin");
       }
     };
-    fetchData();
+    if (pathname !== "/signin" && pathname !== "/signup") fetchData();
   }, []);
 
   useEffect(() => {

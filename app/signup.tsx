@@ -32,7 +32,7 @@ import Briefcase from "@/assets/icons/briefcase.svg";
 import Calendar from "@/assets/icons/calendar.svg";
 import DatePicker from "react-native-date-picker";
 import { Sex } from "@/types/globals";
-import { differenceInYears, isValid, parse, set } from "date-fns";
+import { differenceInYears, format, isValid, parse, set } from "date-fns";
 
 type Phase = "credentials" | "details";
 
@@ -80,6 +80,10 @@ const UserDetails: React.FC<{
     }
   };
 
+  useEffect(() => {
+    setDob(new Date(`${year}-${month}-${day}`));
+  }, [day, month, year]);
+
   const validateForm = (): boolean => {
     const newErrors: Errors = {};
     if (!name.trim()) newErrors.name = "Full name is required";
@@ -107,6 +111,9 @@ const UserDetails: React.FC<{
 
   const submit = async () => {
     if (!validateForm()) return;
+
+    const dateString = `${year}-${month}-${day}`;
+    const date = parse(dateString, "yyyy-MM-dd", new Date());
     setLoading(true);
     try {
       await onSubmit();

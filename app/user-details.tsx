@@ -245,7 +245,7 @@ const UserDetails = () => {
             <CustomText className="text-red-500 mb-4">{errors.sex}</CustomText>
           )}
           {/* Date of Birth Input */}
-          <CustomText className="mt-6 text-sm text-black">
+          <CustomText className="mt-6 text-base font-medium text-black">
             Date of birth
           </CustomText>
           {Platform.OS === "web" ? (

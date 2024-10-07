@@ -226,7 +226,7 @@ export default function TabLayout() {
           )}
         />
         <Tabs.Screen
-          name="(therapist)/settings"
+          name="(therapist)/settings/index"
           options={{
             title: "Vault",
             tabBarIcon: ({ color, focused }) => (

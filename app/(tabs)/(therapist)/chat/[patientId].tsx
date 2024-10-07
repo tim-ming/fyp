@@ -21,6 +21,7 @@ import { format, toZonedTime } from "date-fns-tz";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { shadows } from "@/constants/styles";
 import SendIcon from "@/assets/icons/send.svg";
+import BackButtonWrapper from "@/components/Back";
 
 interface Message {
   id: number;
@@ -240,21 +241,25 @@ const ChatScreen = () => {
   return (
     <SafeAreaView className="flex-1 bg-blue100">
       <View className="flex-1">
-        <Pressable onPress={navigateToPatientProfile}>
-          <View className="px-4 py-2 border-b-[1px] border-gray50 flex items-center flex-row">
-            <Image
-              className="w-12 h-12 rounded-full mr-2"
-              source={{ uri: BACKEND_URL + patient?.image }}
-            />
-            <CustomText
-              letterSpacing="tight"
-              className="text-lg font-medium text-center text-black200"
-            >
-              {patient?.sex?.toLowerCase() == "m" ? "Mr." : "Ms."}{" "}
-              {patient?.name}
-            </CustomText>
-          </View>
-        </Pressable>
+        <View className="flex-row items-center">
+          <BackButtonWrapper className="ml-4" />
+          <Pressable onPress={navigateToPatientProfile}>
+            <View className="px-4 py-2 flex items-center flex-row">
+              <Image
+                className="w-12 h-12 rounded-full mr-2"
+                source={{ uri: BACKEND_URL + patient?.image }}
+              />
+              <CustomText
+                letterSpacing="tight"
+                className="text-lg font-medium text-center text-black200"
+              >
+                {patient?.sex?.toLowerCase() == "m" ? "Mr." : "Ms."}{" "}
+                {patient?.name}
+              </CustomText>
+            </View>
+          </Pressable>
+        </View>
+        <View className="h-[1px] w-full bg-gray50"></View>
         <FlatList
           ref={flatListRef}
           data={messages}

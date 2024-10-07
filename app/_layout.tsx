@@ -115,6 +115,7 @@ export default function RootLayout() {
             name="patient/relax/index"
             options={{ headerShown: false }}
           />
+
           <Stack.Screen
             name="patient/guided-journal/completion"
             options={{ headerShown: false }}

@@ -51,7 +51,7 @@ const Gamification = () => {
     {
       title: "Newbie Journalist",
       progress: stats.journal_count,
-      total: 10,
+      total: 25,
       description: "Write @ Journals.",
     },
     {

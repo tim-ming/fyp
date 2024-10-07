@@ -175,20 +175,16 @@ const Card: React.FC<CardProps> = ({ data, patientId }) => {
     });
   };
   return (
-    <Pressable onPress={route} style={styles.container} className="gap-y-2">
+    <Pressable onPress={route} style={styles.container}>
       {data.mood && <MoodSection data={data.mood} />}
-      {data.journal && (
-        <>
-          <View className="bg-gray50 h-[1px] w-full rounded-full my-2" />
-          <JournalSection data={data.journal} />
-        </>
+      {data.mood && (data.journal || data.guidedJournal) && (
+        <View className="bg-gray50 h-[1px] w-full rounded-full my-4" />
       )}
-      {data.guidedJournal && (
-        <>
-          <View className="bg-gray50 h-[1px] w-full rounded-full my-4" />
-          <GuidedJournalSection data={data.guidedJournal} />
-        </>
+      {data.journal && <JournalSection data={data.journal} />}
+      {data.journal && data.guidedJournal && (
+        <View className="bg-gray50 h-[1px] w-full rounded-full my-4" />
       )}
+      {data.guidedJournal && <GuidedJournalSection data={data.guidedJournal} />}
     </Pressable>
   );
 };
@@ -226,10 +222,9 @@ const createMonthlyEntries = (data: PatientData) => {
   moodEntries.forEach((entry) => {
     monthData[format(entry.date, "yyyy-MM-dd")].mood = entry;
   });
-
-  return Object.values(monthData).sort(
-    (a, b) => a.date.getTime() - b.date.getTime()
-  );
+  return Object.values(monthData)
+    .sort((a, b) => a.date.getTime() - b.date.getTime())
+    .reverse();
 };
 
 export default function VaultScreen() {
@@ -272,14 +267,13 @@ export default function VaultScreen() {
   }
   return (
     <ScrollView className="bg-blue100 flex-1">
-      <TopNav />
-      <View className="mb-8 px-4">
+      <View className="mb-8 px-4 mt-16">
         {entries.length == 0 ? (
           <CustomText className="text-base text-gray300">
             No patient activity yet.
           </CustomText>
         ) : (
-          entries.reverse().map((section, sectionIndex) => (
+          entries.map((section, sectionIndex) => (
             <View key={sectionIndex}>
               {/* Date Section */}
               <CustomText className="text-lg font-semibold my-4">

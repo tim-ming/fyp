@@ -1,6 +1,6 @@
-import { Tabs, useSegments } from "expo-router";
+import { router, Tabs, useSegments } from "expo-router";
 import React, { useState } from "react";
-import { SafeAreaView, StyleSheet, View } from "react-native";
+import { Pressable, SafeAreaView, StyleSheet, View } from "react-native";
 
 import VaultIcon from "@/assets/icons/archive.svg";
 import InsightsIcon from "@/assets/icons/chart.svg";
@@ -11,6 +11,7 @@ import ExploreIcon from "@/assets/icons/search.svg";
 import SettingsIcon from "@/assets/icons/settings.svg";
 import DashboardIcon from "@/assets/icons/dashboard.svg";
 import CustomText from "@/components/CustomText";
+import ChevronLeft from "@/assets/icons/chevron-left.svg";
 import { shadows } from "@/constants/styles";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { usePathname } from "expo-router";
@@ -43,12 +44,30 @@ export default function TabLayout() {
   if (isLoading) {
     return <SafeAreaView></SafeAreaView>;
   }
-
+  const goBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      if (!auth.user) {
+        router.push("/signin");
+      } else {
+        router.push("/");
+      }
+    }
+  };
   return (
     <SafeAreaView style={styles.container}>
       <Tabs
+        backBehavior="history"
         screenOptions={{
-          headerShown: false,
+          headerTitle: "",
+          headerTransparent: true,
+          headerShadowVisible: false,
+          headerLeft: () => (
+            <Pressable onPress={goBack} style={{ marginLeft: 16 }}>
+              <ChevronLeft width={24} height={24} />
+            </Pressable>
+          ),
           tabBarShowLabel: false, // Hide labels
           tabBarStyle: {
             borderWidth: 0,
@@ -63,6 +82,7 @@ export default function TabLayout() {
           name="(patient)/index"
           options={{
             title: "Home",
+            headerShown: false,
             tabBarIcon: ({ color, focused }) => (
               <View className="items-center">
                 <HomeIcon
@@ -87,6 +107,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="(patient)/explore"
           options={{
+            headerShown: false,
             title: "Explore",
             tabBarIcon: ({ color, focused }) => (
               <View className="items-center">
@@ -113,6 +134,7 @@ export default function TabLayout() {
           name="(patient)/chat"
           options={{
             title: "Chat",
+            headerShown: false,
             tabBarIcon: ({ color, focused }) => (
               <View className="items-center">
                 <MessageLightIcon
@@ -138,6 +160,7 @@ export default function TabLayout() {
           name="(patient)/vault"
           options={{
             title: "Vault",
+            headerShown: false,
             tabBarIcon: ({ color, focused }) => (
               <View className="items-center">
                 <VaultIcon
@@ -162,11 +185,8 @@ export default function TabLayout() {
         <Tabs.Screen
           name="(patient)/insights"
           options={{
-            href:
-              auth && auth.user && auth.user.role === "patient"
-                ? "/insights"
-                : null,
             title: "Insights",
+            headerShown: false,
             tabBarIcon: ({ color, focused }) => (
               <View className="items-center">
                 <InsightsIcon
@@ -191,6 +211,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="(therapist)/index"
           options={{
+            headerShown: false,
             title: "Vault",
             tabBarIcon: ({ color, focused }) => (
               <View className="items-center">
@@ -230,6 +251,7 @@ export default function TabLayout() {
           name="(therapist)/settings/index"
           options={{
             title: "Vault",
+            headerShown: false,
             tabBarIcon: ({ color, focused }) => (
               <View className="items-center">
                 <SettingsIcon

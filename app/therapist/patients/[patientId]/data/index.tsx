@@ -282,7 +282,7 @@ export default function VaultScreen() {
           entries.reverse().map((section, sectionIndex) => (
             <View key={sectionIndex}>
               {/* Date Section */}
-              <CustomText className="text-lg font-semibold mb-4">
+              <CustomText className="text-lg font-semibold my-4">
                 {formatDateHeader(section.date.toISOString())}
               </CustomText>
 

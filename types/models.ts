@@ -239,3 +239,11 @@ export interface Message {
   sender_id: number;
   timestamp: string;
 }
+
+// Depression Risk Log Schema
+export interface DepressionRiskLog {
+  user_id: number;
+  value: number;
+  date: string;
+  id: number;
+}

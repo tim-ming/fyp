@@ -67,6 +67,7 @@ const ChatScreen = () => {
     return () => {
       if (websocketRef.current) {
         websocketRef.current.close();
+        websocketRef.current = null;  // Reset the ref
       }
     };
   }, []);
@@ -82,6 +83,10 @@ const ChatScreen = () => {
   }, [scrollToBottom]);
 
   const connectWebSocket = async (token: string) => {
+    if (websocketRef.current) {
+      websocketRef.current.close();  // Close the existing connection
+    }
+    
     const endpoint = BACKEND_URL;
     // backendurl contains either http or https, so adjust for ws or wss
     const url = endpoint.replace(/^https/, "wss").replace(/^http/, "ws");

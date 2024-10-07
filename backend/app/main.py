@@ -980,12 +980,29 @@ async def update_depression_risk(
         if response.status == 200:
             output = await response.json()
             print(output)
+            prob = output["probas"][0]
             depression_risk_log = schemas.DepressionRiskLogCreate(
-                value=output["probas"][0],
+                value=prob,
                 date=datetime.now().date(),
                 user_id=patient.id
             )
+            risk = "None"
+            if prob >= 0.8:
+                risk = "Severe",
+            elif prob >= 0.6:
+                risk = "Moderately Severe",
+            elif prob >= 0.4: 
+                risk = "Moderate",
+            elif prob >= 0.2:
+                risk = "Mild"
+            else:
+                risk = "None"
+            print(risk)
             commands.upsert_depression_risk_log(db, depression_risk_log)
+            commands.update_patient_data(db, schemas.PatientDataUpdate(
+                user_id=patient.id,
+                severity=risk
+            ))
 
     return {"detail": "Depression risk updated"}
 

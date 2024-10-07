@@ -81,6 +81,7 @@ const UserDetails = () => {
 
     try {
       const response = await updateUser(data);
+      auth.setUser(response);
       return response;
     } catch (error) {
       console.error(error);

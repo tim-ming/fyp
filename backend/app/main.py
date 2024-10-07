@@ -205,6 +205,7 @@ async def google_signin(
             user=schemas.UserCreateGoogle(
                 email=user_email,
                 name=user_name,
+                image = "/images/user.jpg",
                 role=schemas.UserRole.patient,
             )
         )  

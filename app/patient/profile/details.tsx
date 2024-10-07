@@ -205,20 +205,34 @@ const UserDetails = () => {
               className="relative bg-white rounded-2xl w-[150] h-[150] rounded-xl"
               style={shadows.card}
             >
-              {image && (<>
-                <Image
-                  source={{ uri: image !== auth.user?.image ? image : BACKEND_URL + image }}
-                  style={{ position: "absolute", width: "100%", height: "100%" }}
-                  className="rounded-xl"
-                  resizeMode="cover"
-                />
-                <View className="absolute bottom-2 right-2 rounded-full bg-white h-8 w-8 shadow-md flex justify-center items-center">
-                <Pressable onPress={pickImage}>
-                  <EditPen width="16" height="16" stroke={"rgba(0, 0, 0, 0.7)"} />
-                </Pressable>
-              </View>
-              </>)
-              }
+              {image && (
+                <>
+                  <Image
+                    source={{
+                      uri:
+                        image !== auth.user?.image
+                          ? image
+                          : BACKEND_URL + image,
+                    }}
+                    style={{
+                      position: "absolute",
+                      width: "100%",
+                      height: "100%",
+                    }}
+                    className="rounded-xl"
+                    resizeMode="cover"
+                  />
+                  <View className="absolute bottom-2 right-2 rounded-full bg-white h-8 w-8 shadow-md flex justify-center items-center">
+                    <Pressable onPress={pickImage}>
+                      <EditPen
+                        width="16"
+                        height="16"
+                        stroke={"rgba(0, 0, 0, 0.7)"}
+                      />
+                    </Pressable>
+                  </View>
+                </>
+              )}
             </View>
           </View>
           {/* Name Input */}

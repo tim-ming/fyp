@@ -137,7 +137,8 @@ def create_google_user(db: Session, user: schemas.UserCreate) -> models.User:
     db_user = models.User(
         email=user.email,
         name=user.name,
-        role=user.role)
+        role=user.role,
+        image = user.image)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)

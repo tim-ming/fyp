@@ -93,7 +93,7 @@ const ArticlePage = () => {
           className="my mx-4 rounded-2xl bg-white shadow"
         >
           <Pressable
-            onPress={() => router.push(`/read/${articles[0].id}`)}
+            onPress={() => router.push(`/patient/read/${articles[0].id}`)}
             className="flex-1 pt-16 pb-4 justify-center items-center"
           >
             <View className="flex-1 justify-center items-center p-4">
@@ -138,7 +138,7 @@ const ArticlePage = () => {
                 key={index}
                 style={shadows.card}
                 className="mr-4 bg-white shadow rounded-2xl justify-center items-center p-4 h-[250px] w-[250px]"
-                onPress={() => router.push(`/read/${article.id}`)}
+                onPress={() => router.push(`/patient/read/${article.id}`)}
               >
                 <View className="flex-1 justify-center items-center pt-8 gap-y-4">
                   <CustomText

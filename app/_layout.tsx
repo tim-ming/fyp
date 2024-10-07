@@ -77,19 +77,9 @@ export default function RootLayout() {
     } else {
       if (!auth.user) {
         router.push("/signin");
+      } else {
+        router.push("/");
       }
-      // else {
-      //   switch (auth.user.role) {
-      //     case "therapist":
-      //       router.push("/therapist/dashboard");
-      //       break;
-      //     case "patient":
-      //       router.push("/");
-      //       break;
-      //     default:
-      //       console.error("Unknown role: ", auth.user.role);
-      //   }
-      // }
     }
   };
   return (

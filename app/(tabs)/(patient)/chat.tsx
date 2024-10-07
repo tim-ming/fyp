@@ -55,7 +55,9 @@ const ChatScreen: React.FC = () => {
       return;
     }
 
-    connectWebSocket(token ? token : "");
+    if (!websocketRef.current) {
+      connectWebSocket(token ? token : "");
+    }
     setLoading(false);
 
     return () => {

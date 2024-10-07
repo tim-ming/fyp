@@ -4,11 +4,48 @@ from sqlalchemy.orm import Session, joinedload
 from app import models, schemas
 from datetime import date, datetime, timedelta
 
-def upsert_depression_risk_log(db: Session, depression_risk_log: schemas.DepressionRiskLogCreate):
+def get_latest_depression_risk_log_by_user(
+    db: Session, user: schemas.User
+) -> Optional[models.DepressionRiskLog]:
+    """
+    Get the latest depression risk log by user
+    :param db (Session): Database session
+    :param user (schemas.User): User
+    :return (Optional[models.DepressionRiskLog]): Latest depression risk log
+    """
+
+    return (
+        db.query(models.DepressionRiskLog)
+        .filter(models.DepressionRiskLog.user_id == user.id)
+        .order_by(models.DepressionRiskLog.date.desc())
+        .first()
+    )
+
+def get_depression_risk_logs_by_user(
+    db: Session, user: schemas.User, skip: int = 0, limit: int = 100
+) -> List[models.DepressionRiskLog]:
+    """
+    Get depression risk logs by user
+    :param db (Session): Database session
+    :param user (schemas.User): User
+    :param skip (int): Number of entries to skip
+    :param limit (int): Number of entries to return
+    :return (List[models.DepressionRiskLog]): Depression risk logs
+    """
+    return (
+        db.query(models.DepressionRiskLog)
+        .filter(models.DepressionRiskLog.user_id == user.id)
+        .order_by(models.DepressionRiskLog.date.desc())
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+
+def upsert_depression_risk_log(db: Session, depression_risk_log: schemas.DepressionRiskLog):
     """
     Update or insert a depression risk log
     :param db (Session): Database session
-    :param depression_risk_log (schemas.DepressionRiskLogCreate): Depression risk log create schema
+    :param depression_risk_log (schemas.DepressionRiskLog): Depression risk log create schema
     :return (models.DepressionRiskLog): New depression risk log
     """
     db_depression_risk_log = (
@@ -989,7 +1026,7 @@ def get_chat_messages(
     )
 
 def get_all_patients_with_entries(
-    db: Session, skip: int = 0, limit: int = 64
+    db: Session, skip: int = 0, limit: int = 100
 ) -> List[models.User]:
     """
     Get all patients including their journal / guided journal entries
@@ -1003,10 +1040,7 @@ def get_all_patients_with_entries(
         db.query(models.User)
         .join(models.PatientData)
         .join(models.JournalEntry)
-        .join(models.GuidedJournalEntry)
-        .options(
-            joinedload(models.User.patient_data).noload(
-                models.PatientData.mood_entries
-            )
-        ).offset(skip).limit(limit).all()
+        .offset(skip)
+        .limit(limit)
+        .all()
     )

@@ -8,19 +8,24 @@ class DepressionRiskLogBase(BaseModel):
     """
     Depression Risk Log Schema
     """
-    id: int
     user_id: int
     value: float
     date: date
-
-    class Config:
-        from_attributes = True
 
 class DepressionRiskLogCreate(DepressionRiskLogBase):
     """
     Depression Risk Log Create Schema
     """
     pass
+
+class DepressionRiskLog(DepressionRiskLogBase):
+    """
+    Depression Risk Log Schema
+    """
+    id: int
+
+    class Config:
+        from_attributes = True
 
 class ChatMessageBase(BaseModel):
     """

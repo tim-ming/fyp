@@ -1,11 +1,8 @@
 import base64
 import io
-import json
 import os
-import shutil
 import uuid
 from fastapi.staticfiles import StaticFiles
-import requests
 from fastapi import FastAPI, Depends, File, HTTPException, Query, UploadFile, WebSocket, WebSocketDisconnect, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from PIL import Image
@@ -17,12 +14,24 @@ from datetime import datetime, timedelta, timezone
 from typing import Annotated, Dict, Generator, List, Optional
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
+import aiohttp
 
 from app.database import SessionLocal
 from app import commands, schemas
 
 # Create FastAPI app
-app = FastAPI()
+async def init_session():
+    return aiohttp.ClientSession(
+        timeout=aiohttp.ClientTimeout(total=3),
+    )
+
+async def startup_event():
+    app.state.session = await init_session()
+
+async def shutdown_event():
+    await app.state.session.close()
+
+app = FastAPI(on_startup=[startup_event], on_shutdown=[shutdown_event])
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -85,17 +94,17 @@ def authenticate_user(db: Session, email: str, password: str) -> Optional[schema
     )
 
 
-def verify_google_token(token: str) -> dict:
+async def verify_google_token(token: str) -> dict:
     """
     Verify a Google token
     :param token (str): Google token
     :return (dict): Token info
     :raises (HTTPException): If token is invalid
     """
-    response = requests.get(f"{GOOGLE_TOKEN_INFO_URL}{token}")
-    if response.status_code != 200:
+    response = await app.state.session.get(f"{GOOGLE_TOKEN_INFO_URL}{token}")
+    if response.status != 200:
         raise HTTPException(status_code=401, detail="Invalid Google Token")
-    return response.json()
+    return await response.json()
 
 
 def get_current_user(
@@ -173,7 +182,7 @@ def post_signin(
     )
 
 @app.post("/signin/google", response_model=schemas.Token)
-def google_signin(
+async def google_signin(
     token: str = Query(..., description="Google OAuth token"),
     db: Session = Depends(get_db),
 ):
@@ -184,7 +193,7 @@ def google_signin(
     :return (schemas.Token): JWT or session token
     """
 
-    google_data = verify_google_token(token)  
+    google_data = await verify_google_token(token)  
     user_email = google_data.get("email")
     user_name = google_data.get("name")
 
@@ -944,3 +953,85 @@ async def get_chat_messages(
     :return (List[schemas.ChatMessage]): Chat messages
     """
     return commands.get_chat_messages(db, current_user, other_user_id, skip, limit)
+
+@app.get("/batch")
+async def update_depression_risk(
+    db: Session = Depends(get_db)
+):
+    """
+    Update depression risk for all patients
+    :param db (Session): Database session
+    """
+    patients = commands.get_all_patients_with_entries(db)
+    for patient in patients:
+        model_endpoint = os.getenv("MODEL_ENDPOINT")
+        inputs = []
+        for journal in patient.patient_data.journal_entries:
+            inputs.append(
+                {
+                    "text": journal.title + "\n" + journal.body, 
+                    "timestamp": journal.date.isoformat(), 
+                    "image": os.getenv("BACKEND_ENDPOINT") + journal.image if journal.image else None,
+                }
+            )
+        
+        response: aiohttp.ClientResponse = await app.state.session.post(model_endpoint, json={"data": inputs})
+        
+        if response.status == 200:
+            output = await response.json()
+            print(output)
+            depression_risk_log = schemas.DepressionRiskLogCreate(
+                value=output["probas"][0],
+                date=datetime.now().date(),
+                user_id=patient.id
+            )
+            commands.upsert_depression_risk_log(db, depression_risk_log)
+
+    return {"detail": "Depression risk updated"}
+
+@app.get("/user/depression-risks/{user_id}", response_model=List[schemas.DepressionRiskLog])
+async def get_depression_risks(
+    user_id: int,
+    current_user: schemas.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get depression risks for a user
+    :param current_user (schemas.User): Current user
+    :param db (Session): Database session
+    :return (List[schemas.DepressionRiskLog]): Depression risks
+    """
+
+    # make sure it is a therapist and the user is their patient
+    if current_user.role != "therapist":
+        raise HTTPException(status_code=403, detail="Unauthorized")
+    patients = [patient.id for patient in commands.get_patients_by_therapist(db, current_user)]
+    if user_id not in patients:
+        raise HTTPException(status_code=403, detail="Unauthorized")
+    
+    return commands.get_depression_risks(db, user_id)
+
+@app.get("/user/depression-risk/{user_id}", response_model=schemas.DepressionRiskLog)
+async def get_depression_risk(
+    user_id: int,
+    current_user: schemas.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get latest depression risk for a user
+    :param current_user (schemas.User): Current user
+    :param db (Session): Database session
+    :return (DepressionRiskLog): Depression risk
+    """
+
+    # make sure it is a therapist and the user is their patient
+    if current_user.role != "therapist":
+        raise HTTPException(status_code=403, detail="Unauthorized")
+    patients = [patient.id for patient in commands.get_patients_by_therapist(db, current_user)]
+    if user_id not in patients:
+        raise HTTPException(status_code=403, detail="Unauthorized")
+    
+    res = commands.get_latest_depression_risk_log_by_user(db, user_id)
+    if res is None:
+        raise HTTPException(status_code=404, detail="No depression risk found")
+    return res

@@ -317,7 +317,20 @@ const SettingsScreen = () => {
             </View>
           </View>
         </View>
-
+        <View className="flex bg-white rounded-2xl" style={shadows.card}>
+          <Pressable
+            className="flex-row justify-between items-center py-3 px-4"
+            onPress={() => handlePress("/patient/profile/helplines")}
+          >
+            <View className="flex-row items-center gap-3">
+              <Support className="fill-gray300" width={20} height={20} />
+              <CustomText className=" text-gray300 font-medium">
+                Helplines
+              </CustomText>
+            </View>
+            <ChevronRight className="stroke-gray300" />
+          </Pressable>
+        </View>
         {/* Help & Support Section */}
         {/* <View className="gap-y-3">
           <CustomText

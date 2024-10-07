@@ -190,13 +190,25 @@ def upsert_mood_entry(
     )
 
     db_user = db.query(models.User).filter(models.User.email == user.email).first()
-    if db_user.last_login == mood_entry.date + timedelta(days=1):
-        db_user.streak += 1
+
+    # Convert mood_entry.date to datetime at the start of the day
+    mood_entry_datetime = datetime.combine(mood_entry.date, datetime.min.time())
+
+    # Check if the last login was yesterday
+    if db_user.last_login is not None:
+        last_login_date = db_user.last_login.date()
+        if last_login_date == mood_entry.date - timedelta(days=1):
+            db_user.streak += 1
+        elif last_login_date != mood_entry.date:  # Reset streak if not consecutive days
+            db_user.streak = 1
     else:
+        # If it's the first login, start the streak
         db_user.streak = 1
-    
-    if db_user.last_login is None or mood_entry.date > db_user.last_login:
-        db_user.last_login = mood_entry.date
+
+    # Update last_login if the new entry is more recent
+    if db_user.last_login is None or mood_entry_datetime > db_user.last_login:
+        db_user.last_login = mood_entry_datetime
+
     db.commit()
     db.refresh(db_user)
 

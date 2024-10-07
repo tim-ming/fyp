@@ -166,6 +166,7 @@ const Card: React.FC<CardProps> = ({ data, patientId }) => {
 
   const route = () => {
     const formattedDate = format(data.date, "yyyy-MM-dd");
+    console.log(data.date);
     router.push({
       pathname: "/(therapist)/patients/[patientId]/data/[date]",
       params: {

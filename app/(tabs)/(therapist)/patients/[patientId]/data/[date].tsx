@@ -163,7 +163,7 @@ export default function MoodScreen() {
       }
     };
     fetchPatient(Number(patientId));
-  }, [patientId]);
+  }, [date]);
 
   return (
     <ScrollView

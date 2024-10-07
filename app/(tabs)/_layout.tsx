@@ -31,7 +31,6 @@ export default function TabLayout() {
   // segments.includes("search") || segments.includes("explore")
   const hide = false;
   const auth = useAuth();
-  console.log(auth, "a");
 
   const [isLoading, setIsLoading] = useState(true);
 

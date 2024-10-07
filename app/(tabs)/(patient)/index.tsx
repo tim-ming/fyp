@@ -66,31 +66,39 @@ const renderCard = (journal: JournalEntryCard) => {
 
   return (
     <View
-      style={[styles.mainCard, styles.mainCardHeight, styles.shadow]}
-      className="bg-white flex flex-col items-center justify-end relative"
+      style={[styles.mainCard, styles.mainCardHeight, shadows.card]}
+      className="bg-white border-[1px] border-gray50 overflow-hidden flex flex-col items-center justify-end relative"
     >
       {journal.journal?.image && (
         <Image
+          className={`w-full h-full absolute opacity-85`}
           source={{ uri: `${BACKEND_URL}${journal.journal.image}` }}
-          style={{ position: "absolute", width: "100%", height: "100%" }}
           resizeMode="cover"
         />
       )}
-      <CustomText
-        letterSpacing="tighter"
-        className="text-2xl font-medium text-center"
-      >
-        {format(journal.date, "dd MMM")}
-      </CustomText>
-      <CustomText className="text-sm text-center mb-6 mt-1">
-        {capitalizeFirstLetter(getDayOfWeek(journal.date.toISOString()))}
-      </CustomText>
+      <View className="px-4 py-2 rounded-lg overflow-hidden mb-6 justify-center items-center ">
+        <View className="absolute w-full h-full bg-white opacity-60"></View>
+
+        <CustomText
+          letterSpacing="tighter"
+          className="text-2xl font-medium text-center"
+        >
+          {format(journal.date, "dd MMM")}
+        </CustomText>
+        <CustomText className="text-sm text-center mt-1">
+          {capitalizeFirstLetter(getDayOfWeek(journal.date.toISOString()))}
+        </CustomText>
+      </View>
 
       <View className="absolute w-full h-full flex justify-center items-center">
         <Pressable onPress={handlePress}>
           <View
-            className="rounded-full bg-white flex justify-center items-center"
-            style={[styles.shadow, styles.circle]}
+            className="rounded-full flex border-[1px] border-gray50 justify-center items-center"
+            style={[
+              shadows.card,
+              styles.circle,
+              { backgroundColor: "rgba(255, 255, 255, 0.8)" },
+            ]}
           >
             {journal.journal ? (
               <EditPen

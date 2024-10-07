@@ -1,208 +1,176 @@
-import React, { useRef, useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   FlatList,
-  Pressable,
-  TextInput,
   View,
-  KeyboardAvoidingView,
-  Platform,
-  ListRenderItemInfo,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import CustomText from "@/components/CustomText";
-import TopNav from "@/components/TopNav";
-import { useAuth } from "@/state/auth";
-import { useHydratedEffect } from "@/hooks/hooks";
-import { getMessages, getTherapistInCharge } from "@/api/api";
-import { UserWithoutSensitiveData } from "@/types/models";
-import { Link } from "expo-router";
-import { BACKEND_URL } from "@/constants/globals";
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import CustomText from '@/components/CustomText';
+import TopNav from '@/components/TopNav';
+import { useAuth } from '@/state/auth';
+import { useHydratedEffect } from '@/hooks/hooks';
+import { getPatients, getMessages } from '@/api/api';
+import { UserWithoutSensitiveData } from '@/types/models';
+import { useRouter } from 'expo-router';
+import { format } from 'date-fns';
 
-interface Message {
-  id: number;
-  content: string;
-  sender_id: number;
-  timestamp: string;
+interface PatientWithLastMessage extends UserWithoutSensitiveData {
+  lastMessage?: {
+    content: string;
+    timestamp: string;
+  };
 }
 
-const ChatScreen: React.FC = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [inputText, setInputText] = useState("");
-  const inputRef = useRef<TextInput>(null);
-  const flatListRef = useRef<FlatList<Message>>(null);
-  const websocketRef = useRef<WebSocket | null>(null);
-  const auth = useAuth();
+const PatientListScreen = () => {
+  const [patients, setPatients] = useState<PatientWithLastMessage[]>([]);
   const [loading, setLoading] = useState(true);
-
-  const [therapist, setTherapist] = useState<UserWithoutSensitiveData | null>(
-    null
-  );
+  const auth = useAuth();
+  const router = useRouter();
 
   useHydratedEffect(async () => {
     const token = auth.token?.access_token;
     try {
-      const therapist = await getTherapistInCharge();
-      setTherapist(therapist);
-
-      if (therapist && therapist.id) {
-        setMessages((await getMessages(therapist.id)).toReversed());
-      }
+      const fetchedPatients = await getPatients();
+      const patientsWithMessages = await Promise.all(
+        fetchedPatients.map(async (patient) => {
+          const messages = await getMessages(patient.id);
+          const lastMessage = messages[0];
+          return {
+            ...patient,
+            lastMessage: lastMessage
+              ? {
+                  content: lastMessage.content,
+                  timestamp: lastMessage.timestamp,
+                }
+              : undefined,
+          };
+        })
+      );
+      setPatients(patientsWithMessages);
     } catch (error) {
+      console.error('Error fetching patients:', error);
+    } finally {
       setLoading(false);
-      return;
     }
-
-    connectWebSocket(token ? token : "");
-    setLoading(false);
-
-    return () => {
-      if (websocketRef.current) {
-        websocketRef.current.close();
-      }
-    };
   }, []);
 
-  const scrollToBottom = useCallback(() => {
-    if (flatListRef.current && messages.length > 0) {
-      flatListRef.current.scrollToOffset({ offset: 0, animated: true });
-    }
-  }, [messages]);
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [scrollToBottom]);
-
-  const connectWebSocket = async (token: string) => {
-    const endpoint = BACKEND_URL;
-    // backendurl contains either http or https, so adjust for ws or wss
-    const url = endpoint.replace(/^https/, "wss").replace(/^http/, "ws");
-    const ws = new WebSocket(`${url}/ws/chat?token=${token}`);
-
-    ws.onopen = () => {
-      console.log("WebSocket Connected");
-    };
-
-    ws.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-      console.log(message);
-      setMessages((prevMessages) => [message, ...prevMessages]);
-      console.log(messages);
-    };
-
-    ws.onerror = (error) => {
-      console.error("WebSocket Error:", error);
-    };
-
-    ws.onclose = () => {
-      console.log("WebSocket Disconnected");
-      // Attempt to reconnect after a delay
-      setTimeout(() => {
-        connectWebSocket(token);
-      }, 5000);
-    };
-
-    websocketRef.current = ws;
-  };
-
-  const handleSend = () => {
-    if (inputText.trim() && websocketRef.current) {
-      const message = {
-        content: inputText.trim(),
-        recipient_id: therapist?.id,
-      };
-      websocketRef.current.send(JSON.stringify(message));
-      setInputText("");
-    }
-  };
-
-  const renderMessage = useCallback(
-    ({ item }: ListRenderItemInfo<Message>) => (
-      <View
-        className={`mb-2 p-4 rounded-2xl max-w-[80%] bg-white border border-gray50 shadow-md ${
-          item.sender_id === 1 ? "self-end" : "self-start"
-        }`}
-      >
-        <CustomText className="text-base text-black200">
-          {item.content}
+  const renderPatientItem = ({ item }: { item: PatientWithLastMessage }) => (
+    <TouchableOpacity
+      style={styles.patientItem}
+      onPress={() => router.push(`/therapist/chat/${item.id}`)}
+    >
+      <Image source={{ uri: item.image }} style={styles.avatar} />
+      <View style={styles.patientInfo}>
+        <CustomText style={styles.patientName}>
+          {item.sex?.toLowerCase() === 'm' ? 'Mr. ' : 'Ms. '}
+          {item.name}
         </CustomText>
+        {item.lastMessage ? (
+          <>
+            <CustomText style={styles.lastMessage} numberOfLines={1}>
+              {item.lastMessage.content}
+            </CustomText>
+            <CustomText style={styles.timestamp}>
+              {format(new Date(item.lastMessage.timestamp), 'MMM d, h:mm a')}
+            </CustomText>
+          </>
+        ) : (
+          <CustomText style={styles.noMessage}>No messages yet</CustomText>
+        )}
       </View>
-    ),
-    []
+    </TouchableOpacity>
   );
-
-  const keyExtractor = useCallback((item: Message) => item.id.toString(), []);
 
   if (loading) {
     return (
-      <View className="flex-1 bg-blue100 items-center justify-center">
-        <CustomText className="text-black text-[20px] font-semibold">
-          Connecting...
-        </CustomText>
-      </View>
-    );
-  }
-
-  if (!loading && !therapist) {
-    return (
-      <View className="flex-1 bg-blue100 items-center justify-center">
-        <CustomText className="text-black text-[20px] text-center mb-5">
-          You have not connected with a therapist yet.
-        </CustomText>
-        <Link href="/" className="text-blue-500 font-semibold">
-          Find a Therapist now!
-        </Link>
+      <View style={styles.loadingContainer}>
+        <CustomText style={styles.loadingText}>Loading patients...</CustomText>
       </View>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-blue100">
-      <TopNav />
-      <View className="flex-1">
-        <View className="px-4 py-2 border-b-[1px] border-gray50">
-          <CustomText
-            letterSpacing="tight"
-            className="text-[24px] font-medium text-center text-black200"
-          >
-            Dr. {therapist?.name}
-          </CustomText>
-        </View>
-        <FlatList
-          ref={flatListRef}
-          data={messages}
-          renderItem={renderMessage}
-          keyExtractor={keyExtractor}
-          contentContainerStyle={{
-            flexGrow: 1,
-            justifyContent: "flex-end",
-            padding: 16,
-          }}
-          inverted
-          onLayout={scrollToBottom}
-        />
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          keyboardVerticalOffset={100}
-        >
-          <View className="flex-row items-center border-t border-gray50 px-4 py-2">
-            <TextInput
-              ref={inputRef}
-              className="flex-1 bg-gray50 text-base rounded-full px-4 py-2 mr-2 font-[PlusJakartaSans]"
-              placeholder="Type a message..."
-              value={inputText}
-              onChangeText={setInputText}
-              multiline
-            />
-            <Pressable onPress={handleSend}>
-              <CustomText className="text-blue500 font-semibold">
-                Send
-              </CustomText>
-            </Pressable>
-          </View>
-        </KeyboardAvoidingView>
-      </View>
+    <SafeAreaView style={styles.container}>
+      <CustomText style={styles.title}>Patients</CustomText>
+      <FlatList
+        data={patients}
+        renderItem={renderPatientItem}
+        keyExtractor={(item) => item.id.toString()}
+        contentContainerStyle={styles.listContent}
+      />
     </SafeAreaView>
   );
 };
 
-export default ChatScreen;
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F0F8FF', // Light blue background
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F0F8FF',
+  },
+  loadingText: {
+    fontSize: 18,
+    color: '#333',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginVertical: 16,
+    color: '#333',
+  },
+  listContent: {
+    padding: 16,
+  },
+  patientItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  avatar: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    marginRight: 12,
+  },
+  patientInfo: {
+    flex: 1,
+  },
+  patientName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 4,
+  },
+  lastMessage: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 2,
+  },
+  timestamp: {
+    fontSize: 12,
+    color: '#999',
+  },
+  noMessage: {
+    fontSize: 14,
+    color: '#999',
+    fontStyle: 'italic',
+  },
+});
+
+export default PatientListScreen;

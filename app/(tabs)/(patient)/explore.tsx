@@ -29,7 +29,7 @@ const ExploreScreen: React.FC = () => {
       icon: "bookandpen",
     },
     {
-      title: "Relax",
+      title: "Breathe",
       subtitle: "Unwind out your day.",
       href: "/patient/relax",
       icon: "dove",

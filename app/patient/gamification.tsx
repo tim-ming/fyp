@@ -100,9 +100,9 @@ const Gamification = () => {
   if (loading) {
     return (
       <View className="flex-1 bg-blue100 items-center justify-center">
-      <CustomText className="text-black text-[20px] font-semibold">
-        Loading...
-      </CustomText>
+        <CustomText className="text-black text-[20px] font-semibold">
+          Loading...
+        </CustomText>
       </View>
     );
   }
@@ -127,7 +127,9 @@ const Gamification = () => {
           source={require("@/assets/images/doubleheart.png")}
           className="w-28 h-28 opacity-80"
         />
-        <CustomText className="text-6xl font-bold text-center">{stats.streak}</CustomText>
+        <CustomText className="text-6xl font-bold text-center">
+          {stats.streak}
+        </CustomText>
         <CustomText
           letterSpacing="tight"
           className="text-base font-medium text-center text-gray300"
@@ -135,9 +137,9 @@ const Gamification = () => {
           {stats.streak === 1 || stats.streak === 0 ? "Day" : "Days"} streak
         </CustomText>
         <View className="items-center justify-center">
-          <CustomText className="text-sm max-w-[50%] leading-4 text-center text-gray200 mt-2">
+          <CustomText className="text-sm leading-4 text-center text-gray200 mt-2">
             {stats.last_login && stats.streak > 0
-              ? `Your streak started on ${date.toLocaleDateString()}.`
+              ? `Your streak started on \n${date.toLocaleDateString()}.`
               : "Start your streak today!"}
           </CustomText>
         </View>

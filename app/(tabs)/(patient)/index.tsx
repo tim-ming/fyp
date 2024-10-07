@@ -407,7 +407,11 @@ const HomeScreen = () => {
           </View>
           <View className="flex-row">
             <View className="w-1/2">
-              <SuggestedCard title="Relax" href="/patient/relax" icon="dove" />
+              <SuggestedCard
+                title="Breathe"
+                href="/patient/relax"
+                icon="dove"
+              />
             </View>
             <View className="w-1/2">
               <SuggestedCard

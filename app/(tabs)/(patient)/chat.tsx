@@ -8,6 +8,7 @@ import {
   Platform,
   ListRenderItemInfo,
   Image,
+  TouchableOpacity,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import CustomText from "@/components/CustomText";
@@ -118,6 +119,12 @@ const ChatScreen: React.FC = () => {
     }
   };
 
+  const [clickedMessageId, setClickedMessageId] = useState<number | null>(null);
+
+  const handleMessagePress = useCallback((messageId: number) => {
+    setClickedMessageId((prevId) => (prevId === messageId ? null : messageId));
+  }, []);
+
   const renderMessage = useCallback(
     ({ item, index }: ListRenderItemInfo<Message>) => {
       const isTherapist = item.sender_id == therapist!.id;
@@ -147,6 +154,8 @@ const ChatScreen: React.FC = () => {
 
       const adjustedDate = toZonedTime(new Date(item.timestamp), "UTC");
 
+      const isMessageClicked = clickedMessageId === item.id;
+
       return (
         <View>
           {showTimestamp && (
@@ -170,18 +179,27 @@ const ChatScreen: React.FC = () => {
             {isTherapist && !showTherapistImage && (
               <View className="w-8 mr-2" />
             )}
-            <View
-              className={`p-4 rounded-2xl max-w-[70%] bg-white border border-gray50`}
+            <TouchableOpacity
+              onPress={() => handleMessagePress(item.id)}
+              activeOpacity={0.7}
+              className={`p-4 rounded-2xl max-w-[70%] bg-white border border-gray50 ${
+                isMessageClicked ? "opacity-80" : ""
+              }`}
             >
-              <CustomText className={`text-base text-black200`}>
+              <CustomText className={`text-base text-black200 w-full`}>
                 {item.content}
               </CustomText>
-            </View>
+              {isMessageClicked && (
+                <CustomText className="text-xs text-gray500 mt-2">
+                  {format(adjustedDate, "h:mm a")}
+                </CustomText>
+              )}
+            </TouchableOpacity>
           </View>
         </View>
       );
     },
-    [therapist, messages]
+    [therapist, messages, clickedMessageId, handleMessagePress]
   );
 
   const keyExtractor = useCallback((item: Message) => item.id.toString(), []);

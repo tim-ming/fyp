@@ -20,6 +20,8 @@ import { Link } from "expo-router";
 import { BACKEND_URL } from "@/constants/globals";
 import { differenceInMinutes } from "date-fns";
 import { format, toZonedTime } from "date-fns-tz";
+import { shadows } from "@/constants/styles";
+import SendIcon from "@/assets/icons/send.svg";
 
 interface Message {
   id: number;
@@ -231,18 +233,19 @@ const ChatScreen: React.FC = () => {
     <SafeAreaView className="flex-1 bg-blue100">
       <TopNav />
       <View className="flex-1">
-        <View className="px-4 py-2 border-b-[1px] border-gray50 flex justify-center items-center flex-row">
+        <View className="px-4 py-2 border-b-[1px] border-gray50 flex items-center flex-row">
           <Image
             className="w-12 h-12 rounded-full mr-2"
             source={{ uri: therapist?.image }}
           />
           <CustomText
             letterSpacing="tight"
-            className="text-[24px] font-medium text-center text-black200"
+            className="text-lg font-medium text-center text-black200"
           >
             Dr. {therapist?.name}
           </CustomText>
         </View>
+
         <FlatList
           ref={flatListRef}
           data={messages}
@@ -262,17 +265,19 @@ const ChatScreen: React.FC = () => {
         >
           <View className="flex-row items-center border-t border-gray50 px-4 py-2">
             <TextInput
+              style={shadows.card}
               ref={inputRef}
-              className="flex-1 bg-gray50 text-base rounded-full px-4 py-2 mr-2 font-[PlusJakartaSans]"
+              className="w-full bg-white text-base rounded-2xl h-14 pt-4 px-4 font-[PlusJakartaSans] placeholder:text-gray100"
               placeholder="Type a message..."
               value={inputText}
               onChangeText={setInputText}
               multiline
             />
-            <Pressable onPress={handleSend}>
-              <CustomText className="text-blue500 font-semibold">
-                Send
-              </CustomText>
+            <Pressable
+              onPress={handleSend}
+              className="p-3 rounded-full bg-blue200  ml-2"
+            >
+              <SendIcon className="w-6 h-6 stroke-2 translate-x-[-1px] stroke-white" />
             </Pressable>
           </View>
         </KeyboardAvoidingView>

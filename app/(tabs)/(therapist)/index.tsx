@@ -1,11 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import {
-  View,
-  FlatList,
-  StyleSheet,
-  Image,
-  Pressable,
-} from "react-native";
+import { View, FlatList, StyleSheet, Image, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import CustomText from "@/components/CustomText";
 import { useAuth } from "@/state/auth";
@@ -133,7 +127,9 @@ const PatientListScreen = () => {
     return sortedData;
   };
 
-  const handleSort = (key: keyof PatientWithLastMessage | "lastMessageTimestamp") => {
+  const handleSort = (
+    key: keyof PatientWithLastMessage | "lastMessageTimestamp"
+  ) => {
     setSortConfig((prevConfig) => ({
       key,
       direction:
@@ -141,8 +137,11 @@ const PatientListScreen = () => {
           ? "descending"
           : "ascending",
     }));
-    
-    const direction = sortConfig.key === key && sortConfig.direction === "ascending" ? "descending" : "ascending";
+
+    const direction =
+      sortConfig.key === key && sortConfig.direction === "ascending"
+        ? "descending"
+        : "ascending";
     const sortedData = getSortedData(key, direction);
     setVisiblePatients(sortedData.slice(0, visiblePatients.length));
   };
@@ -185,9 +184,13 @@ const PatientListScreen = () => {
     }
   };
 
-  const renderSortIcon = (key: keyof PatientWithLastMessage | "lastMessageTimestamp") => {
+  const renderSortIcon = (
+    key: keyof PatientWithLastMessage | "lastMessageTimestamp"
+  ) => {
     if (sortConfig.key !== key) {
-      return <Ionicons name="swap-vertical-outline" size={16} color="#256CD0" />;
+      return (
+        <Ionicons name="swap-vertical-outline" size={16} color="#256CD0" />
+      );
     }
     return sortConfig.direction === "ascending" ? (
       <Ionicons name="arrow-up" size={16} color="#256CD0" />
@@ -196,18 +199,24 @@ const PatientListScreen = () => {
     );
   };
 
-
   const renderPatientItem = ({ item }: { item: PatientWithLastMessage }) => {
     const riskTagStyle = getRiskTagStyle(item.risk);
-    
+
     return (
       <Pressable
         style={styles.patientItem}
-        onPress={() => router.push(`/therapist/chat/${item.id}`)}
+        onPress={() => router.push(`/(therapist)/chat/${item.id}`)}
       >
         <Image source={{ uri: item.image }} style={styles.avatar} />
-        <View style={[styles.riskTag, { backgroundColor: riskTagStyle.backgroundColor }]}>
-          <CustomText style={[styles.riskText, { color: riskTagStyle.color }]}>{item.risk}</CustomText>
+        <View
+          style={[
+            styles.riskTag,
+            { backgroundColor: riskTagStyle.backgroundColor },
+          ]}
+        >
+          <CustomText style={[styles.riskText, { color: riskTagStyle.color }]}>
+            {item.risk}
+          </CustomText>
         </View>
         <View style={styles.patientInfo}>
           <CustomText style={styles.patientName}>
@@ -274,17 +283,11 @@ const PatientListScreen = () => {
       </View>
       <CustomText style={styles.title}>Patients</CustomText>
       <View style={styles.sortContainer}>
-        <Pressable
-          onPress={() => handleSort("name")}
-          style={styles.sortButton}
-        >
+        <Pressable onPress={() => handleSort("name")} style={styles.sortButton}>
           <CustomText style={styles.sortButtonText}>Name</CustomText>
           {renderSortIcon("name")}
         </Pressable>
-        <Pressable
-          onPress={() => handleSort("risk")}
-          style={styles.sortButton}
-        >
+        <Pressable onPress={() => handleSort("risk")} style={styles.sortButton}>
           <CustomText style={styles.sortButtonText}>Risk</CustomText>
           {renderSortIcon("risk")}
         </Pressable>

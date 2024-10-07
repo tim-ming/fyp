@@ -41,10 +41,7 @@ export default function TabLayout() {
   }, []);
 
   if (isLoading) {
-    return (
-      <SafeAreaView>
-      </SafeAreaView>
-    );
+    return <SafeAreaView></SafeAreaView>;
   }
 
   return (
@@ -219,33 +216,15 @@ export default function TabLayout() {
           )}
         />
         <Tabs.Screen
-          name="(therapist)/chat"
+          name="(therapist)/chat/[patientId]"
           options={{
-            title: "Vault",
-            tabBarIcon: ({ color, focused }) => (
-              <View className="items-center">
-                <MessageIcon
-                  width={28}
-                  height={28}
-                  className={`stroke-[1px] ${
-                    focused ? `stroke-blue200` : `stroke-gray300`
-                  } `}
-                />
-                <CustomText
-                  className={`${
-                    focused ? `text-blue200` : `text-gray300`
-                  } text-sm font-medium`}
-                >
-                  Chat
-                </CustomText>
-              </View>
-            ),
+            href: null,
+            headerShown: false,
           }}
           redirect={Boolean(
             auth && auth.user && auth.user.role !== "therapist"
           )}
         />
-
         <Tabs.Screen
           name="(therapist)/settings"
           options={{
@@ -268,6 +247,42 @@ export default function TabLayout() {
                 </CustomText>
               </View>
             ),
+          }}
+          redirect={Boolean(
+            auth && auth.user && auth.user.role !== "therapist"
+          )}
+        />
+        <Tabs.Screen
+          name="(therapist)/patients/[patientId]"
+          options={{
+            href: null,
+          }}
+          redirect={Boolean(
+            auth && auth.user && auth.user.role !== "therapist"
+          )}
+        />
+        <Tabs.Screen
+          name="(therapist)/patients/[patientId]/notes"
+          options={{
+            href: null,
+          }}
+          redirect={Boolean(
+            auth && auth.user && auth.user.role !== "therapist"
+          )}
+        />
+        <Tabs.Screen
+          name="(therapist)/patients/[patientId]/data/[date]"
+          options={{
+            href: null,
+          }}
+          redirect={Boolean(
+            auth && auth.user && auth.user.role !== "therapist"
+          )}
+        />
+        <Tabs.Screen
+          name="(therapist)/patients/[patientId]/data/index"
+          options={{
+            href: null,
           }}
           redirect={Boolean(
             auth && auth.user && auth.user.role !== "therapist"

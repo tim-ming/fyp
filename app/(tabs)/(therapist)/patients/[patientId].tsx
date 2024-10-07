@@ -138,20 +138,24 @@ const PatientDetails = () => {
         <View className="flex-row justify-center items-center mb-6 gap-4">
           <Pressable
             onPress={() => {
-              router.push(`/therapist/patients/${patientId}/notes`);
+              router.push(`/(therapist)/patients/${patientId}/notes`);
             }}
             className="p-1 w-14 h-14 items-center justify-center rounded-[20px] border-2 border-blue200"
           >
             <Edit width={ICON_SIZE} height={ICON_SIZE} fill="#256CD0" />
           </Pressable>
-          <Pressable className="p-1 w-14 h-14 items-center justify-center rounded-[20px] border-2 border-blue200"
-          onPress={() => {
-            router.push(`/therapist/chat/${patientId}`);
-          }}>
+          <Pressable
+            className="p-1 w-14 h-14 items-center justify-center rounded-[20px] border-2 border-blue200"
+            onPress={() => {
+              router.push(`/(therapist)/chat/${patientId}`);
+            }}
+          >
             <Message width={ICON_SIZE} height={ICON_SIZE} fill="#256CD0" />
           </Pressable>
           <Pressable
-            onPress={() => router.push(`/therapist/patients/${patientId}/data`)}
+            onPress={() =>
+              router.push(`/(therapist)/patients/${patientId}/data`)
+            }
             className="flex-1 bg-blue200 items-center justify-center py-4 rounded-[20px]"
           >
             <View className="flex-row items-center gap-3">
@@ -232,7 +236,7 @@ const PatientDetails = () => {
             </CustomText>
             <Pressable
               onPress={() =>
-                router.push(`/therapist/patients/${patientId}/data`)
+                router.push(`/(therapist)/patients/${patientId}/data`)
               }
               className="border border-blue200 rounded-full py-[18px] my-[16px] items-center"
             >

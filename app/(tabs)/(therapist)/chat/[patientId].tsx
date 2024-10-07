@@ -14,36 +14,31 @@ import CustomText from "@/components/CustomText";
 import { useAuth } from "@/state/auth";
 import { useHydratedEffect } from "@/hooks/hooks";
 import { getMessages, getPatients } from "@/api/api";
-import { UserWithoutSensitiveData } from "@/types/models";
+import { Message, UserWithoutSensitiveData } from "@/types/models";
 import { BACKEND_URL } from "@/constants/globals";
-import { differenceInMinutes } from "date-fns";
+import { differenceInMinutes, set } from "date-fns";
 import { format, toZonedTime } from "date-fns-tz";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { shadows } from "@/constants/styles";
 import SendIcon from "@/assets/icons/send.svg";
 import BackButtonWrapper from "@/components/Back";
-
-interface Message {
-  id: number;
-  content: string;
-  sender_id: number;
-  timestamp: string;
-}
+import useWebSocketStore from '@/state/socket';
 
 const ChatScreen = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState("");
   const inputRef = useRef<TextInput>(null);
   const flatListRef = useRef<FlatList<Message>>(null);
-  const websocketRef = useRef<WebSocket | null>(null);
   const router = useRouter();
   const { patientId } = useLocalSearchParams();
   const intPatientId = parseInt(patientId as string);
+  const webSocketStore = useWebSocketStore();
   const auth = useAuth();
   const [loading, setLoading] = useState(true);
   const [patient, setPatient] = useState<UserWithoutSensitiveData | null>(null);
-
+  console.log(intPatientId);
   useHydratedEffect(async () => {
+    setLoading(true);
     const token = auth.token?.access_token;
     try {
       const patient = (await getPatients()).find(
@@ -61,16 +56,23 @@ const ChatScreen = () => {
       return;
     }
 
-    if (!websocketRef.current) {
-      connectWebSocket(token ? token : "");
+    if (token && !webSocketStore.isConnected) {
+      webSocketStore.connect(token);
     }
+
+    const messageHandler = (message: Message) => {
+      if (
+        (message.sender_id === intPatientId && message.recipient_id === auth.user?.id) ||
+        (message.sender_id === auth.user?.id && message.recipient_id === intPatientId)) {
+        setMessages((prevMessages) => [message, ...prevMessages]);
+      }
+    };
+
+    webSocketStore.addMessageListener(messageHandler);
     setLoading(false);
 
     return () => {
-      if (websocketRef.current) {
-        websocketRef.current.close();
-        websocketRef.current = null; // Reset the ref
-      }
+      webSocketStore.removeMessageListener(messageHandler);
     };
   }, [patientId]);
 
@@ -84,49 +86,13 @@ const ChatScreen = () => {
     scrollToBottom();
   }, [scrollToBottom]);
 
-  const connectWebSocket = async (token: string) => {
-    if (websocketRef.current) {
-      websocketRef.current.close(); // Close the existing connection
-    }
-
-    const endpoint = BACKEND_URL;
-    // backendurl contains either http or https, so adjust for ws or wss
-    const url = endpoint.replace(/^https/, "wss").replace(/^http/, "ws");
-    const ws = new WebSocket(`${url}/ws/chat?token=${token}`);
-
-    ws.onopen = () => {
-      console.log("WebSocket Connected");
-    };
-
-    ws.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-      console.log(message);
-      setMessages((prevMessages) => [message, ...prevMessages]);
-      console.log(messages);
-    };
-
-    ws.onerror = (error) => {
-      console.error("WebSocket Error:", error);
-    };
-
-    ws.onclose = () => {
-      console.log("WebSocket Disconnected");
-      // Attempt to reconnect after a delay
-      setTimeout(() => {
-        connectWebSocket(token);
-      }, 5000);
-    };
-
-    websocketRef.current = ws;
-  };
-
   const handleSend = () => {
-    if (inputText.trim() && websocketRef.current) {
+    if (inputText.trim() && patient?.id) {
       const message = {
         content: inputText.trim(),
-        recipient_id: patient?.id,
+        recipient_id: patient.id,
       };
-      websocketRef.current.send(JSON.stringify(message));
+      webSocketStore.sendMessage(message);
       setInputText("");
     }
   };

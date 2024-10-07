@@ -20,6 +20,7 @@ import {
   unassignTherapist,
 } from "@/api/api";
 import { useAuth } from "@/state/auth";
+import useTherapistStore from "@/state/assignedTherapist";
 import { BACKEND_URL } from "@/constants/globals";
 
 const DoctorDetails = () => {
@@ -30,6 +31,7 @@ const DoctorDetails = () => {
   const [hasDoctor, setHasDoctor] = useState(false);
   const [modalVisible, setModalVisible] = useState(false); // Modal visibility state
   const auth = useAuth();
+  const therapistStore = useTherapistStore();
 
   // Function to handle sharing data with the doctor
   const share = async () => {
@@ -39,6 +41,7 @@ const DoctorDetails = () => {
       const assigned = await assignTherapist(Number(doctorId));
       setHasDoctor(true);
       setDataShared(true);
+      therapistStore.setTherapist(doctor);
     }
   };
 
@@ -48,6 +51,7 @@ const DoctorDetails = () => {
     setHasDoctor(true);
     setDataShared(true);
     setModalVisible(false);
+    therapistStore.setTherapist(doctor);
   };
 
   const handleCancel = () => {
@@ -58,6 +62,7 @@ const DoctorDetails = () => {
     await unassignTherapist();
     setHasDoctor(false);
     setDataShared(false);
+    therapistStore.clearTherapist();
   };
 
   useHydratedEffect(() => {

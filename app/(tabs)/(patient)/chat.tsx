@@ -22,52 +22,68 @@ import { differenceInMinutes } from "date-fns";
 import { format, toZonedTime } from "date-fns-tz";
 import { shadows } from "@/constants/styles";
 import SendIcon from "@/assets/icons/send.svg";
-
-interface Message {
-  id: number;
-  content: string;
-  sender_id: number;
-  timestamp: string;
-}
+import useWebSocketStore from '@/state/socket';
+import { Message } from "@/types/models";
+import useTherapistStore from "@/state/assignedTherapist";
 
 const ChatScreen: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState("");
   const inputRef = useRef<TextInput>(null);
   const flatListRef = useRef<FlatList<Message>>(null);
-  const websocketRef = useRef<WebSocket | null>(null);
   const auth = useAuth();
   const [loading, setLoading] = useState(true);
+  const webSocketStore = useWebSocketStore();
+  const { therapist, setTherapist } = useTherapistStore();
 
-  const [therapist, setTherapist] = useState<UserWithoutSensitiveData | null>(
-    null
-  );
+  const fetchMessages = useCallback(async (therapistId: number) => {
+    try {
+      const fetchedMessages = await getMessages(therapistId);
+      setMessages(fetchedMessages.toReversed());
+    } catch (error) {
+      console.error("Error fetching messages:", error);
+    }
+  }, []);
 
   useHydratedEffect(async () => {
+    setLoading(true);
     const token = auth.token?.access_token;
-    try {
-      const therapist = await getTherapistInCharge();
-      setTherapist(therapist);
 
-      if (therapist && therapist.id) {
-        setMessages((await getMessages(therapist.id)).toReversed());
+    try {
+      if (!therapist) {
+        const fetchedTherapist = await getTherapistInCharge();
+        setTherapist(fetchedTherapist);
+        if (fetchedTherapist && fetchedTherapist.id) {
+          await fetchMessages(fetchedTherapist.id);
+        }
+      } else if (therapist.id) {
+        await fetchMessages(therapist.id);
       }
     } catch (error) {
+      console.error("Error fetching therapist or messages:", error);
+    } finally {
       setLoading(false);
-      return;
     }
 
-    if (!websocketRef.current) {
-      connectWebSocket(token ? token : "");
+    if (token && !webSocketStore.isConnected) {
+      webSocketStore.connect(token);
     }
-    setLoading(false);
 
-    return () => {
-      if (websocketRef.current) {
-        websocketRef.current.close();
+    const messageHandler = (message: Message) => {
+      if (
+        (message.sender_id === therapist?.id && message.recipient_id === auth.user?.id) ||
+        (message.sender_id === auth.user?.id && message.recipient_id === therapist?.id)
+      ) {
+        setMessages((prevMessages) => [message, ...prevMessages]);
       }
     };
-  }, []);
+
+    webSocketStore.addMessageListener(messageHandler);
+
+    return () => {
+      webSocketStore.removeMessageListener(messageHandler);
+    };
+  }, [therapist, fetchMessages]);
 
   const scrollToBottom = useCallback(() => {
     if (flatListRef.current && messages.length > 0) {
@@ -79,45 +95,14 @@ const ChatScreen: React.FC = () => {
     scrollToBottom();
   }, [scrollToBottom]);
 
-  const connectWebSocket = async (token: string) => {
-    const endpoint = BACKEND_URL;
-    // backendurl contains either http or https, so adjust for ws or wss
-    const url = endpoint.replace(/^https/, "wss").replace(/^http/, "ws");
-    const ws = new WebSocket(`${url}/ws/chat?token=${token}`);
-
-    ws.onopen = () => {
-      console.log("WebSocket Connected");
-    };
-
-    ws.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-      console.log(message);
-      setMessages((prevMessages) => [message, ...prevMessages]);
-      console.log(messages);
-    };
-
-    ws.onerror = (error) => {
-      console.error("WebSocket Error:", error);
-    };
-
-    ws.onclose = () => {
-      console.log("WebSocket Disconnected");
-      // Attempt to reconnect after a delay
-      setTimeout(() => {
-        connectWebSocket(token);
-      }, 5000);
-    };
-
-    websocketRef.current = ws;
-  };
-
   const handleSend = () => {
-    if (inputText.trim() && websocketRef.current) {
+    if (inputText.trim() && therapist?.id) {
       const message = {
         content: inputText.trim(),
         recipient_id: therapist?.id,
+        sender_id: auth.user?.id,
       };
-      websocketRef.current.send(JSON.stringify(message));
+      webSocketStore.sendMessage(message);
       setInputText("");
     }
   };

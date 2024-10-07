@@ -38,7 +38,7 @@ const ChatScreen = () => {
   const websocketRef = useRef<WebSocket | null>(null);
   const router = useRouter();
   const { patientId } = useLocalSearchParams();
-  const intPatientId = parseInt(patientId[0]);
+  const intPatientId = parseInt(patientId as string);
   const auth = useAuth();
   const [loading, setLoading] = useState(true);
   const [patient, setPatient] = useState<UserWithoutSensitiveData | null>(null);
@@ -53,7 +53,6 @@ const ChatScreen = () => {
         throw new Error("Patient not found");
       }
       setPatient(patient);
-
       if (patient && patient.id) {
         setMessages((await getMessages(patient.id)).toReversed());
       }
@@ -73,7 +72,7 @@ const ChatScreen = () => {
         websocketRef.current = null; // Reset the ref
       }
     };
-  }, []);
+  }, [patientId]);
 
   const scrollToBottom = useCallback(() => {
     if (flatListRef.current && messages.length > 0) {

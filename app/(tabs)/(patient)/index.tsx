@@ -445,7 +445,7 @@ const HomeScreen = () => {
                     className="w-full h-32"
                   />
                   <CustomText className="text-lg text-center">
-                    {doctor.name}
+                    Dr. {doctor.name}
                   </CustomText>
                 </Pressable>
               </View>

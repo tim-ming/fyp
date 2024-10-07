@@ -99,12 +99,14 @@ const DoctorDetails = () => {
             <View className="p-1 w-16 h-16 items-center justify-center bg-gray-50 rounded-full">
               <Image
                 className="w-full h-full rounded-full"
-                source={`../assets/images/${doctor.image}`}
+                source={{
+                  uri: doctor.image,
+                }}
               />
             </View>
             <View className="flex-col">
               <CustomText className="text-[20px] font-medium text-black">
-                {doctor.name}
+                Dr. {doctor.name}
               </CustomText>
               <CustomText className="text-gray300 text-[16px]">
                 ID: {doctorId}

@@ -1,5 +1,5 @@
 import { Tabs, useSegments } from "expo-router";
-import React from "react";
+import React, { useState } from "react";
 import { SafeAreaView, StyleSheet, View } from "react-native";
 
 import VaultIcon from "@/assets/icons/archive.svg";
@@ -15,6 +15,7 @@ import { shadows } from "@/constants/styles";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { usePathname } from "expo-router";
 import { useAuth } from "@/state/auth";
+import { useHydratedEffect } from "@/hooks/hooks";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -30,6 +31,22 @@ export default function TabLayout() {
   const hide = false;
   const auth = useAuth();
   console.log(auth, "a");
+
+  const [isLoading, setIsLoading] = useState(true);
+
+  useHydratedEffect(() => {
+    if (auth && auth.user) {
+      setIsLoading(false);
+    }
+  }, []);
+
+  if (isLoading) {
+    return (
+      <SafeAreaView>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <Tabs

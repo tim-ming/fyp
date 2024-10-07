@@ -215,6 +215,7 @@ export default function TabLayout() {
             auth && auth.user && auth.user.role !== "therapist"
           )}
         />
+
         <Tabs.Screen
           name="(therapist)/chat/[patientId]"
           options={{
@@ -252,6 +253,17 @@ export default function TabLayout() {
             auth && auth.user && auth.user.role !== "therapist"
           )}
         />
+        <Tabs.Screen
+          name="(therapist)/settings/details"
+          options={{
+            href: null,
+            headerShown: false,
+          }}
+          redirect={Boolean(
+            auth && auth.user && auth.user.role !== "therapist"
+          )}
+        />
+
         <Tabs.Screen
           name="(therapist)/patients/[patientId]"
           options={{

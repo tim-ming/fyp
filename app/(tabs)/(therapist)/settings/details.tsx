@@ -206,7 +206,7 @@ const UserDetails = () => {
           <View className="w-full h-px bg-gray50 my-6" />
           <View className="flex justify-center items-center">
             <View
-              className="relative bg-white rounded-2xl w-[150] h-[150] rounded-xl"
+              className="relative bg-white rounded-2xl w-[150] h-[150]"
               style={shadows.card}
             >
               {image && (

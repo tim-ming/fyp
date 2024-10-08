@@ -105,13 +105,15 @@ const SignInScreen = () => {
                   value={email}
                   onChangeText={setEmail}
                 />
-                <Mail
-                  width={24}
-                  height={24}
-                  strokeWidth={1.5}
-                  pointerEvents="none"
-                  className="stroke-gray200 absolute left-4 top-0 h-full w-6 items-center justify-center"
-                />
+                <View className="stroke-gray200 absolute left-4 top-0 flex h-full w-6 flex items-center justify-center">
+                  <Mail
+                    width={24}
+                    height={24}
+                    strokeWidth={1.5}
+                    pointerEvents="none"
+                    className="stroke-gray200"
+                  />
+                </View>
               </View>
             </Pressable>
 
@@ -129,12 +131,14 @@ const SignInScreen = () => {
                   onChangeText={setPassword}
                   secureTextEntry
                 />
-                <Lock
-                  width={24}
-                  height={24}
-                  pointerEvents="none"
-                  className="fill-gray200 absolute left-4 top-0 h-full w-6 items-center justify-center"
-                />
+                <View className="fill-gray200 absolute left-4 top-0 h-full w-6 items-center justify-center">
+                  <Lock
+                    width={24}
+                    height={24}
+                    pointerEvents="none"
+                    className="fill-gray200"
+                  />
+                </View>
               </View>
             </Pressable>
           </View>

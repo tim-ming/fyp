@@ -521,12 +521,14 @@ const SignUp: React.FC<{
                   value={password}
                   onChangeText={setPassword}
                 />
-                <Lock
-                  width={24}
-                  height={24}
-                  pointerEvents="none"
-                  className="fill-gray200 absolute left-4 top-0 h-full w-6 items-center justify-center"
-                />
+                <View className="fill-gray200 absolute left-4 top-0 h-full w-6 items-center justify-center">
+                  <Lock
+                    width={24}
+                    height={24}
+                    pointerEvents="none"
+                    className="fill-gray200"
+                  />
+                </View>
               </View>
             </Pressable>
 

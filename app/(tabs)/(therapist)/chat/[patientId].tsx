@@ -68,11 +68,11 @@ const ChatScreen = () => {
       }
     };
 
-    webSocketStore.addMessageListener(messageHandler);
+    webSocketStore.addMessageListener(intPatientId, messageHandler);
     setLoading(false);
 
     return () => {
-      webSocketStore.removeMessageListener(messageHandler);
+      webSocketStore.removeMessageListener(intPatientId);
     };
   }, [patientId]);
 

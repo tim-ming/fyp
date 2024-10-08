@@ -5,16 +5,18 @@ import { Message } from "@/types/models";
 interface WebSocketStore {
   socket: WebSocket | null;
   isConnected: boolean;
+  messageHandlers: Map<number, (message: Message) => void>;
   connect: (token: string) => void;
   disconnect: () => void;
   sendMessage: (message: { content: string; recipient_id: number }) => void;
-  addMessageListener: (callback: (message: Message) => void) => void;
-  removeMessageListener: (callback: (message: Message) => void) => void;
+  addMessageListener: (recipientId: number, callback: (message: Message) => void) => void;
+  removeMessageListener: (recipientId: number) => void;
 }
 
 const useWebSocketStore = create<WebSocketStore>((set, get) => ({
   socket: null,
   isConnected: false,
+  messageHandlers: new Map(),
   connect: (token: string) => {
     if (get().socket) {
       get().socket?.close();
@@ -39,11 +41,24 @@ const useWebSocketStore = create<WebSocketStore>((set, get) => ({
       console.error("WebSocket Error:", error);
     };
 
+    socket.onmessage = (event: MessageEvent) => {
+      const message: Message = JSON.parse(event.data);
+      console.log(get().messageHandlers);
+      const handler = get().messageHandlers.get(message.recipient_id);
+      if (handler) {
+        handler(message);
+      }
+      const otherHandler = get().messageHandlers.get(message.sender_id);
+      if (otherHandler) {
+        otherHandler(message);
+      }
+    };
+
     set({ socket });
   },
   disconnect: () => {
     get().socket?.close();
-    set({ socket: null, isConnected: false });
+    set({ socket: null, isConnected: false, messageHandlers: new Map() });
   },
   sendMessage: (message) => {
     if (get().socket && get().isConnected) {
@@ -52,19 +67,19 @@ const useWebSocketStore = create<WebSocketStore>((set, get) => ({
       console.error("WebSocket is not connected");
     }
   },
-  addMessageListener: (callback) => {
-    const messageHandler = (event: MessageEvent) => {
-      const message = JSON.parse(event.data);
-      callback(message);
-    };
-    get().socket?.addEventListener("message", messageHandler);
+  addMessageListener: (recipientId, callback) => {
+    set((state) => {
+      const newHandlers = new Map(state.messageHandlers);
+      newHandlers.set(recipientId, callback);
+      return { messageHandlers: newHandlers };
+    });
   },
-  removeMessageListener: (callback) => {
-    const messageHandler = (event: MessageEvent) => {
-      const message = JSON.parse(event.data);
-      callback(message);
-    };
-    get().socket?.removeEventListener("message", messageHandler);
+  removeMessageListener: (recipientId) => {
+    set((state) => {
+      const newHandlers = new Map(state.messageHandlers);
+      newHandlers.delete(recipientId);
+      return { messageHandlers: newHandlers };
+    });
   },
 }));
 

@@ -103,10 +103,10 @@ const PatientListScreen = () => {
 
       };
   
-      webSocketStore.addMessageListener(messageHandler);
+      webSocketStore.addMessageListener(-1, messageHandler);
   
       return () => {
-        webSocketStore.removeMessageListener(messageHandler);
+        webSocketStore.removeMessageListener(-1);
       };
     } catch (error) {
       console.error("Error fetching patients:", error);

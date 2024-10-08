@@ -78,10 +78,10 @@ const ChatScreen: React.FC = () => {
       }
     };
 
-    webSocketStore.addMessageListener(messageHandler);
+    webSocketStore.addMessageListener(therapist!.id, messageHandler);
 
     return () => {
-      webSocketStore.removeMessageListener(messageHandler);
+      webSocketStore.removeMessageListener(therapist!.id);
     };
   }, [therapist, fetchMessages]);
 

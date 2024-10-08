@@ -11,11 +11,18 @@ import Support from "@/assets/icons/support.svg";
 import UserHeart from "@/assets/icons/user-heart.svg";
 import CustomText from "@/components/CustomText";
 import { shadows } from "@/constants/styles";
+import useTherapistStore from "@/state/assignedTherapist";
 import { useAuth } from "@/state/auth";
 import { Image } from "expo-image";
 import { Href, router } from "expo-router";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Pressable, SafeAreaView, ScrollView, TextInput, View } from "react-native";
+import {
+  Pressable,
+  SafeAreaView,
+  ScrollView,
+  TextInput,
+  View,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const SettingsScreen = () => {
@@ -24,38 +31,40 @@ const SettingsScreen = () => {
     router.push(screen);
   };
   const auth = useAuth();
+  const therapist = useTherapistStore();
 
   const logout = () => {
     auth.reset();
+    therapist.reset();
     router.push("/signin");
   };
 
   return (
     <SafeAreaView className="flex-1 bg-blue100">
-    <ScrollView
-      style={{
-        paddingTop: insets.top,
-        paddingBottom: insets.bottom,
-        paddingLeft: insets.left,
-        paddingRight: insets.right,
-      }}
-      className=" bg-blue100"
-    >
-      {/* <BackButtonWrapper
+      <ScrollView
+        style={{
+          paddingTop: insets.top,
+          paddingBottom: insets.bottom,
+          paddingLeft: insets.left,
+          paddingRight: insets.right,
+        }}
+        className=" bg-blue100"
+      >
+        {/* <BackButtonWrapper
         style={{
           paddingLeft: 8,
           paddingTop: 12,
         }}
       > */}
-      <View className="flex-1 bg-blue100 px-4 gap-y-7">
-        <CustomText
-          letterSpacing="tight"
-          className="text-2xl font-semibold text-black200"
-        >
-          Profile
-        </CustomText>
+        <View className="flex-1 bg-blue100 px-4 gap-y-7">
+          <CustomText
+            letterSpacing="tight"
+            className="text-2xl font-semibold text-black200"
+          >
+            Profile
+          </CustomText>
 
-        {/* 
+          {/* 
         <View className="flex bg-white rounded-2xl" style={shadows.card}>
           <Pressable
             className="flex-row justify-between items-center py-5 px-4"
@@ -79,8 +88,8 @@ const SettingsScreen = () => {
           </Pressable>
         </View> */}
 
-        {/* Profile Section */}
-        {/* <View className="gap-y-3">
+          {/* Profile Section */}
+          {/* <View className="gap-y-3">
           <CustomText
             letterSpacing="tight"
             className="text-xl font-medium text-black200 ml-4"
@@ -129,8 +138,8 @@ const SettingsScreen = () => {
           </View>
         </View> */}
 
-        {/* Personalisation Section */}
-        {/* <View className="gap-y-3">
+          {/* Personalisation Section */}
+          {/* <View className="gap-y-3">
           <CustomText
             letterSpacing="tight"
             className="text-xl font-medium text-black200 ml-4"
@@ -182,8 +191,8 @@ const SettingsScreen = () => {
           </View>
         </View> */}
 
-        {/* Help & Support Section */}
-        {/* <View className="gap-y-3">
+          {/* Help & Support Section */}
+          {/* <View className="gap-y-3">
           <CustomText
             letterSpacing="tight"
             className="text-xl font-medium text-black200 ml-4"
@@ -235,27 +244,27 @@ const SettingsScreen = () => {
           </View>
         </View> */}
 
-        <View className="flex bg-white rounded-2xl" style={shadows.card}>
-          <Pressable
-            className="flex-row justify-between items-center py-3 px-4"
-            onPress={() => logout()}
-          >
-            <View className="flex-row items-center gap-3">
-              <Logout
-                className="stroke-gray300 stroke-2"
-                width={20}
-                height={20}
-              />
-              <CustomText className=" text-gray300 font-medium">
-                Logout
-              </CustomText>
-            </View>
-            <ChevronRight className="stroke-gray300" />
-          </Pressable>
+          <View className="flex bg-white rounded-2xl" style={shadows.card}>
+            <Pressable
+              className="flex-row justify-between items-center py-3 px-4"
+              onPress={() => logout()}
+            >
+              <View className="flex-row items-center gap-3">
+                <Logout
+                  className="stroke-gray300 stroke-2"
+                  width={20}
+                  height={20}
+                />
+                <CustomText className=" text-gray300 font-medium">
+                  Logout
+                </CustomText>
+              </View>
+              <ChevronRight className="stroke-gray300" />
+            </Pressable>
+          </View>
         </View>
-      </View>
-      {/* </BackButtonWrapper> */}
-    </ScrollView>
+        {/* </BackButtonWrapper> */}
+      </ScrollView>
     </SafeAreaView>
   );
 };

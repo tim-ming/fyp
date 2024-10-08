@@ -13,6 +13,7 @@ import UserHeart from "@/assets/icons/user-heart.svg";
 import CustomText from "@/components/CustomText";
 import { shadows } from "@/constants/styles";
 import { useHydratedEffect } from "@/hooks/hooks";
+import useTherapistStore from "@/state/assignedTherapist";
 import { useAuth } from "@/state/auth";
 import * as ImagePicker from "expo-image-picker";
 import { Href, router } from "expo-router";
@@ -194,10 +195,13 @@ const SettingsScreen = () => {
   const handlePress = (screen: Href<string>) => {
     router.push(screen);
   };
+
   const auth = useAuth();
+  const therapist = useTherapistStore();
 
   const logout = () => {
     auth.reset();
+    therapist.reset();
     router.push("/signin");
   };
 

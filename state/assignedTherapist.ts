@@ -7,6 +7,7 @@ interface TherapistStore {
   therapist: UserWithoutSensitiveData | null;
   setTherapist: (therapist: UserWithoutSensitiveData | null) => void;
   clearTherapist: () => void;
+  reset: () => void;
 }
 
 const useTherapistStore = create<TherapistStore>()(
@@ -15,6 +16,7 @@ const useTherapistStore = create<TherapistStore>()(
       therapist: null,
       setTherapist: (therapist) => set({ therapist }),
       clearTherapist: () => set({ therapist: null }),
+      reset: () => set({ therapist: null }),
     }),
     {
       name: "therapist-storage",

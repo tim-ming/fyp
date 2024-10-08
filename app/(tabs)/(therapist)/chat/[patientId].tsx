@@ -8,6 +8,7 @@ import {
   Platform,
   ListRenderItemInfo,
   Image,
+  StyleSheet
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import CustomText from "@/components/CustomText";
@@ -233,7 +234,8 @@ const ChatScreen = () => {
           contentContainerStyle={{
             flexGrow: 1,
             justifyContent: "flex-end",
-            padding: 16,
+            paddingLeft: 16,
+            paddingRight: 16,
           }}
           inverted
           onLayout={scrollToBottom}
@@ -242,27 +244,38 @@ const ChatScreen = () => {
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           keyboardVerticalOffset={100}
         >
-          <View className="flex-row items-center border-t border-gray50 px-4 py-2">
+        <View className="flex-row items-center border-t border-gray50 px-4 py-2">
+          <View className="flex-1 mr-2 h-20">
             <TextInput
-              style={shadows.card}
+              style={[shadows.card, { flex: 1}]}
               ref={inputRef}
-              className="w-full bg-white text-base rounded-2xl h-14 pt-4 px-4 font-[PlusJakartaSans] placeholder:text-gray100"
+              className="bg-white text-base rounded-2xl p-2 font-[PlusJakartaSans] placeholder:text-gray100"
               placeholder="Type a message..."
               value={inputText}
               onChangeText={setInputText}
               multiline
             />
-            <Pressable
-              onPress={handleSend}
-              className="p-3 rounded-full bg-blue200  ml-2"
-            >
-              <SendIcon className="w-6 h-6 stroke-2 translate-x-[-1px] stroke-white" />
-            </Pressable>
           </View>
+          <Pressable
+            onPress={handleSend}
+            className="p-3 rounded-full bg-blue200"
+          >
+            <SendIcon style={styles.sendIcon} />
+          </Pressable>
+        </View>
         </KeyboardAvoidingView>
       </View>
     </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  sendIcon: {
+    width: 24,
+    height: 24,
+    color: 'white',
+    transform: [{ translateX: -1 }],
+  },
+});
 
 export default ChatScreen;

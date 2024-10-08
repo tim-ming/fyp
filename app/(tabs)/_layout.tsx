@@ -72,6 +72,8 @@ export default function TabLayout() {
             borderWidth: 0,
             paddingBottom: 20,
             height: 88,
+            backgroundColor: "white",
+            borderTopColor: "transparent",
             display: hide ? "none" : "flex",
             ...shadows.card,
           }, // Adjust padding to better align items

@@ -46,7 +46,7 @@ const SettingsScreen = () => {
           paddingTop: 12,
         }}
       > */}
-      <View className="flex-1 bg-blue100 px-4 py-16 gap-y-7">
+      <View className="flex-1 bg-blue100 px-4 py-6 gap-y-7">
         <CustomText
           letterSpacing="tight"
           className="text-2xl font-semibold text-black200"

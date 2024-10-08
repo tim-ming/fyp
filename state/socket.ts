@@ -52,6 +52,10 @@ const useWebSocketStore = create<WebSocketStore>((set, get) => ({
       if (otherHandler) {
         otherHandler(message);
       }
+      const therapistHandler = get().messageHandlers.get(-1);
+      if (therapistHandler) {
+        therapistHandler(message);
+      }
     };
 
     set({ socket });

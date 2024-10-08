@@ -12,7 +12,7 @@ export const getStatus = (value: number) => {
   return "excellent";
 };
 
-export const BACKEND_URL = "http://localhost:8000";
+export const BACKEND_URL = "https://fyp-backend.koguma.dev";
 export const WEBSITE_URL = "https://fyp-csh.pages.dev";
 
 // export const getToken = async () =>

@@ -21,7 +21,6 @@ import Female from "@/assets/icons/female.svg";
 import Briefcase from "@/assets/icons/briefcase.svg";
 import Calendar from "@/assets/icons/calendar.svg";
 import UserIcon from "@/assets/icons/user.svg";
-import DatePicker from "react-native-date-picker";
 import { Sex } from "@/types/globals";
 import { differenceInYears, format, isValid, parse, set } from "date-fns";
 import { useHydratedEffect } from "@/hooks/hooks";
@@ -356,7 +355,7 @@ const UserDetails = () => {
           <CustomText className="mt-6 text-sm text-black">
             Date of birth
           </CustomText>
-          {Platform.OS === "web" ? (
+          {(
             <View className="mt-2 flex-row">
               <Pressable tabIndex={-1}>
                 <TextInput
@@ -389,33 +388,9 @@ const UserDetails = () => {
                 />
               </Pressable>
             </View>
-          ) : (
-            <Pressable
-              onPress={() => setOpen(true)}
-              className="mt-2 flex-row items-center bg-white rounded-lg shadow-sm px-3 py-2"
-            >
-              <Calendar width={20} height={20} className="stroke-gray200" />
-              <CustomText className="flex-1 ml-2 text-black">
-                {dob ? dob.toDateString() : "DD / MM / YYYY"}
-              </CustomText>
-            </Pressable>
           )}
           {errors.dob && (
             <CustomText className="text-red-500 mt-2">{errors.dob}</CustomText>
-          )}
-          {/* Date Picker Modal */}
-          {Platform.OS !== "web" && (
-            <DatePicker
-              modal
-              open={open}
-              date={dob}
-              mode="date"
-              onConfirm={(date) => {
-                setOpen(false);
-                setDob(date);
-              }}
-              onCancel={() => setOpen(false)}
-            />
           )}
         </View>
         <Pressable
@@ -429,6 +404,7 @@ const UserDetails = () => {
             Save
           </CustomText>
         </Pressable>
+        
       </View>
     </TouchableWithoutFeedback>
   );

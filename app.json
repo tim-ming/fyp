@@ -18,12 +18,11 @@
       "infoPlist": {
         "CFBundleURLTypes": [
           {
-            "CFBundleURLSchemes": [
-              "com.googleusercontent.apps.TODO"
-            ]
+            "CFBundleURLSchemes": ["com.googleusercontent.apps.TODO"]
           }
         ]
-      }
+      },
+      "bundleIdentifier": "com.anonymous.dp"
     },
     "android": {
       "adaptiveIcon": {

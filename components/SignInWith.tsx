@@ -14,6 +14,8 @@ const webClientId =
   "893591947282-mpd7sb0pi9av53a3sv4j8j72u5m9hp3o.apps.googleusercontent.com";
 const androidClientId =
   "893591947282-7ljujgqafd1pqvc9dikc81j3rvgo3qts.apps.googleusercontent.com";
+const iosClientId =
+  "893591947282-fnj463sa6ptndn09t8081bna6qkv7a64.apps.googleusercontent.com";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -46,6 +48,7 @@ export const SignInWithGoogle = () => {
   const config = {
     webClientId,
     androidClientId,
+    iosClientId,
   };
 
   const [request, response, promptAsync] = GoogleSignIn.useAuthRequest(config);

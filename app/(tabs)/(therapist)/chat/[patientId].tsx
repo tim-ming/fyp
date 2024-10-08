@@ -8,9 +8,12 @@ import {
   Platform,
   ListRenderItemInfo,
   Image,
-  StyleSheet
+  StyleSheet,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import CustomText from "@/components/CustomText";
 import { useAuth } from "@/state/auth";
 import { useHydratedEffect } from "@/hooks/hooks";
@@ -23,7 +26,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { shadows } from "@/constants/styles";
 import SendIcon from "@/assets/icons/send.svg";
 import BackButtonWrapper from "@/components/Back";
-import useWebSocketStore from '@/state/socket';
+import useWebSocketStore from "@/state/socket";
 
 const ChatScreen = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -63,8 +66,11 @@ const ChatScreen = () => {
 
     const messageHandler = (message: Message) => {
       if (
-        (message.sender_id === intPatientId && message.recipient_id === auth.user?.id) ||
-        (message.sender_id === auth.user?.id && message.recipient_id === intPatientId)) {
+        (message.sender_id === intPatientId &&
+          message.recipient_id === auth.user?.id) ||
+        (message.sender_id === auth.user?.id &&
+          message.recipient_id === intPatientId)
+      ) {
         setMessages((prevMessages) => [message, ...prevMessages]);
       }
     };
@@ -178,6 +184,8 @@ const ChatScreen = () => {
     [patient, messages, clickedMessageId, handleMessagePress]
   );
 
+  const insets = useSafeAreaInsets();
+
   const keyExtractor = useCallback((item: Message) => item.id.toString(), []);
 
   const navigateToPatientProfile = () => {
@@ -205,8 +213,13 @@ const ChatScreen = () => {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-blue100">
-      <View className="flex-1">
+    <View className="flex-1 bg-blue100">
+      <View
+        style={{
+          paddingTop: insets.top,
+        }}
+        className="flex-1"
+      >
         <View className="flex-row items-center">
           <BackButtonWrapper className="ml-4" />
           <Pressable onPress={navigateToPatientProfile}>
@@ -242,30 +255,30 @@ const ChatScreen = () => {
         />
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
-          keyboardVerticalOffset={100}
+          // keyboardVerticalOffset={100}
         >
-        <View className="flex-row items-center border-t border-gray50 px-4 py-2">
-          <View className="flex-1 mr-2 h-20">
-            <TextInput
-              style={[shadows.card, { flex: 1}]}
-              ref={inputRef}
-              className="bg-white text-base rounded-2xl p-2 font-[PlusJakartaSans] placeholder:text-gray100"
-              placeholder="Type a message..."
-              value={inputText}
-              onChangeText={setInputText}
-              multiline
-            />
+          <View className="flex-row items-center border-t border-gray50 px-4 py-2">
+            <View className="flex-1 mr-2 h-20">
+              <TextInput
+                style={[shadows.card, { flex: 1 }]}
+                ref={inputRef}
+                className="bg-white text-base rounded-2xl p-2 font-[PlusJakartaSans] placeholder:text-gray100"
+                placeholder="Type a message..."
+                value={inputText}
+                onChangeText={setInputText}
+                multiline
+              />
+            </View>
+            <Pressable
+              onPress={handleSend}
+              className="p-3 rounded-full bg-blue200"
+            >
+              <SendIcon style={styles.sendIcon} />
+            </Pressable>
           </View>
-          <Pressable
-            onPress={handleSend}
-            className="p-3 rounded-full bg-blue200"
-          >
-            <SendIcon style={styles.sendIcon} />
-          </Pressable>
-        </View>
         </KeyboardAvoidingView>
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -273,7 +286,7 @@ const styles = StyleSheet.create({
   sendIcon: {
     width: 24,
     height: 24,
-    color: 'white',
+    color: "white",
     transform: [{ translateX: -1 }],
   },
 });

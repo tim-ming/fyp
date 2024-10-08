@@ -55,7 +55,7 @@ export default function TabLayout() {
     }
   };
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <Tabs
         backBehavior="history"
         screenOptions={{
@@ -329,7 +329,7 @@ export default function TabLayout() {
       ) : auth && auth.user && auth.user.role === "therapist" ? (
         <TherapistTabLayout />
       ) : null} */}
-    </SafeAreaView>
+    </View>
   );
 }
 

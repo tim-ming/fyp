@@ -7,7 +7,6 @@ import { useFonts } from "expo-font";
 import { Slot, Stack, usePathname } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
-import "react-native-reanimated";
 import { Pressable } from "react-native";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { NativeWindStyleSheet } from "nativewind";

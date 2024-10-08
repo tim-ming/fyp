@@ -72,11 +72,12 @@ export const SignInWithGoogle = () => {
           router.push("/user-details");
         } else {
           const patient = await getPatientData(user.id);
-          if (patient.patient_data?.has_onboarded) {
-            router.push("/");
-          } else {
-            router.push("/understand");
-          }
+          router.push("/");
+          // if (patient.patient_data?.has_onboarded) {
+          //   router.push("/");
+          // } else {
+          //   router.push("/understand");
+          // }
         }
       }
     } catch (error) {

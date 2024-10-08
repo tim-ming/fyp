@@ -130,7 +130,8 @@ const UserDetails = () => {
       if (patient.patient_data?.has_onboarded) {
         router.push("/(tabs)");
       } else {
-        router.push("/understand");
+        // router.push("/understand");
+        router.push("/");
       }
     } catch (error) {
       alert(error);
@@ -151,9 +152,6 @@ const UserDetails = () => {
           <CustomText className="mt-2 text-gray200">
             We need your details to help us deliver accurate & personalized
             insights.
-          </CustomText>
-          <CustomText className="mt-4 text-blue200 font-medium">
-            Find out how and why we need your data.
           </CustomText>
           <View className="w-full h-px bg-gray50 my-6" />
           {/* Occupation Input */}
@@ -247,7 +245,7 @@ const UserDetails = () => {
           <CustomText className="mt-6 text-base font-medium text-black">
             Date of birth
           </CustomText>
-          {(
+          {
             <View className="mt-2 flex-row">
               <Pressable tabIndex={-1}>
                 <TextInput
@@ -280,7 +278,7 @@ const UserDetails = () => {
                 />
               </Pressable>
             </View>
-          )}
+          }
           {errors.dob && (
             <CustomText className="text-red-500 mt-2">{errors.dob}</CustomText>
           )}

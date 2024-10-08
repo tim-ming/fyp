@@ -65,11 +65,13 @@ const SignInScreen = () => {
           router.push("/user-details");
         } else {
           const patient = await getPatientData(user.id);
-          if (patient.patient_data?.has_onboarded) {
-            router.push("/");
-          } else {
-            router.push("/understand");
-          }
+          router.push("/");
+
+          // if (patient.patient_data?.has_onboarded) {
+          //   router.push("/");
+          // } else {
+          //   router.push("/understand");
+          // }
         }
       }
     } catch (error) {
@@ -152,8 +154,7 @@ const SignInScreen = () => {
           </View>
         </View>
 
-        <View className="flex flex-row w-full justify-end mt-4">
-        </View>
+        <View className="flex flex-row w-full justify-end mt-4"></View>
         <CustomText className="text-center text-red-500 text-sm mb-4">
           {errorMessage}
         </CustomText>

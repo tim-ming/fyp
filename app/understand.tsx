@@ -122,12 +122,6 @@ const SocialMediaScreen = () => {
         ))}
       </View>
 
-      <Pressable>
-        <CustomText className="text-sm text-blue200 text-center mb-5">
-          Find out how and why we need your data.
-        </CustomText>
-      </Pressable>
-
       <Pressable
         className="bg-blue200 rounded-full py-3"
         onPress={handleSkipPress}

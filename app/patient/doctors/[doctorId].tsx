@@ -137,7 +137,13 @@ const DoctorDetails = () => {
                 Sex
               </CustomText>
               <CustomText className="text-[16px] text-black">
-                {doctor.sex}
+                {doctor?.sex
+                  ? doctor.sex === "m"
+                    ? "Male"
+                    : doctor.sex === "f"
+                    ? "Female"
+                    : doctor.sex
+                  : "-"}
               </CustomText>
             </View>
           </View>

@@ -1,4 +1,9 @@
-import { getJournalEntries, getMoodEntry, getTherapists } from "@/api/api";
+import {
+  getJournalEntries,
+  getMoodEntry,
+  getPatientData,
+  getTherapists,
+} from "@/api/api";
 import EditPen from "@/assets/icons/edit-pen.svg";
 import Plus from "@/assets/icons/plus.svg";
 import CustomText from "@/components/CustomText";
@@ -10,9 +15,17 @@ import {
   JournalEntry,
   MoodEntry,
   UserWithoutSensitiveData,
+  UserWithPatientData,
 } from "@/types/models";
 import { capitalizeFirstLetter, getDayOfWeek } from "@/utils/helpers";
-import { addDays, format, isSameDay, isToday, isYesterday } from "date-fns";
+import {
+  addDays,
+  format,
+  isSameDay,
+  isToday,
+  isYesterday,
+  set,
+} from "date-fns";
 import { Image } from "expo-image";
 import { Href, Link, router } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
@@ -31,9 +44,10 @@ import Carousel, {
   CarouselProps,
   getInputRangeFromIndexes,
 } from "react-native-snap-carousel";
-import doctorsData from "@/assets/data/doctors.json";
 import { useHydratedEffect } from "@/hooks/hooks";
 import { BACKEND_URL } from "@/constants/globals";
+import Check from "@/assets/icons/check.svg";
+import useTherapistStore from "@/state/assignedTherapist";
 
 type JournalEntryCard = {
   journal: JournalEntry | null;
@@ -246,10 +260,11 @@ const HomeScreen = () => {
   const [moodEntry, setMoodEntry] = useState<MoodEntry | null>(null);
   const [doneFetch, setDoneFetch] = useState(false);
   const [doctors, setDoctors] = useState<UserWithoutSensitiveData[]>([]);
+  const [user, setUser] = useState<UserWithPatientData | null>(null);
   const auth = useAuth();
   const route = useRoute();
   const params = route.params as { newJournalAdded: number };
-
+  const therapist = useTherapistStore();
   const lotusImage = require("@/assets/images/lotus.png");
 
   const fetchData = async () => {
@@ -449,16 +464,25 @@ const HomeScreen = () => {
               >
                 <Pressable
                   onPress={() => router.push(`/patient/doctors/${doctor.id}`)}
-                  className="flex-1 justify-center items-center"
+                  className="flex-1 justify-center items-center relative"
                   style={stylesCard.container}
                 >
                   <Image
                     source={{ uri: BACKEND_URL + doctor.image }}
-                    className="w-full h-32"
+                    className="w-full h-32 rounded-lg border-[1px] border-gray50"
                   />
-                  <CustomText className="text-lg text-center">
+                  <CustomText className="text-lg text-center mt-2">
                     Dr. {doctor.name}
                   </CustomText>
+                  {therapist.therapist?.id == doctor.id && (
+                    <View
+                      className={`flex rounded-full absolute -right-2 -top-2 bg-blue200 px-3 py-2 items-center justify-center`}
+                    >
+                      <CustomText className="text-white font-medium">
+                        Sharing
+                      </CustomText>
+                    </View>
+                  )}
                 </Pressable>
               </View>
             ))}

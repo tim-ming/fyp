@@ -21,6 +21,7 @@ import {
   UserWithPatientData,
   UserWithTherapistData,
   Message,
+  DepressionRiskLog,
 } from "@/types/models";
 
 export const handleNotOk = async (response: Response) => {

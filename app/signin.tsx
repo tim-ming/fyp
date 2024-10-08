@@ -35,10 +35,18 @@ const SignInScreen = () => {
   const signInHandler = async (email: string, password: string) => {
     setLoading(true);
     try {
+      if (!email || !password) {
+        setLoading(false);
+        return;
+      }
       const signinResponse = await postSignin(email, password);
       if (!signinResponse.ok) {
         const errorData = await signinResponse.json();
-        setErrorMessage(errorData.detail);
+        if (errorData) {
+          console.log(errorData.detail);
+          setErrorMessage(errorData.detail);
+          return;
+        }
         return;
       }
       const token = await signinResponse.json();
@@ -144,9 +152,9 @@ const SignInScreen = () => {
           </View>
         </View>
 
-        <Pressable className="flex flex-row w-full justify-end my-4">
-        </Pressable>
-        <CustomText className="text-center text-red-500 text-sm mb-1">
+        <View className="flex flex-row w-full justify-end mt-4">
+        </View>
+        <CustomText className="text-center text-red-500 text-sm mb-4">
           {errorMessage}
         </CustomText>
         <Pressable

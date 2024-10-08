@@ -126,6 +126,7 @@ const UserDetails: React.FC<{
   };
 
   return (
+    
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View className="flex-1 p-4 pt-20 bg-blue100 justify-between">
         <View>
@@ -152,13 +153,15 @@ const UserDetails: React.FC<{
                 value={name}
                 onChangeText={setName}
               />
-              <User
-                width={24}
-                height={24}
-                strokeWidth={1.5}
-                pointerEvents="none"
-                className="fill-gray200 absolute left-4 top-0 h-full w-6 items-center justify-center"
-              />
+              <View className="absolute left-4 top-0 h-full w-6 flex items-center justify-center">
+                <User
+                  width={24}
+                  height={24}
+                  strokeWidth={1.5}
+                  pointerEvents="none"
+                  className="fill-gray200 text-gray200"
+                />
+              </View>
             </View>
           </Pressable>
           {errors.name && (
@@ -177,13 +180,15 @@ const UserDetails: React.FC<{
                 value={occupation}
                 onChangeText={setOccupation}
               />
-              <Briefcase
-                width={24}
-                height={24}
-                strokeWidth={1.5}
-                pointerEvents="none"
-                className="fill-gray200 absolute left-4 top-0 h-full w-6 items-center justify-center"
-              />
+              <View className="absolute left-4 top-0 h-full w-6 flex items-center justify-center">
+                <Briefcase
+                  width={24}
+                  height={24}
+                  strokeWidth={1.5}
+                  pointerEvents="none"
+                  className="fill-gray200 text-gray200"
+                />
+              </View>
             </View>
           </Pressable>
 
@@ -623,7 +628,7 @@ const Screen = () => {
 
     return token;
   };
-  return phase == "credentials" ? (
+  return phase == "credentials" ? ( 
     <SignUp
       email={email}
       setEmail={setEmail}

@@ -251,13 +251,15 @@ const UserDetails = () => {
                 value={name}
                 onChangeText={setName}
               />
-              <UserIcon
-                width={24}
-                height={24}
-                strokeWidth={1.5}
-                pointerEvents="none"
-                className="fill-gray200 absolute left-4 top-0 h-full w-6 items-center justify-center"
-              />
+              <View className="absolute left-4 top-0 h-full w-6 flex items-center justify-center">
+                <UserIcon
+                  width={24}
+                  height={24}
+                  strokeWidth={1.5}
+                  pointerEvents="none"
+                  className="fill-gray200"
+                />
+              </View>
             </View>
           </Pressable>
 
@@ -277,13 +279,15 @@ const UserDetails = () => {
                 value={occupation}
                 onChangeText={setOccupation}
               />
-              <Briefcase
-                width={24}
-                height={24}
-                strokeWidth={1.5}
-                pointerEvents="none"
-                className="fill-gray200 absolute left-4 top-0 h-full w-6 items-center justify-center"
-              />
+              <View className="absolute left-4 top-0 h-full w-6 flex items-center justify-center">
+                <Briefcase
+                  width={24}
+                  height={24}
+                  strokeWidth={1.5}
+                  pointerEvents="none"
+                  className="fill-gray200"
+                />
+              </View>
             </View>
           </Pressable>
 

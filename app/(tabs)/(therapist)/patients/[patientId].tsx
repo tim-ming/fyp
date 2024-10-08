@@ -82,7 +82,7 @@ const DepressionGraph = ({ risks }: { risks: LineChartData }) => {
 
 const RiskTable = () => {
   return (
-    <View className=" bg-white rounded-lg">
+    <View className="w-3/4">
       {/* Header Row */}
       <View className="flex-row border-b border-gray-300 pb-2">
         <CustomText className="flex-1 text-gray-600 font-bold">

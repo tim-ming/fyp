@@ -8,10 +8,16 @@ import Edit from "@/assets/icons/edit.svg";
 import Message from "@/assets/icons/message.svg";
 import Notes from "@/assets/icons/notes.svg";
 import Info from "@/assets/icons/info.svg";
-import { getPatientData, getPatients } from "@/api/api";
+import { getDepressionRisks, getPatientData, getPatients } from "@/api/api";
 import { UserWithPatientData } from "@/types/models";
 import { useHydratedEffect } from "@/hooks/hooks";
 import { BACKEND_URL } from "@/constants/globals";
+import { useAuth } from "@/state/auth";
+import { eachDayOfInterval, format } from "date-fns";
+import { Dimensions } from "react-native";
+import { LineChart } from "react-native-chart-kit";
+import { LineChartData } from "react-native-chart-kit/dist/line-chart/LineChart";
+import { LogBox } from "react-native";
 
 const ICON_SIZE = 24;
 
@@ -41,11 +47,135 @@ const treatments: { [key: string]: string } = {
     "Assessment required to determine the patient's risk level and treatment plan.",
 };
 
+const DepressionGraph = () => {
+  const auth = useAuth();
+  const [risks, setRisks] = useState<LineChartData>();
+
+  useHydratedEffect(() => {
+    const fetch = async () => {
+      const MOCK_RISK = eachDayOfInterval({
+        start: new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
+        end: new Date(),
+      }).map((date) => ({
+        date,
+        value: Math.random(),
+      }));
+
+      try {
+        if (!auth.user) {
+          throw new Error("User not found");
+        }
+
+        const risks = MOCK_RISK;
+
+        const mapped = {
+          labels: risks.map(({ date }) => format(date, "dd/MM")),
+          datasets: [
+            {
+              data: risks.map(({ value }) => value),
+            },
+          ],
+        };
+        setRisks(mapped);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    fetch();
+  }, []);
+
+  const chartConfig = {
+    backgroundGradientFrom: "#fff",
+    backgroundGradientFromOpacity: 1,
+    backgroundGradientTo: "#fff",
+    backgroundGradientToOpacity: 1,
+    fillShadowGradientFrom: "#256CD0",
+    fillShadowGradientTo: "#256CD0",
+    fillShadowGradientFromOpacity: 0.8,
+    fillShadowGradientToOpacity: 0,
+    color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+    strokeWidth: 2,
+    barPercentage: 0.5,
+    useShadowColorFromDataset: false,
+  };
+
+  const screenWidth = Dimensions.get("window").width - 64;
+
+  return (
+    risks && (
+      <LineChart
+        data={risks}
+        width={screenWidth}
+        height={250}
+        chartConfig={chartConfig}
+        fromZero={true} // Start Y-axis from zero
+        yAxisInterval={1} // Set Y-axis steps
+        segments={5} // Number of horizontal lines, for steps of 0.2 (1/0.2 = 5)
+      />
+    )
+  );
+};
+
+const RiskTable = () => {
+  return (
+    <View className=" bg-white rounded-lg">
+      {/* Header Row */}
+      <View className="flex-row border-b border-gray-300 pb-2">
+        <CustomText className="flex-1 text-gray-600 font-bold">
+          Risk Level
+        </CustomText>
+        <CustomText className="flex-1 text-gray-600 font-bold">
+          Value Range
+        </CustomText>
+      </View>
+
+      {/* Table Row 1 */}
+      <View className="flex-row py-1">
+        <CustomText className="flex-1 text-black">None</CustomText>
+        <CustomText className="flex-1 text-black">0</CustomText>
+      </View>
+
+      {/* Table Row 2 */}
+      <View className="flex-row py-1 bg-gray-50">
+        <CustomText className="flex-1 text-black">Mild</CustomText>
+        <CustomText className="flex-1 text-black">0.2 - 0.4</CustomText>
+      </View>
+
+      {/* Table Row 3 */}
+      <View className="flex-row py-1">
+        <CustomText className="flex-1 text-black">Moderate</CustomText>
+        <CustomText className="flex-1 text-black">0.4 - 0.6</CustomText>
+      </View>
+
+      {/* Table Row 4 */}
+      <View className="flex-row py-1 bg-gray-50">
+        <CustomText className="flex-1 text-black">Moderately Severe</CustomText>
+        <CustomText className="flex-1 text-black">0.6 - 0.8</CustomText>
+      </View>
+
+      {/* Table Row 5 */}
+      <View className="flex-row py-1">
+        <CustomText className="flex-1 text-black">Severe</CustomText>
+        <CustomText className="flex-1 text-black">0.8 - 1</CustomText>
+      </View>
+    </View>
+  );
+};
+
 const PatientDetails = () => {
   const router = useRouter();
   const { patientId } = useLocalSearchParams();
   const [patient, setPatient] = useState<UserWithPatientData | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const originalConsoleError = console.error;
+  // remove default props error message for LineChart
+  console.error = (message, ...args) => {
+    if (typeof message === "string") {
+      return;
+    }
+    originalConsoleError.apply(console, [message, ...args]);
+  };
 
   useHydratedEffect(() => {
     const fetchPatient = async (patientId: number) => {
@@ -184,7 +314,13 @@ const PatientDetails = () => {
                 Sex
               </CustomText>
               <CustomText className="text-[16px] text-black font-medium">
-                {patient?.sex ? patient?.sex : "-"}
+                {patient?.sex
+                  ? patient.sex === "m"
+                    ? "Male"
+                    : patient.sex === "f"
+                    ? "Female"
+                    : patient.sex
+                  : "-"}
               </CustomText>
             </View>
           </View>
@@ -202,22 +338,47 @@ const PatientDetails = () => {
         </View>
 
         <View className="mb-10">
-          <View className="flex-row items-center justify-center mb-[14px] w-[212px]">
-            <CustomText className="text-[20px] font-semibold text-black mr-2">
+          <View className="flex-row mb-[14px] ml-4">
+            <CustomText className="text-[20px] font-semibold text-black">
               Depression Risk
             </CustomText>
-            <Info width={ICON_SIZE} height={ICON_SIZE} />
+            {/* <Info width={ICON_SIZE} height={ICON_SIZE} /> */}
           </View>
-          <View className="bg-white p-4 rounded-[20px]">
-            <CustomText
-              className={`text-${textRiskColor} font-bold text-[24px] mb-[14px]`}
-            >
-              {severity}
-            </CustomText>
-            <CustomText className="text-gray300 text-[16px]">
-              {riskDescription}
-            </CustomText>
+          <View className="bg-white pt-4  rounded-[20px] overflow-hidden">
+            <View className=" px-4">
+              <CustomText
+                className={`text-${textRiskColor} font-bold text-[24px] mb-[14px]`}
+              >
+                {severity}
+              </CustomText>
+              <CustomText className="text-gray300 text-sm mb-2">
+                {riskDescription}
+              </CustomText>
+              <CustomText className="text-sm text-gray100">
+                The below chart shows the patient's depression risk level over
+                the past week based on their journals.
+              </CustomText>
+              <View className="h-[1px] bg-gray50 my-4" />
+            </View>
+            <View className="">
+              <DepressionGraph />
+            </View>
+            <View className="flex-row items-center justify-center">
+              {/* if prob >= 0.8:
+                risk = "Severe",
+            elif prob >= 0.6:
+                risk = "Moderately Severe",
+            elif prob >= 0.4: 
+                risk = "Moderate",
+            elif prob >= 0.2:
+                risk = "Mild"
+            else:
+                risk = "None" */}
+              <RiskTable />
+            </View>
           </View>
+
+          <View className="bg-white p-4 rounded-[20px]"></View>
         </View>
 
         <View className="mb-10">

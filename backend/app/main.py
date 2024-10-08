@@ -1065,7 +1065,7 @@ async def get_depression_risks(
     if user_id not in patients:
         raise HTTPException(status_code=403, detail="Unauthorized")
     
-    return commands.get_depression_risks(db, user_id)
+    return commands.get_depression_risk_logs_by_user(db, user_id)
 
 @app.get("/user/depression-risk/{user_id}", response_model=schemas.DepressionRiskLog)
 async def get_depression_risk(

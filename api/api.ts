@@ -434,8 +434,7 @@ export const getStats = async (): Promise<Stats> => {
 
   const data: Stats = await response.json();
   return data;
-}
-
+};
 
 export const assignTherapist = async (
   therapist_id: number
@@ -486,22 +485,23 @@ export const updatePatientData = async (
 
   const data: PatientData = await response.json();
   return data;
-}
+};
 
-export const getTherapistInCharge = async (): Promise<UserWithoutSensitiveData> => {
-  const { token } = useAuth.getState();
+export const getTherapistInCharge =
+  async (): Promise<UserWithoutSensitiveData> => {
+    const { token } = useAuth.getState();
 
-  const response = await fetch(`${BACKEND_URL}/therapist`, {
-    headers: {
-      Authorization: `Bearer ${token?.access_token}`,
-    },
-  });
+    const response = await fetch(`${BACKEND_URL}/therapist`, {
+      headers: {
+        Authorization: `Bearer ${token?.access_token}`,
+      },
+    });
 
-  await handleNotOk(response);
+    await handleNotOk(response);
 
-  const therapist: UserWithoutSensitiveData = await response.json();
-  return therapist;
-}
+    const therapist: UserWithoutSensitiveData = await response.json();
+    return therapist;
+  };
 
 export const getMessages = async (recipient_id: number): Promise<Message[]> => {
   const { token } = useAuth.getState();
@@ -516,4 +516,25 @@ export const getMessages = async (recipient_id: number): Promise<Message[]> => {
   const messages: Message[] = await response.json();
   console.log(messages);
   return messages;
-}
+};
+
+export const getDepressionRisks = async (userId: number) => {
+  const { token } = useAuth.getState();
+  const response = await fetch(
+    `${BACKEND_URL}/user/depression-risks/${userId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token?.access_token}`,
+      },
+    }
+  );
+
+  await handleNotOk(response);
+
+  if (response.status !== 200) {
+    throw new Error(`Error: ${response.status}`);
+  }
+
+  const logs: DepressionRiskLog[] = await response.json();
+  return logs;
+};

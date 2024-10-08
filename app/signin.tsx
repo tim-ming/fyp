@@ -145,9 +145,6 @@ const SignInScreen = () => {
         </View>
 
         <Pressable className="flex flex-row w-full justify-end my-4">
-          <CustomText className="text-blue200 text-base font-medium">
-            Forgot password?
-          </CustomText>
         </Pressable>
         <CustomText className="text-center text-red-500 text-sm mb-1">
           {errorMessage}

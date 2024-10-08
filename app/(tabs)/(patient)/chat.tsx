@@ -78,10 +78,18 @@ const ChatScreen: React.FC = () => {
       }
     };
 
-    webSocketStore.addMessageListener(therapist!.id, messageHandler);
+    if (
+      therapist &&
+      therapist.id &&
+      !webSocketStore.messageHandlers.has(therapist.id)
+    ) {
+      webSocketStore.addMessageListener(therapist.id, messageHandler);
+    }
 
     return () => {
-      webSocketStore.removeMessageListener(therapist!.id);
+      if (therapist && therapist.id) {
+        webSocketStore.removeMessageListener(therapist.id);
+      }
     };
   }, [therapist, fetchMessages]);
 

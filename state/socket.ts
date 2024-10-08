@@ -45,14 +45,17 @@ const useWebSocketStore = create<WebSocketStore>((set, get) => ({
       const message: Message = JSON.parse(event.data);
       console.log(get().messageHandlers);
       const handler = get().messageHandlers.get(message.recipient_id);
+      console.log(handler);
       if (handler) {
         handler(message);
       }
       const otherHandler = get().messageHandlers.get(message.sender_id);
+      console.log(otherHandler);
       if (otherHandler) {
         otherHandler(message);
       }
       const therapistHandler = get().messageHandlers.get(-1);
+      console.log(therapistHandler);
       if (therapistHandler) {
         therapistHandler(message);
       }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { View, FlatList, StyleSheet, Image, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import CustomText from "@/components/CustomText";
@@ -23,8 +23,6 @@ interface PatientWithLastMessage extends UserWithoutSensitiveData {
   risk: string;
 }
 
-const PAGE_SIZE = 6;
-
 const severityOrder = [
   "Severe",
   "Moderately Severe",
@@ -37,7 +35,6 @@ const severityOrder = [
 const PatientListScreen = () => {
   const [patients, setPatients] = useState<PatientWithLastMessage[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showLess, setShowLess] = useState(false);
   const auth = useAuth();
   const router = useRouter();
   const webSocketStore = useWebSocketStore();
@@ -51,9 +48,40 @@ const PatientListScreen = () => {
     direction: "descending",
   });
 
-  const sortedDataCache = useRef<{
-    [key: string]: PatientWithLastMessage[];
-  }>({});
+  const updatePatientMessage = useCallback((message: Message) => {
+    setPatients((currentPatients) => {
+      return currentPatients.map((patient) => {
+        if (patient.id === message.sender_id || patient.id === message.recipient_id) {
+          return {
+            ...patient,
+            lastMessage: {
+              content: message.content,
+              timestamp: message.timestamp,
+              sender_id: message.sender_id,
+            },
+          };
+        }
+        return patient;
+      });
+    });
+  }, []);
+
+  useEffect(() => {
+    if (auth.token && !webSocketStore.isConnected) {
+      webSocketStore.connect(auth.token.access_token);
+    }
+
+    const messageHandler = (message: Message) => {
+      console.log("Message received:", message);
+      updatePatientMessage(message);
+    };
+
+    webSocketStore.addMessageListener(-1, messageHandler);
+
+    return () => {
+      webSocketStore.removeMessageListener(-1);
+    };
+  }, [auth.token]);
 
   useHydratedEffect(async () => {
     try {
@@ -81,40 +109,12 @@ const PatientListScreen = () => {
         return bIndex - aIndex;
       });
       setPatients(sortedPatients);
-      if (auth.token && !webSocketStore.isConnected) {
-        webSocketStore.connect(auth.token.access_token);
-      }
-      const messageHandler = (message: Message) => {
-        console.log("Received message:", message);
-        const updated = patients.map((patient) => {
-          if (patient.id === message.sender_id || patient.id === message.recipient_id) {
-            return {
-              ...patient,
-              lastMessage: {
-                content: message.content,
-                timestamp: message.timestamp,
-                sender_id: message.sender_id,
-              },
-            };
-          }
-          return patient;
-        })
-        setPatients(getSortedData(updated, sortConfig.key, sortConfig.direction));
-
-      };
-  
-      webSocketStore.addMessageListener(-1, messageHandler);
-  
-      return () => {
-        webSocketStore.removeMessageListener(-1);
-      };
     } catch (error) {
       console.error("Error fetching patients:", error);
     } finally {
       setLoading(false);
     }
   }, []);
-
 
 
   const getSortedData = (

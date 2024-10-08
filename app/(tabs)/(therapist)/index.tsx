@@ -257,7 +257,7 @@ const PatientListScreen = () => {
   return (
     <View style={styles.container} className="flex-1 p-4 bg-blue100">
       <View className="my-14">
-        <CustomText className="text-2xl font-medium text-gray300">
+        <CustomText className="text-2xl font-medium text-gray300 my-6">
           Hi,
           <CustomText className="text-2xl font-medium text-black">
             {" "}

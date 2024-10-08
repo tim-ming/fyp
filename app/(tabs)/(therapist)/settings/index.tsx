@@ -15,7 +15,7 @@ import { useAuth } from "@/state/auth";
 import { Image } from "expo-image";
 import { Href, router } from "expo-router";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Pressable, ScrollView, TextInput, View } from "react-native";
+import { Pressable, SafeAreaView, ScrollView, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const SettingsScreen = () => {
@@ -31,6 +31,7 @@ const SettingsScreen = () => {
   };
 
   return (
+    <SafeAreaView className="flex-1 bg-blue100">
     <ScrollView
       style={{
         paddingTop: insets.top,
@@ -46,7 +47,7 @@ const SettingsScreen = () => {
           paddingTop: 12,
         }}
       > */}
-      <View className="flex-1 bg-blue100 px-4 py-6 gap-y-7">
+      <View className="flex-1 bg-blue100 px-4 gap-y-7">
         <CustomText
           letterSpacing="tight"
           className="text-2xl font-semibold text-black200"
@@ -255,6 +256,7 @@ const SettingsScreen = () => {
       </View>
       {/* </BackButtonWrapper> */}
     </ScrollView>
+    </SafeAreaView>
   );
 };
 

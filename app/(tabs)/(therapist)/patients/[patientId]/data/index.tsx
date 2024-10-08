@@ -8,6 +8,7 @@ import {
   Pressable,
   ActivityIndicator,
   TextInput,
+  SafeAreaView,
 } from "react-native";
 import { eachDayOfInterval, format, isToday, isYesterday } from "date-fns";
 import { StyleSheet } from "react-native";
@@ -267,8 +268,9 @@ export default function VaultScreen() {
     );
   }
   return (
+    <SafeAreaView className="flex-1 bg-blue100">
     <ScrollView className="bg-blue100 flex-1">
-      <View className="mb-8 px-4 mt-16">
+      <View className="mb-8 px-4 mt-12">
         {entries.length == 0 ? (
           <CustomText className="text-base text-gray300">
             No patient activity yet.
@@ -292,6 +294,7 @@ export default function VaultScreen() {
         )}
       </View>
     </ScrollView>
+    </SafeAreaView>
   );
 }
 

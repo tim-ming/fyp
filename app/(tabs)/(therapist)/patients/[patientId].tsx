@@ -210,7 +210,7 @@ const PatientDetails = () => {
   return (
     <SafeAreaView className="flex-1 bg-blue100">
       <ScrollView className="flex-1 p-4">
-        <View className="flex-row justify-between items-center mb-6 mt-[65px]">
+        <View className="flex-row justify-between items-center mb-6 mt-12">
           <View className="flex-row items-center gap-5">
             <View className="p-1 w-16 h-16 items-center justify-center bg-gray-50 rounded-full">
               <Image

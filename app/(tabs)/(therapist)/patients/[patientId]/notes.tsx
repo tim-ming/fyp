@@ -68,14 +68,14 @@ const PatientDetails = () => {
   return (
     <SafeAreaView className="flex-1 bg-blue100">
       <ScrollView className="flex-1 p-4">
-        <View className="pt-20">
+        <View className="pt-12">
           <CustomText className="text-2xl font-semibold mb-4">Notes</CustomText>
           <TextInput
             style={shadows.card}
             ref={notesRef}
             multiline={true}
             numberOfLines={16}
-            className="bg-white text-base rounded-2xl p-4 shadow-[0px_4px_20px_0px_rgba(0,_0,_0,_0.1)] font-[PlusJakartaSans] placeholder:text-gray100"
+            className="bg-white text-base rounded-2xl p-4 shadow-[0px_4px_20px_0px_rgba(0,_0,_0,_0.1)] font-[PlusJakartaSans] placeholder:text-gray100 min-h-[300]"
             placeholder="Enter notes about patient..."
             value={notes}
             onChangeText={setNotes}
@@ -85,7 +85,7 @@ const PatientDetails = () => {
         <Pressable
           disabled={saving}
           onPress={save}
-          className={`h-14 mt-2 ${
+          className={`h-14 mt-4 ${
             saving ? "bg-gray50" : "bg-blue200"
           } items-center justify-center rounded-full`}
         >

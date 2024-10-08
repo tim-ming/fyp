@@ -126,7 +126,6 @@ const UserDetails: React.FC<{
   };
 
   return (
-    
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View className="flex-1 p-4 pt-20 bg-blue100 justify-between">
         <View>
@@ -628,7 +627,7 @@ const Screen = () => {
 
     return token;
   };
-  return phase == "credentials" ? ( 
+  return phase == "credentials" ? (
     <SignUp
       email={email}
       setEmail={setEmail}

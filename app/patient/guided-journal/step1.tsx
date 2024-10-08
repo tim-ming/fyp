@@ -13,7 +13,7 @@ import { STEPS_TEXT } from "./constants";
 
 const GuidedJournalStep1: React.FC = () => {
   const today = new Date();
-  const date = today.toISOString().split("T")[0];
+  const date = format(today, "yyyy-MM-dd");
 
   const { guidedJournalEntry, setGuidedJournalEntry } = useJournalStore();
 
@@ -45,7 +45,7 @@ const GuidedJournalStep1: React.FC = () => {
     setGuidedJournalEntry(updatedEntry);
     postGuidedJournalEntry({
       body: updatedEntry,
-      date: today.toISOString().split("T")[0],
+      date: date,
     } as GuidedJournalEntryCreate);
 
     router.push("/patient/guided-journal/step2");

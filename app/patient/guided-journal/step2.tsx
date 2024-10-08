@@ -65,7 +65,7 @@ const distortionOptions = [
 
 const GuidedJournalStep2: React.FC = () => {
   const today = new Date();
-  const date = today.toISOString().split("T")[0];
+  const date = format(today, "yyyy-MM-dd");
 
   const { guidedJournalEntry, setGuidedJournalEntry } = useJournalStore();
   const [selectedDistortions, setSelectedDistortions] = useState<
@@ -105,7 +105,7 @@ const GuidedJournalStep2: React.FC = () => {
     setGuidedJournalEntry(updatedEntry);
     postGuidedJournalEntry({
       body: updatedEntry,
-      date: today.toISOString().split("T")[0],
+      date: date,
     } as GuidedJournalEntryCreate);
 
     router.push("/patient/guided-journal/step3");

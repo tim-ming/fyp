@@ -67,7 +67,7 @@ const ExploreScreen: React.FC = () => {
           <View className="relative">
             <TextInput
               className="h-12 bg-white text-base rounded-full pl-12 pr-4 font-[PlusJakartaSans] placeholder:text-gray100"
-              placeholder="Search stuff"
+              placeholder="Search"
               ref={searchInputRef}
               placeholderTextColor="#8B8B8B"
               value={searchTerm}

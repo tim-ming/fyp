@@ -7,7 +7,7 @@ import { format } from "date-fns";
 const GuidedWritingComplete: React.FC = () => {
   const handleComplete = () => {
     router.push({
-      pathname: "/(tabs)/explore",
+      pathname: "/",
     });
   };
 

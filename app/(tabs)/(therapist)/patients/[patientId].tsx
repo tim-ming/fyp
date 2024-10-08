@@ -47,43 +47,7 @@ const treatments: { [key: string]: string } = {
     "Assessment required to determine the patient's risk level and treatment plan.",
 };
 
-const DepressionGraph = () => {
-  const auth = useAuth();
-  const [risks, setRisks] = useState<LineChartData>();
-
-  useHydratedEffect(() => {
-    const fetch = async () => {
-      const MOCK_RISK = eachDayOfInterval({
-        start: new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
-        end: new Date(),
-      }).map((date) => ({
-        date,
-        value: Math.random(),
-      }));
-
-      try {
-        if (!auth.user) {
-          throw new Error("User not found");
-        }
-
-        const risks = MOCK_RISK;
-
-        const mapped = {
-          labels: risks.map(({ date }) => format(date, "dd/MM")),
-          datasets: [
-            {
-              data: risks.map(({ value }) => value),
-            },
-          ],
-        };
-        setRisks(mapped);
-      } catch (e) {
-        console.error(e);
-      }
-    };
-    fetch();
-  }, []);
-
+const DepressionGraph = ({ risks }: { risks: LineChartData }) => {
   const chartConfig = {
     backgroundGradientFrom: "#fff",
     backgroundGradientFromOpacity: 1,
@@ -167,6 +131,7 @@ const PatientDetails = () => {
   const { patientId } = useLocalSearchParams();
   const [patient, setPatient] = useState<UserWithPatientData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [risks, setRisks] = useState<LineChartData>();
 
   const originalConsoleError = console.error;
   // remove default props error message for LineChart
@@ -193,7 +158,30 @@ const PatientDetails = () => {
         setLoading(false);
       }
     };
+
+    const fetch = async () => {
+      try {
+        let risks = (
+          await getDepressionRisks(parseInt(patientId as string))
+        ).toReversed();
+        // filter for the last 7 days only, but raw could be smaller than 7
+        if (risks.length > 7) risks = risks.slice(risks.length - 7);
+        const mapped = {
+          labels: risks.map(({ date }) => format(date, "dd/MM")),
+          datasets: [
+            {
+              data: risks.map(({ value }) => value),
+            },
+          ],
+        };
+        setRisks(mapped);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
     fetchPatient(Number(patientId));
+    fetch();
   }, [patientId]);
 
   const riskColorMap: { [key: string]: string } = {
@@ -344,7 +332,7 @@ const PatientDetails = () => {
             </CustomText>
             {/* <Info width={ICON_SIZE} height={ICON_SIZE} /> */}
           </View>
-          <View className="bg-white pt-4  rounded-[20px] overflow-hidden">
+          <View className="bg-white pt-4  rounded-[20px] overflow-hidden pb-4">
             <View className=" px-4">
               <CustomText
                 className={`text-${textRiskColor} font-bold text-[24px] mb-[14px]`}
@@ -361,7 +349,14 @@ const PatientDetails = () => {
               <View className="h-[1px] bg-gray50 my-4" />
             </View>
             <View className="">
-              <DepressionGraph />
+              {risks && risks.datasets[0].data.length === 0 && (
+                <CustomText className="text-gray300 text-[16px] text-center mb-4">
+                  No data available for the past week.
+                </CustomText>
+              )}
+              {risks && risks.datasets[0].data.length > 0 && (
+                <DepressionGraph risks={risks} />
+              )}
             </View>
             <View className="flex-row items-center justify-center">
               {/* if prob >= 0.8:
@@ -377,8 +372,6 @@ const PatientDetails = () => {
               <RiskTable />
             </View>
           </View>
-
-          <View className="bg-white p-4 rounded-[20px]"></View>
         </View>
 
         <View className="mb-10">

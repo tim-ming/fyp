@@ -22,19 +22,19 @@ def get_latest_depression_risk_log_by_user(
     )
 
 def get_depression_risk_logs_by_user(
-    db: Session, user: schemas.User, skip: int = 0, limit: int = 100
+    db: Session, user_id: int, skip: int = 0, limit: int = 100
 ) -> List[models.DepressionRiskLog]:
     """
-    Get depression risk logs by user
+    Get depression risk logs by user id
     :param db (Session): Database session
-    :param user (schemas.User): User
+    :param user_id (int): User ID
     :param skip (int): Number of entries to skip
     :param limit (int): Number of entries to return
     :return (List[models.DepressionRiskLog]): Depression risk logs
     """
     return (
         db.query(models.DepressionRiskLog)
-        .filter(models.DepressionRiskLog.user_id == user.id)
+        .filter(models.DepressionRiskLog.user_id == user_id)
         .order_by(models.DepressionRiskLog.date.desc())
         .offset(skip)
         .limit(limit)

@@ -1059,9 +1059,11 @@ async def get_depression_risks(
     """
 
     # make sure it is a therapist and the user is their patient
+    
     if current_user.role != "therapist":
         raise HTTPException(status_code=403, detail="Unauthorized")
     patients = [patient.id for patient in commands.get_patients_by_therapist(db, current_user)]
+    print(patients)
     if user_id not in patients:
         raise HTTPException(status_code=403, detail="Unauthorized")
     

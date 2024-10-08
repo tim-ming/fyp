@@ -19,7 +19,7 @@ import Female from "@/assets/icons/female.svg";
 import Briefcase from "@/assets/icons/briefcase.svg";
 import Calendar from "@/assets/icons/calendar.svg";
 import { Sex } from "@/types/globals";
-import { differenceInYears, isValid, parse, set } from "date-fns";
+import { differenceInYears, format, isValid, parse, set } from "date-fns";
 import { useHydratedEffect } from "@/hooks/hooks";
 
 const UserDetails = () => {
@@ -71,11 +71,16 @@ const UserDetails = () => {
   }, []);
 
   const onSubmit = async () => {
+    const dateString = `${year}-${month}-${day}`;
+    const date = format(
+      parse(dateString, "yyyy-MM-dd", new Date()),
+      "yyyy-MM-dd"
+    );
     const data = {
       email: email,
       sex: selectedSex,
       occupation: occupation,
-      dob: dob.toISOString().split("T")[0],
+      dob: date,
     };
 
     try {

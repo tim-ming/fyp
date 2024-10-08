@@ -30,43 +30,42 @@ const SocialMediaScreen = () => {
       linker: () => mockPlatformLinker("x"),
       linked: true,
     },
-    {
-      id: "instagram",
-      name: "Instagram",
-      url: require("@/assets/icons/instagram.png"),
-      linker: () => mockPlatformLinker("instagram"),
-      linked: false,
-    },
-    {
-      id: "reddit",
-      name: "Reddit",
-      url: require("@/assets/icons/reddit.png"),
-      linker: () => mockPlatformLinker("reddit"),
-      linked: false,
-    },
-    {
-      id: "facebook",
-      name: "Facebook",
-      url: require("@/assets/icons/facebook.png"),
-      linker: () => mockPlatformLinker("facebook"),
-      linked: false,
-    },
-    {
-      id: "linkedin",
-      name: "LinkedIn",
-      url: require("@/assets/icons/linkedin.png"),
-      linker: () => mockPlatformLinker("linkedin"),
-      linked: false,
-    },
-    {
-      id: "threads",
-      name: "Threads",
-      url: require("@/assets/icons/threads.png"),
-      linker: () => mockPlatformLinker("threads"),
-      linked: false,
-    },
+    // {
+    //   id: "instagram",
+    //   name: "Instagram",
+    //   url: require("@/assets/icons/instagram.png"),
+    //   linker: () => mockPlatformLinker("instagram"),
+    //   linked: false,
+    // },
+    // {
+    //   id: "reddit",
+    //   name: "Reddit",
+    //   url: require("@/assets/icons/reddit.png"),
+    //   linker: () => mockPlatformLinker("reddit"),
+    //   linked: false,
+    // },
+    // {
+    //   id: "facebook",
+    //   name: "Facebook",
+    //   url: require("@/assets/icons/facebook.png"),
+    //   linker: () => mockPlatformLinker("facebook"),
+    //   linked: false,
+    // },
+    // {
+    //   id: "linkedin",
+    //   name: "LinkedIn",
+    //   url: require("@/assets/icons/linkedin.png"),
+    //   linker: () => mockPlatformLinker("linkedin"),
+    //   linked: false,
+    // },
+    // {
+    //   id: "threads",
+    //   name: "Threads",
+    //   url: require("@/assets/icons/threads.png"),
+    //   linker: () => mockPlatformLinker("threads"),
+    //   linked: false,
+    // },
   ];
-
   const [platforms, setPlatforms] = useState<Platform[]>(initialPlatforms);
 
   const mockPlatformLinker = (id: string) => {

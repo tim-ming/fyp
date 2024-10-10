@@ -10,7 +10,7 @@ services:
   postgres:
     image: postgres:16
     env_file:
-      - backend/app/.env
+      - ./backend/app/.env
     environment:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
@@ -23,7 +23,7 @@ services:
 
   backend-poetry:
     env_file:
-      - backend/app/.env
+      - ./backend/app/.env
     environment:
       - DB_HOST=postgres
       - MODEL_ENDPOINT=http://backend-model:8001/check

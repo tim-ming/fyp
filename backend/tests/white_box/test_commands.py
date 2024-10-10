@@ -3,7 +3,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 from app import models, schemas
 from app.database import Base
-from app.commands import upsert_journal_entry, create_user
+from app.commands import upsert_journal_entry, create_user, assign_therapist_to_patient, get_user_by_email
 from datetime import date
 
 @pytest.fixture(scope="module")
@@ -73,3 +73,51 @@ def test_upsert_journal_entry_new_date(db_session: Session):
     assert journal_entry.title == "Journal for New Date"
     assert journal_entry.body == "This is a journal entry for a new date."
     assert journal_entry.date == new_date
+
+def test_assign_therapist_to_patient_success(db_session: Session):
+    therapist_schema = schemas.UserCreate(
+        email="therapist@example.com",
+        name="Test Therapist",
+        password="testpassword",
+        role="therapist",
+    )
+    therapist = create_user(db_session, therapist_schema)
+
+    patient_schema = schemas.UserCreate(
+        email="patient@example.com",
+        name="Test Patient",
+        password="testpassword",
+        role="patient",
+    )
+    patient = create_user(db_session, patient_schema)
+
+    assign_therapist_to_patient(db_session, patient, therapist.id)
+
+    updated_patient = get_user_by_email(db_session, "patient@example.com")
+
+    assert updated_patient.patient_data is not None
+    assert updated_patient.patient_data.therapist_id == therapist.therapist_data.id
+    assert updated_patient.patient_data.therapist_user_id == therapist.id
+
+def test_assign_therapist_to_patient_already_has_therapist(db_session: Session):
+    patient = db_session.query(models.User).filter_by(email="patient@example.com").first()
+
+    therapist_schema2 = schemas.UserCreate(
+        email="therapist2@example.com",
+        name="Therapist Two",
+        password="testpassword",
+        role="therapist",
+    )
+    therapist2 = create_user(db_session, therapist_schema2)
+
+    with pytest.raises(Exception) as exc_info:
+        assign_therapist_to_patient(db_session, patient, therapist2.id)
+    assert str(exc_info.value) == "Patient already has a therapist"
+
+def test_assign_therapist_to_non_patient(db_session: Session):
+    therapist1 = db_session.query(models.User).filter_by(email="therapist@example.com").first()
+    therapist2 = db_session.query(models.User).filter_by(email="therapist2@example.com").first()
+
+    with pytest.raises(Exception) as exc_info:
+        assign_therapist_to_patient(db_session, therapist1, therapist2.id)
+    assert str(exc_info.value) == "Patient data not found"

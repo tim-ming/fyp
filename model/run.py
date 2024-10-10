@@ -45,13 +45,13 @@ embs_type = {
 def create_args_manually():
     args_dict = {
         "config_file": "configs/combos/clip_emoberta.yaml",
-        "name": "fold-0-twitter-ws-64-clip-emoberta-time2vec",
+        "name": "fold-2-twitter-ws-64-clip-emoberta-time2vec",
         "group": "experiments",
         "window_size": 64,
         "position_embeddings": "time2vec",
         "image_embeddings_type": "clip",
         "text_embeddings_type": "emoberta",
-        "fold": 0,
+        "fold": 2,
         "batch_size": 256,
         "model": "multimodal-transformer",
     }

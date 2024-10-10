@@ -1,0 +1,10 @@
+openai-clip
+numpy==1.20.3
+opencv-python==4.5.4.58
+pandas==1.2.0
+Pillow==9.1.0
+PyYAML==6.0
+scikit-learn==1.0.2
+sentence-transformers==2.2.2
+tqdm
+transformers==4.16.2

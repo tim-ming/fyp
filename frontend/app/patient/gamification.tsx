@@ -1,11 +1,11 @@
-import { shadows } from "@/frontend/constants/styles";
+import { shadows } from "@/constants/styles";
 import React from "react";
 import { View, ScrollView } from "react-native";
-import CustomText from "@/frontend/components/CustomText";
-import { Colors } from "@/frontend/constants/Colors";
-import ProgressBar from "@/frontend/components/ProgressBar";
+import CustomText from "@/components/CustomText";
+import { Colors } from "@/constants/Colors";
+import ProgressBar from "@/components/ProgressBar";
 import { Image } from "expo-image";
-import { getUser, getStats } from "@/frontend/api/api";
+import { getUser, getStats } from "@/api/api";
 import { countArticlesRead, countPagesRead } from "@/utils/progressStorage";
 import { useAuth } from "@/state/auth";
 import { useHydratedEffect } from "@/hooks/hooks";

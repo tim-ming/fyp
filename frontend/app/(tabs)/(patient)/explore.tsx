@@ -1,9 +1,9 @@
 import React, { useRef, useState } from "react";
 import { Pressable, ScrollView, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Card, { CardProps } from "@/frontend/components/Card";
-import CustomText from "@/frontend/components/CustomText";
-import TopNav from "@/frontend/components/TopNav";
+import Card, { CardProps } from "@/components/Card";
+import CustomText from "@/components/CustomText";
+import TopNav from "@/components/TopNav";
 import Search from "@/assets/icons/search.svg";
 
 const ExploreScreen: React.FC = () => {

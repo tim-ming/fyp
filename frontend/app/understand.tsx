@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { View, Pressable } from "react-native";
 import { Image } from "expo-image";
-import CustomText from "@/frontend/components/CustomText";
-import { shadows } from "@/frontend/constants/styles";
+import CustomText from "@/components/CustomText";
+import { shadows } from "@/constants/styles";
 import Check from "@/assets/icons/check.svg";
 import { useRouter } from "expo-router";
-import { updateOnboarded } from "@/frontend/api/api";
+import { updateOnboarded } from "@/api/api";
 
 const SocialMediaScreen = () => {
   const router = useRouter();

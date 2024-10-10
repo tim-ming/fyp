@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { View, TextInput, Pressable } from "react-native";
 import { router } from "expo-router";
-import CustomText from "@/frontend/components/CustomText";
-import { Colors } from "@/frontend/constants/Colors";
-import { getGuidedJournalEntry, postGuidedJournalEntry } from "@/frontend/api/api";
+import CustomText from "@/components/CustomText";
+import { Colors } from "@/constants/Colors";
+import { getGuidedJournalEntry, postGuidedJournalEntry } from "@/api/api";
 import { GuidedJournalBody, GuidedJournalEntryCreate } from "@/types/models";
 import { useJournalStore } from "@/state/data";
 import { capitalizeFirstLetter, getDayOfWeek } from "@/utils/helpers";

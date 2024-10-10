@@ -1,13 +1,13 @@
 import * as AppleAuthentication from "expo-apple-authentication";
 import React, { useEffect } from "react";
 import { Platform, Pressable, StyleSheet } from "react-native";
-import CustomText from "@/frontend/components/CustomText";
+import CustomText from "@/components/CustomText";
 import Apple from "@/assets/icons/apple.svg";
 import Google from "@/assets/icons/google.svg";
 import * as WebBrowser from "expo-web-browser";
 import * as GoogleSignIn from "expo-auth-session/providers/google";
 import { useAuth } from "@/state/auth";
-import { getPatientData, getUser, postSigninGoogle } from "@/frontend/api/api";
+import { getPatientData, getUser, postSigninGoogle } from "@/api/api";
 import { router } from "expo-router";
 
 const webClientId =

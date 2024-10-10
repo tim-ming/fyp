@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { View, Pressable, ScrollView } from "react-native";
 import { router } from "expo-router";
-import CustomText from "@/frontend/components/CustomText";
+import CustomText from "@/components/CustomText";
 import { CognitiveDistortion, GuidedJournalEntryCreate } from "@/types/models";
-import { getGuidedJournalEntry, postGuidedJournalEntry } from "@/frontend/api/api";
+import { getGuidedJournalEntry, postGuidedJournalEntry } from "@/api/api";
 import { capitalizeFirstLetter, getDayOfWeek } from "@/utils/helpers";
 import { format } from "date-fns";
 import { useJournalStore } from "@/state/data";

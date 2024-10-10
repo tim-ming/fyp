@@ -11,19 +11,19 @@ import {
   Platform,
 } from "react-native";
 import {} from "nativewind";
-import CustomText from "@/frontend/components/CustomText";
+import CustomText from "@/components/CustomText";
 import Lock from "@/assets/icons/lock.svg";
 import Mail from "@/assets/icons/mail.svg";
 import { useRef } from "react";
-import { shadows } from "@/frontend/constants/styles";
+import { shadows } from "@/constants/styles";
 import { useState } from "react";
 import Check from "@/assets/icons/check.svg";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
-import { checkEmailExists, getUser, postSignin, postSignup } from "@/frontend/api/api";
-import { SignInWithGoogle, SignInWithApple } from "@/frontend/components/SignInWith";
-import { WEBSITE_URL } from "@/frontend/constants/globals";
+import { checkEmailExists, getUser, postSignin, postSignup } from "@/api/api";
+import { SignInWithGoogle, SignInWithApple } from "@/components/SignInWith";
+import { WEBSITE_URL } from "@/constants/globals";
 import { useAuth } from "@/state/auth";
 import Male from "@/assets/icons/male.svg";
 import Female from "@/assets/icons/female.svg";

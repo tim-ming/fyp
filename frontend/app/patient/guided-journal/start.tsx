@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Pressable } from "react-native";
 import { Link } from "expo-router";
-import CustomText from "@/frontend/components/CustomText";
+import CustomText from "@/components/CustomText";
 
 const GuidedWritingStart: React.FC = () => {
   return (

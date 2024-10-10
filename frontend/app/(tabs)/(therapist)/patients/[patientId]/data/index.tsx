@@ -1,6 +1,6 @@
-import CustomText from "@/frontend/components/CustomText";
-import TopNav from "@/frontend/components/TopNav";
-import { getStatus } from "@/frontend/constants/globals";
+import CustomText from "@/components/CustomText";
+import TopNav from "@/components/TopNav";
+import { getStatus } from "@/constants/globals";
 import React, { useRef, useState } from "react";
 import {
   View,
@@ -12,8 +12,8 @@ import {
 } from "react-native";
 import { eachDayOfInterval, format, isToday, isYesterday } from "date-fns";
 import { StyleSheet } from "react-native";
-import { shadows } from "@/frontend/constants/styles";
-import { Colors } from "@/frontend/constants/Colors";
+import { shadows } from "@/constants/styles";
+import { Colors } from "@/constants/Colors";
 import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import {
   GuidedJournalEntry,
@@ -29,8 +29,8 @@ import {
   getMoodEntries,
   getPatientData,
   getPatients,
-} from "@/frontend/api/api";
-import { STEPS_TEXT } from "@/frontend/app/patient/guided-journal/constants";
+} from "@/api/api";
+import { STEPS_TEXT } from "@/app/patient/guided-journal/constants";
 
 const formatDateHeader = (date: string) => {
   const parsedDate = new Date(date);
@@ -269,31 +269,31 @@ export default function VaultScreen() {
   }
   return (
     <SafeAreaView className="flex-1 bg-blue100">
-    <ScrollView className="bg-blue100 flex-1">
-      <View className="mb-8 px-4 mt-12">
-        {entries.length == 0 ? (
-          <CustomText className="text-base text-gray300">
-            No patient activity yet.
-          </CustomText>
-        ) : (
-          entries.map((section, sectionIndex) => (
-            <View key={sectionIndex}>
-              {/* Date Section */}
-              <CustomText className="text-lg font-semibold my-4">
-                {formatDateHeader(section.date.toISOString())}
-              </CustomText>
+      <ScrollView className="bg-blue100 flex-1">
+        <View className="mb-8 px-4 mt-12">
+          {entries.length == 0 ? (
+            <CustomText className="text-base text-gray300">
+              No patient activity yet.
+            </CustomText>
+          ) : (
+            entries.map((section, sectionIndex) => (
+              <View key={sectionIndex}>
+                {/* Date Section */}
+                <CustomText className="text-lg font-semibold my-4">
+                  {formatDateHeader(section.date.toISOString())}
+                </CustomText>
 
-              <Card data={section} patientId={Number(patientId)} />
+                <Card data={section} patientId={Number(patientId)} />
 
-              {/* Render horizontal bar if it's not the last section */}
-              {sectionIndex < data.length - 1 && (
-                <View className="h-[1px] bg-gray50 my-5" />
-              )}
-            </View>
-          ))
-        )}
-      </View>
-    </ScrollView>
+                {/* Render horizontal bar if it's not the last section */}
+                {sectionIndex < data.length - 1 && (
+                  <View className="h-[1px] bg-gray50 my-5" />
+                )}
+              </View>
+            ))
+          )}
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }

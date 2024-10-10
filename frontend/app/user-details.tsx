@@ -8,11 +8,11 @@ import {
   Platform,
 } from "react-native";
 import {} from "nativewind";
-import CustomText from "@/frontend/components/CustomText";
-import { shadows } from "@/frontend/constants/styles";
+import CustomText from "@/components/CustomText";
+import { shadows } from "@/constants/styles";
 import { useState } from "react";
 import { router } from "expo-router";
-import { getPatientData, getUser, updateUser } from "@/frontend/api/api";
+import { getPatientData, getUser, updateUser } from "@/api/api";
 import { useAuth } from "@/state/auth";
 import Male from "@/assets/icons/male.svg";
 import Female from "@/assets/icons/female.svg";

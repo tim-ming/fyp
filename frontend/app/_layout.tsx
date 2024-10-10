@@ -16,7 +16,7 @@ import {
   SafeAreaProvider,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import { getUser } from "@/frontend/api/api";
+import { getUser } from "@/api/api";
 import { useHydratedEffect } from "@/hooks/hooks";
 import { useAuth } from "@/state/auth";
 

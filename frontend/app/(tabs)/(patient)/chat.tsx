@@ -10,19 +10,19 @@ import {
   Image,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import CustomText from "@/frontend/components/CustomText";
-import TopNav from "@/frontend/components/TopNav";
+import CustomText from "@/components/CustomText";
+import TopNav from "@/components/TopNav";
 import { useAuth } from "@/state/auth";
 import { useHydratedEffect } from "@/hooks/hooks";
-import { getMessages, getTherapistInCharge } from "@/frontend/api/api";
+import { getMessages, getTherapistInCharge } from "@/api/api";
 import { UserWithoutSensitiveData } from "@/types/models";
 import { Link } from "expo-router";
-import { BACKEND_URL } from "@/frontend/constants/globals";
+import { BACKEND_URL } from "@/constants/globals";
 import { differenceInMinutes } from "date-fns";
 import { format, toZonedTime } from "date-fns-tz";
-import { shadows } from "@/frontend/constants/styles";
+import { shadows } from "@/constants/styles";
 import SendIcon from "@/assets/icons/send.svg";
-import useWebSocketStore from '@/state/socket';
+import useWebSocketStore from "@/state/socket";
 import { Message } from "@/types/models";
 import useTherapistStore from "@/state/assignedTherapist";
 
@@ -71,8 +71,10 @@ const ChatScreen: React.FC = () => {
 
     const messageHandler = (message: Message) => {
       if (
-        (message.sender_id === therapist?.id && message.recipient_id === auth.user?.id) ||
-        (message.sender_id === auth.user?.id && message.recipient_id === therapist?.id)
+        (message.sender_id === therapist?.id &&
+          message.recipient_id === auth.user?.id) ||
+        (message.sender_id === auth.user?.id &&
+          message.recipient_id === therapist?.id)
       ) {
         setMessages((prevMessages) => [message, ...prevMessages]);
       }

@@ -1,6 +1,6 @@
-import { getJournalEntry, getMoodEntry } from "@/frontend/api/api";
-import CustomText from "@/frontend/components/CustomText";
-import { getStatus } from "@/frontend/constants/globals";
+import { getJournalEntry, getMoodEntry } from "@/api/api";
+import CustomText from "@/components/CustomText";
+import { getStatus } from "@/constants/globals";
 import { useHydratedEffect } from "@/hooks/hooks";
 import { JournalEntry, MoodEntry } from "@/types/models";
 import { useLocalSearchParams } from "expo-router";

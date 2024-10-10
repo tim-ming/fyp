@@ -3,13 +3,13 @@ import {
   getMoodEntry,
   getPatientData,
   getTherapists,
-} from "@/frontend/api/api";
+} from "@/api/api";
 import EditPen from "@/assets/icons/edit-pen.svg";
 import Plus from "@/assets/icons/plus.svg";
-import CustomText from "@/frontend/components/CustomText";
-import TopNav from "@/frontend/components/TopNav";
-import { Colors } from "@/frontend/constants/Colors";
-import { shadows } from "@/frontend/constants/styles";
+import CustomText from "@/components/CustomText";
+import TopNav from "@/components/TopNav";
+import { Colors } from "@/constants/Colors";
+import { shadows } from "@/constants/styles";
 import { useAuth } from "@/state/auth";
 import {
   JournalEntry,
@@ -41,11 +41,11 @@ import {
 import { useRoute } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Carousel, {
-  CarouselProps,
   getInputRangeFromIndexes,
-} from "react-native-snap-carousel";
+} from "@/components/react-native-snap-carousel";
+import { CarouselProps } from "@/components/react-native-snap-carousel";
 import { useHydratedEffect } from "@/hooks/hooks";
-import { BACKEND_URL } from "@/frontend/constants/globals";
+import { BACKEND_URL } from "@/constants/globals";
 import Check from "@/assets/icons/check.svg";
 import useTherapistStore from "@/state/assignedTherapist";
 

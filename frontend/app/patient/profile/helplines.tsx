@@ -1,4 +1,4 @@
-import CustomText from "@/frontend/components/CustomText";
+import CustomText from "@/components/CustomText";
 import { ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 

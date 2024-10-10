@@ -7,11 +7,11 @@ import {
   TextInput,
 } from "react-native";
 import { useRouter, useLocalSearchParams, router } from "expo-router";
-import CustomText from "@/frontend/components/CustomText";
+import CustomText from "@/components/CustomText";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { getPatientData, getPatients, updatePatientData } from "@/frontend/api/api";
+import { getPatientData, getPatients, updatePatientData } from "@/api/api";
 import { UserWithPatientData } from "@/types/models";
-import { shadows } from "@/frontend/constants/styles";
+import { shadows } from "@/constants/styles";
 
 const PatientDetails = () => {
   const { patientId } = useLocalSearchParams();

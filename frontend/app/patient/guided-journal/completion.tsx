@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Pressable } from "react-native";
 import { Link, router } from "expo-router";
-import CustomText from "@/frontend/components/CustomText";
+import CustomText from "@/components/CustomText";
 import { format } from "date-fns";
 
 const GuidedWritingComplete: React.FC = () => {

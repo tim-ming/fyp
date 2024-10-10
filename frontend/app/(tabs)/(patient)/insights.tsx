@@ -1,11 +1,11 @@
-import { getJournalEntries, getMoodEntries } from "@/frontend/api/api";
+import { getJournalEntries, getMoodEntries } from "@/api/api";
 import ChevronLeft from "@/assets/icons/chevron-left.svg";
 import ChevronRight from "@/assets/icons/chevron-right.svg";
-import CustomText from "@/frontend/components/CustomText";
-import GroupedProgressBar from "@/frontend/components/GroupedProgressBar";
-import ProgressBar from "@/frontend/components/ProgressBar";
-import TopNav from "@/frontend/components/TopNav";
-import { Colors } from "@/frontend/constants/Colors";
+import CustomText from "@/components/CustomText";
+import GroupedProgressBar from "@/components/GroupedProgressBar";
+import ProgressBar from "@/components/ProgressBar";
+import TopNav from "@/components/TopNav";
+import { Colors } from "@/constants/Colors";
 import { useHydratedEffect } from "@/hooks/hooks";
 import { MoodEntry } from "@/types/models";
 import {

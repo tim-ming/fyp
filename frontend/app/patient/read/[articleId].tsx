@@ -1,7 +1,7 @@
 import articlesData from "@/assets/articles/articles.json";
 import Check from "@/assets/icons/check.svg";
 import ChevronRight from "@/assets/icons/chevron-right.svg";
-import CustomText from "@/frontend/components/CustomText";
+import CustomText from "@/components/CustomText";
 import { useHydratedFocusEffect } from "@/hooks/hooks";
 import { useAuth } from "@/state/auth";
 import { loadChapterProgress } from "@/utils/progressStorage";

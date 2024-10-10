@@ -1,4 +1,4 @@
-import { shadows } from "@/frontend/constants/styles";
+import { shadows } from "@/constants/styles";
 import { useRef, useState, useMemo, useEffect } from "react";
 import { TextInput, View, Pressable } from "react-native";
 import CustomText from "./CustomText";

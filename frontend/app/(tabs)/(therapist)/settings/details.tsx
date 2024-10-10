@@ -10,11 +10,11 @@ import {
 } from "react-native";
 import {} from "nativewind";
 import EditPen from "@/assets/icons/edit-pen.svg";
-import CustomText from "@/frontend/components/CustomText";
-import { shadows } from "@/frontend/constants/styles";
+import CustomText from "@/components/CustomText";
+import { shadows } from "@/constants/styles";
 import { useState } from "react";
 import { router } from "expo-router";
-import { getPatientData, getUser, updateUser } from "@/frontend/api/api";
+import { getPatientData, getUser, updateUser } from "@/api/api";
 import { useAuth } from "@/state/auth";
 import Male from "@/assets/icons/male.svg";
 import Female from "@/assets/icons/female.svg";
@@ -25,7 +25,7 @@ import { Sex } from "@/types/globals";
 import { differenceInYears, format, isValid, parse, set } from "date-fns";
 import { useHydratedEffect } from "@/hooks/hooks";
 import * as ImagePicker from "expo-image-picker";
-import { BACKEND_URL } from "@/frontend/constants/globals";
+import { BACKEND_URL } from "@/constants/globals";
 
 const UserDetails = () => {
   type Errors = {
@@ -359,7 +359,7 @@ const UserDetails = () => {
           <CustomText className="mt-6 text-sm text-black">
             Date of birth
           </CustomText>
-          {(
+          {
             <View className="mt-2 flex-row">
               <Pressable tabIndex={-1}>
                 <TextInput
@@ -392,7 +392,7 @@ const UserDetails = () => {
                 />
               </Pressable>
             </View>
-          )}
+          }
           {errors.dob && (
             <CustomText className="text-red-500 mt-2">{errors.dob}</CustomText>
           )}
@@ -408,7 +408,6 @@ const UserDetails = () => {
             Save
           </CustomText>
         </Pressable>
-        
       </View>
     </TouchableWithoutFeedback>
   );

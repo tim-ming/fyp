@@ -1,4 +1,4 @@
-import { BACKEND_URL } from "@/frontend/constants/globals";
+import { BACKEND_URL } from "@/constants/globals";
 import { useAuth } from "@/state/auth";
 import { Sex } from "@/types/globals";
 import {

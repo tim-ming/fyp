@@ -2,7 +2,7 @@ import React from "react";
 import { View, Pressable } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { useRoute } from "@react-navigation/native";
-import CustomText from "@/frontend/components/CustomText";
+import CustomText from "@/components/CustomText";
 import { format } from "date-fns";
 
 const JournalComplete: React.FC = () => {

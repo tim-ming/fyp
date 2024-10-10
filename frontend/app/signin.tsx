@@ -1,10 +1,10 @@
-import { getPatientData, getUser, postSignin } from "@/frontend/api/api";
+import { getPatientData, getUser, postSignin } from "@/api/api";
 import Check from "@/assets/icons/check.svg";
 import Lock from "@/assets/icons/lock.svg";
 import Mail from "@/assets/icons/mail.svg";
-import CustomText from "@/frontend/components/CustomText";
-import { SignInWithApple, SignInWithGoogle } from "@/frontend/components/SignInWith";
-import { shadows } from "@/frontend/constants/styles";
+import CustomText from "@/components/CustomText";
+import { SignInWithApple, SignInWithGoogle } from "@/components/SignInWith";
+import { shadows } from "@/constants/styles";
 import { useAuth } from "@/state/auth";
 import { router } from "expo-router";
 import {} from "nativewind";

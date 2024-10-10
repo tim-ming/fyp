@@ -1,12 +1,12 @@
-import CustomText from "@/frontend/components/CustomText";
-import TopNav from "@/frontend/components/TopNav";
-import { getStatus } from "@/frontend/constants/globals";
+import CustomText from "@/components/CustomText";
+import TopNav from "@/components/TopNav";
+import { getStatus } from "@/constants/globals";
 import React, { useState } from "react";
 import { View, ScrollView, Pressable } from "react-native";
 import { format, isToday, isYesterday } from "date-fns";
 import { StyleSheet } from "react-native";
-import { shadows } from "@/frontend/constants/styles";
-import { Colors } from "@/frontend/constants/Colors";
+import { shadows } from "@/constants/styles";
+import { Colors } from "@/constants/Colors";
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import { GuidedJournalEntry, JournalEntry, MoodEntry } from "@/types/models";
 import { useHydratedEffect } from "@/hooks/hooks";
@@ -17,8 +17,8 @@ import {
   getJournalEntry,
   getGuidedJournalEntry,
   getMoodEntry,
-} from "@/frontend/api/api";
-import { STEPS_TEXT } from "@/frontend/app/patient/guided-journal/constants";
+} from "@/api/api";
+import { STEPS_TEXT } from "@/app/patient/guided-journal/constants";
 
 interface JournalProps {
   data: JournalEntry;

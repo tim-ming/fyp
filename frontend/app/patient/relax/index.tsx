@@ -8,14 +8,14 @@ import {
   View,
 } from "react-native";
 import { router } from "expo-router";
-import CustomText from "@/frontend/components/CustomText";
-import ProgressBar from "@/frontend/components/ProgressBar";
-import { Colors } from "@/frontend/constants/Colors";
+import CustomText from "@/components/CustomText";
+import ProgressBar from "@/components/ProgressBar";
+import { Colors } from "@/constants/Colors";
 import { sleep } from "@/utils/helpers";
 import { format } from "date-fns";
 import { Slider } from "@miblanchard/react-native-slider";
-import { shadows } from "@/frontend/constants/styles";
-import BackButtonWrapper from "@/frontend/components/Back";
+import { shadows } from "@/constants/styles";
+import BackButtonWrapper from "@/components/Back";
 
 const RING_SIZES = [168, 168, 168, 168, 168, 168, 168, 168, 168, 168];
 const Animation = {

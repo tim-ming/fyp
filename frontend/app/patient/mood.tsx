@@ -1,11 +1,11 @@
-import { postMoodEntry } from "@/frontend/api/api";
+import { postMoodEntry } from "@/api/api";
 import EatIcon from "@/assets/icons/eat.svg";
 import HeartIcon from "@/assets/icons/heart.svg";
 import MoonIcon from "@/assets/icons/moon.svg";
-import CustomText from "@/frontend/components/CustomText";
-import { Colors } from "@/frontend/constants/Colors";
-import { getStatus } from "@/frontend/constants/globals";
-import { shadows } from "@/frontend/constants/styles";
+import CustomText from "@/components/CustomText";
+import { Colors } from "@/constants/Colors";
+import { getStatus } from "@/constants/globals";
+import { shadows } from "@/constants/styles";
 import { MoodEntryCreate } from "@/types/models";
 import { Slider } from "@miblanchard/react-native-slider";
 import { format } from "date-fns";

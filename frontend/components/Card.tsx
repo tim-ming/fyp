@@ -1,8 +1,8 @@
 import { Href, Link } from "expo-router";
 import { Pressable, View, StyleSheet } from "react-native";
 import CustomText from "./CustomText";
-import { shadows } from "@/frontend/constants/styles";
-import { Colors } from "@/frontend/constants/Colors";
+import { shadows } from "@/constants/styles";
+import { Colors } from "@/constants/Colors";
 import { Image } from "expo-image";
 
 export interface CardProps {

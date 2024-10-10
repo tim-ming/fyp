@@ -1,7 +1,7 @@
 import articlesData from "@/assets/articles/articles.json";
 import ArrowLeft from "@/assets/icons/arrow-left.svg";
 import ArrowRight from "@/assets/icons/arrow-right.svg";
-import CustomText from "@/frontend/components/CustomText";
+import CustomText from "@/components/CustomText";
 import { useHydratedEffect } from "@/hooks/hooks";
 import { useAuth } from "@/state/auth";
 import {

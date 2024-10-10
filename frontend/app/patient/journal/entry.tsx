@@ -1,8 +1,8 @@
-import { getJournalEntry, postJournalEntry } from "@/frontend/api/api";
+import { getJournalEntry, postJournalEntry } from "@/api/api";
 import Plus from "@/assets/icons/plus.svg";
 import X from "@/assets/icons/x.svg";
-import CustomText from "@/frontend/components/CustomText";
-import { Colors } from "@/frontend/constants/Colors";
+import CustomText from "@/components/CustomText";
+import { Colors } from "@/constants/Colors";
 import { useHydratedEffect } from "@/hooks/hooks";
 import { JournalEntry, JournalEntryCreate } from "@/types/models";
 import { capitalizeFirstLetter, getDayOfWeek } from "@/utils/helpers";
@@ -12,7 +12,7 @@ import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Pressable, TextInput, View, Image } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { BACKEND_URL } from "@/frontend/constants/globals";
+import { BACKEND_URL } from "@/constants/globals";
 
 const ICON_SIZE = 28;
 

@@ -1,6 +1,6 @@
-import { getGuidedJournalEntry, getJournalEntry } from "@/frontend/api/api";
-import { STEPS_TEXT } from "@/frontend/app/patient/guided-journal/constants";
-import CustomText from "@/frontend/components/CustomText";
+import { getGuidedJournalEntry, getJournalEntry } from "@/api/api";
+import { STEPS_TEXT } from "@/app/patient/guided-journal/constants";
+import CustomText from "@/components/CustomText";
 import { useHydratedEffect } from "@/hooks/hooks";
 import { GuidedJournalEntry, JournalEntry } from "@/types/models";
 import { useLocalSearchParams } from "expo-router";

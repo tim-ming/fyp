@@ -1,5 +1,5 @@
-import { getJournalEntry } from "@/frontend/api/api";
-import CustomText from "@/frontend/components/CustomText";
+import { getJournalEntry } from "@/api/api";
+import CustomText from "@/components/CustomText";
 import { useHydratedEffect } from "@/hooks/hooks";
 import { JournalEntry } from "@/types/models";
 import { useLocalSearchParams } from "expo-router";
@@ -7,7 +7,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Image } from "react-native";
-import { BACKEND_URL } from "@/frontend/constants/globals";
+import { BACKEND_URL } from "@/constants/globals";
 
 export default function JournalScreen() {
   const insets = useSafeAreaInsets();

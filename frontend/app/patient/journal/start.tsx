@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Pressable } from "react-native";
 import { Link, useLocalSearchParams } from "expo-router";
-import CustomText from "@/frontend/components/CustomText";
+import CustomText from "@/components/CustomText";
 
 const JournalStart: React.FC = () => {
   const { source } = useLocalSearchParams();

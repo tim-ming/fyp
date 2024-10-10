@@ -3,10 +3,10 @@ import {
   getMoodEntry,
   getPatientData,
   getPatients,
-} from "@/frontend/api/api";
-import { STEPS_TEXT } from "@/frontend/app/patient/guided-journal/constants";
-import CustomText from "@/frontend/components/CustomText";
-import { getStatus } from "@/frontend/constants/globals";
+} from "@/api/api";
+import { STEPS_TEXT } from "@/app/patient/guided-journal/constants";
+import CustomText from "@/components/CustomText";
+import { getStatus } from "@/constants/globals";
 import { useHydratedEffect } from "@/hooks/hooks";
 import {
   GuidedJournalEntry,

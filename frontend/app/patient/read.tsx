@@ -1,6 +1,6 @@
 import articlesData from "@/assets/articles/articles.json";
-import CustomText from "@/frontend/components/CustomText";
-import { shadows } from "@/frontend/constants/styles";
+import CustomText from "@/components/CustomText";
+import { shadows } from "@/constants/styles";
 import { useHydratedFocusEffect } from "@/hooks/hooks";
 import { useAuth } from "@/state/auth";
 import { loadChapterProgress } from "@/utils/progressStorage";

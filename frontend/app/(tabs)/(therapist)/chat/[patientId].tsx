@@ -14,18 +14,18 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import CustomText from "@/frontend/components/CustomText";
+import CustomText from "@/components/CustomText";
 import { useAuth } from "@/state/auth";
 import { useHydratedEffect } from "@/hooks/hooks";
-import { getMessages, getPatients } from "@/frontend/api/api";
+import { getMessages, getPatients } from "@/api/api";
 import { Message, UserWithoutSensitiveData } from "@/types/models";
-import { BACKEND_URL } from "@/frontend/constants/globals";
+import { BACKEND_URL } from "@/constants/globals";
 import { differenceInMinutes, set } from "date-fns";
 import { format, toZonedTime } from "date-fns-tz";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { shadows } from "@/frontend/constants/styles";
+import { shadows } from "@/constants/styles";
 import SendIcon from "@/assets/icons/send.svg";
-import BackButtonWrapper from "@/frontend/components/Back";
+import BackButtonWrapper from "@/components/Back";
 import useWebSocketStore from "@/state/socket";
 
 const ChatScreen = () => {

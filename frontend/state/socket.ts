@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { BACKEND_URL } from "@/frontend/constants/globals";
+import { BACKEND_URL } from "@/constants/globals";
 import { Message } from "@/types/models";
 
 interface WebSocketStore {

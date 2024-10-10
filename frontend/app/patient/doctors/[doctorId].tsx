@@ -8,7 +8,7 @@ import {
   Text,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import CustomText from "@/frontend/components/CustomText";
+import CustomText from "@/components/CustomText";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
 import { useHydratedEffect } from "@/hooks/hooks";
@@ -18,10 +18,10 @@ import {
   getPatientData,
   getTherapistData,
   unassignTherapist,
-} from "@/frontend/api/api";
+} from "@/api/api";
 import { useAuth } from "@/state/auth";
 import useTherapistStore from "@/state/assignedTherapist";
-import { BACKEND_URL } from "@/frontend/constants/globals";
+import { BACKEND_URL } from "@/constants/globals";
 
 const DoctorDetails = () => {
   const router = useRouter();

@@ -1,6 +1,6 @@
 import DoubleHeart from "@/assets/icons/doubleheart.svg";
 import User from "@/assets/icons/user.svg";
-import { screenStyles } from "@/frontend/constants/styles";
+import { screenStyles } from "@/constants/styles";
 import { Link, usePathname } from "expo-router";
 import React from "react";
 import { Pressable, View } from "react-native";

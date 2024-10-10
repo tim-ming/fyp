@@ -1,4 +1,4 @@
-import UserDetails from "@/frontend/app/user-details";
+import UserDetails from "@/app/user-details";
 import ChevronRight from "@/assets/icons/chevron-right.svg";
 import Data from "@/assets/icons/data.svg";
 import Feedback from "@/assets/icons/feedback.svg";
@@ -10,8 +10,8 @@ import Notification from "@/assets/icons/notification.svg";
 import Question from "@/assets/icons/question.svg";
 import Support from "@/assets/icons/support.svg";
 import UserHeart from "@/assets/icons/user-heart.svg";
-import CustomText from "@/frontend/components/CustomText";
-import { shadows } from "@/frontend/constants/styles";
+import CustomText from "@/components/CustomText";
+import { shadows } from "@/constants/styles";
 import { useHydratedEffect } from "@/hooks/hooks";
 import useTherapistStore from "@/state/assignedTherapist";
 import { useAuth } from "@/state/auth";

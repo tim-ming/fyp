@@ -1,17 +1,17 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { View, FlatList, StyleSheet, Image, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import CustomText from "@/frontend/components/CustomText";
+import CustomText from "@/components/CustomText";
 import { useAuth } from "@/state/auth";
 import { useHydratedEffect } from "@/hooks/hooks";
-import { getPatients, getMessages } from "@/frontend/api/api";
+import { getPatients, getMessages } from "@/api/api";
 import { Message, UserWithoutSensitiveData } from "@/types/models";
 import { useRouter } from "expo-router";
 import { format } from "date-fns";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { shadows } from "@/frontend/constants/styles";
-import { BACKEND_URL } from "@/frontend/constants/globals";
-import useWebSocketStore from '@/state/socket';
+import { shadows } from "@/constants/styles";
+import { BACKEND_URL } from "@/constants/globals";
+import useWebSocketStore from "@/state/socket";
 import { toZonedTime } from "date-fns-tz";
 
 interface PatientWithLastMessage extends UserWithoutSensitiveData {
@@ -38,7 +38,6 @@ const PatientListScreen = () => {
   const auth = useAuth();
   const router = useRouter();
   const webSocketStore = useWebSocketStore();
-  
 
   const [sortConfig, setSortConfig] = useState<{
     key: keyof PatientWithLastMessage | "lastMessageTimestamp";
@@ -51,7 +50,10 @@ const PatientListScreen = () => {
   const updatePatientMessage = useCallback((message: Message) => {
     setPatients((currentPatients) => {
       return currentPatients.map((patient) => {
-        if (patient.id === message.sender_id || patient.id === message.recipient_id) {
+        if (
+          patient.id === message.sender_id ||
+          patient.id === message.recipient_id
+        ) {
           return {
             ...patient,
             lastMessage: {
@@ -115,7 +117,6 @@ const PatientListScreen = () => {
       setLoading(false);
     }
   }, []);
-
 
   const getSortedData = (
     p: PatientWithLastMessage[],
@@ -213,7 +214,10 @@ const PatientListScreen = () => {
         style={styles.patientItem}
         onPress={() => router.push(`/(therapist)/chat/${item.id}`)}
       >
-        <Image source={{ uri: BACKEND_URL + item.image }} style={styles.avatar} />
+        <Image
+          source={{ uri: BACKEND_URL + item.image }}
+          style={styles.avatar}
+        />
         <View
           style={[
             styles.riskTag,
@@ -232,10 +236,14 @@ const PatientListScreen = () => {
           {item.lastMessage ? (
             <>
               <CustomText style={styles.lastMessage} numberOfLines={1}>
-                {item.lastMessage.sender_id === auth.user?.id ? "You:" : ""} {item.lastMessage.content}
+                {item.lastMessage.sender_id === auth.user?.id ? "You:" : ""}{" "}
+                {item.lastMessage.content}
               </CustomText>
-              <CustomText style={styles.timestamp}> 
-                {format(toZonedTime(new Date(item.lastMessage.timestamp), "UTC"), "MMM d, h:mm a")}
+              <CustomText style={styles.timestamp}>
+                {format(
+                  toZonedTime(new Date(item.lastMessage.timestamp), "UTC"),
+                  "MMM d, h:mm a"
+                )}
               </CustomText>
             </>
           ) : (

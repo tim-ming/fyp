@@ -56,11 +56,6 @@ os.environ["WANDB_MODE"] = args.mode
 os.environ["WANDB_NAME"] = args.name
 os.environ["WANDB_NOTES"] = args.notes
 
-wandb.init(project="multimodal-depression-time", group=args.group)
-
-wandb.config.update(vars(args))
-wandb.config.update({"config": cfg})
-
 NUM_WORKERS = 15
 
 # dataset and model
@@ -94,7 +89,7 @@ wandb_logger = WandbLogger()
 checkpoint_callback = callbacks.ModelCheckpoint(
     monitor="val_f1",
     direction="up",
-    dirpath=f"checkpoints/{args.group}:{args.name}",
+    dirpath=f"checkpoints/{args.group}-{args.name}",
     save_weights_only=True,
     filename="epoch={epoch}-val_f1={val_f1:.6f}.ckpt",
 )

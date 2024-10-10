@@ -31,7 +31,7 @@ def load_args(args):
 
 
 def load_model(args):
-    checkpoint_path = f"{os.path.abspath(os.path.dirname(__file__))}/checkpoints/{args.group}:{args.name}/*.ckpt"
+    checkpoint_path = f"{os.path.abspath(os.path.dirname(__file__))}/checkpoints/{args.group}-{args.name}/*.ckpt"
     print("::: Searching for model at", checkpoint_path)
     checkpoints = glob.glob(checkpoint_path)
 

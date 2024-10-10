@@ -87,7 +87,7 @@ class MultimodalEvaluator(BaseEvaluator):
                 "precision": [precision],
                 "auc": [auc],
                 "accuracy": [acc],
-                "name": [f"{self.args.group}:{self.args.name}"],
+                "name": [f"{self.args.group}-{self.args.name}"],
                 "dataset": [self.args.dataset],
                 "text_embedding": [self.args.text_embeddings_type],
                 "image_embedding": [self.args.image_embeddings_type],
@@ -100,7 +100,7 @@ class MultimodalEvaluator(BaseEvaluator):
 
         if save:
             results.to_csv(
-                f"results/{self.args.output_dir}/{self.args.group}:{self.args.name}.csv",
+                f"results/{self.args.output_dir}/{self.args.group}-{self.args.name}.csv",
                 index=False,
             )
 

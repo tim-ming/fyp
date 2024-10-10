@@ -10,6 +10,7 @@ backend/.env
 backend/app/db
 backend/images
 __pycache__
+MultiModalDataset
 
 # macOS
 .DS_Store

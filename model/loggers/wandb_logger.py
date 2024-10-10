@@ -9,7 +9,7 @@ class WandbLogger(object):
         self.metrics = dict()
 
     def watch(self, model):
-        wandb.watch(model)
+        pass
 
     def log(self, key, value, on_step=True, force_log=False):
         self.metrics[key] = value
@@ -18,5 +18,5 @@ class WandbLogger(object):
             self.on_step_metrics[key] = value
 
         if (self.trainer.global_step % self.trainer.args.log_every == 0) or force_log:
-            wandb.log({key: value}, step=self.trainer.global_step)
+            print({key: value, "step": self.trainer.global_step})
             return

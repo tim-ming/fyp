@@ -1,5 +1,7 @@
 import datetime
 from io import BytesIO
+import os
+import traceback
 from types import SimpleNamespace
 from typing import List, Optional
 import aiohttp
@@ -17,13 +19,13 @@ from transformers import (
 
 import nomenclature
 from utils import extend_config, load_model
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 
 # Define the embs_type dictionary
 embs_type = {
     "image": {
         "clip": {
-            "model_name": "openai/clip-vit-base-patch16",
+            "model_name": "openai/clip-vit-base-patch32",
             "model_class": CLIPVisionModel,
             "input_representation": CLIPProcessor,
         },
@@ -70,6 +72,8 @@ def load_args(args):
             setattr(args, key, value)
 
     return args, cfg
+
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 def process_inputs(inputs, model, args, embs_type):
     device = next(model.parameters()).device
@@ -195,13 +199,12 @@ state_dict = load_model(args)
 state_dict = {key.replace("module.", ""): value for key, value in state_dict.items()}
 model.load_state_dict(state_dict)
 model.eval()
-model.cuda()
+model = model.to(device)
+print("Model loaded", "using cuda" if torch.cuda.is_available() else "using cpu")
 
 # Create FastAPI app
 async def init_session():
-    return aiohttp.ClientSession(
-        timeout=aiohttp.ClientTimeout(total=3),
-    )
+    return aiohttp.ClientSession()
 
 async def startup_event():
     app.state.session = await init_session()
@@ -230,6 +233,8 @@ class Entry(BaseModel):
 class RequestBody(BaseModel):
     data: List[Entry]
 
+backend_endpoint = os.getenv("BACKEND_ENDPOINT") or "http://localhost:8000"
+
 @app.post("/check")
 async def check(body: RequestBody):
     processed = []
@@ -246,18 +251,31 @@ async def check(body: RequestBody):
             item['text'] = data.text
         
         if data.image:
+            if not data.image.startswith("http"):
+                data.image = backend_endpoint + data.image
             try:
                 # Fetch the image from the URL with timeout
-                response = await app.state.session.get(data.image, timeout=10)
-                
-                response.raise_for_status()
+                async with app.state.session.get(data.image) as response:
+                    response.raise_for_status()
+                    image_data = await response.read()  # This reads the entire response body as bytes
 
                 # Open the image from the response content
-                image = Image.open(BytesIO(response.content))
+                image = Image.open(BytesIO(image_data))
                 item['image'] = image
-            except Exception:
-                # If there's an error processing the image, we'll exclude it
-                print(f"Error processing image: {data.image}")
+            except aiohttp.ClientError as e:
+                print(f"Error fetching image: {data.image}")
+                print(f"Error details: {str(e)}")
+                traceback.print_exc()
+                continue
+            except UnidentifiedImageError as e:
+                print(f"Error opening image: {data.image}")
+                print(f"Error details: {str(e)}")
+                traceback.print_exc()
+                continue
+            except Exception as e:
+                print(f"Unexpected error processing image: {data.image}")
+                print(f"Error details: {str(e)}")
+                traceback.print_exc()
                 continue
         
         processed.append(item)

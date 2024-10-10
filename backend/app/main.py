@@ -1013,7 +1013,7 @@ async def update_depression_risk(
                 {
                     "text": journal.title + "\n" + journal.body, 
                     "timestamp": journal.date.isoformat(), 
-                    "image": os.getenv("BACKEND_ENDPOINT") + journal.image if journal.image else None,
+                    "image": journal.image if journal.image else None,
                 }
             )
         

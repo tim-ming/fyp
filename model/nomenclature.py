@@ -5,7 +5,7 @@ from evaluators import MultimodalEvaluator
 
 import torch
 
-device = torch.device("cuda")
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 DATASETS = {
     "reddit": RedditDataset,

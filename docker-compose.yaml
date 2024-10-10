@@ -1,0 +1,55 @@
+version: "3"
+services:
+  frontend:
+    build:
+      context: ./frontend/
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+
+  postgres:
+    image: postgres:16
+    env_file:
+      - backend/app/.env
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    restart: always
+    volumes:
+      - ./backend/app/db/postgres:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  backend-poetry:
+    env_file:
+      - backend/app/.env
+    environment:
+      - DB_HOST=postgres
+      - MODEL_ENDPOINT=http://backend-model:8001/check
+    build:
+      context: ./backend/
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/images:/app/images
+    depends_on:
+      - postgres
+
+  backend-model:
+    build:
+      context: ./model/
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      - BACKEND_ENDPOINT=http://backend-poetry:8000
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+      

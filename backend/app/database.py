@@ -9,7 +9,7 @@ load_dotenv()
 
 # Create database engine and session
 engine = create_engine(
-    f"postgresql://{os.environ.get('DB_USER')}:{os.environ.get('DB_PASSWORD')}@localhost:5432/{os.environ.get('DB_NAME')}"
+    f"postgresql://{os.environ.get('DB_USER')}:{os.environ.get('DB_PASSWORD')}@{os.environ.get('DB_HOST')}:5432/{os.environ.get('DB_NAME')}"
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

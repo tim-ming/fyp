@@ -20,7 +20,7 @@ if config.config_file_name is not None:
 # Construct the database URL
 config.set_main_option(
     "sqlalchemy.url",
-    f"postgresql://{os.environ.get('DB_USER')}:{os.environ.get('DB_PASSWORD')}@localhost:5432/{os.environ.get('DB_NAME')}",
+    f"postgresql://{os.environ.get('DB_USER')}:{os.environ.get('DB_PASSWORD')}@{os.environ.get('DB_HOST')}:5432/{os.environ.get('DB_NAME')}",
 )
 
 # add your model's MetaData object here

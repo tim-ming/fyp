@@ -187,7 +187,6 @@ def process_inputs(inputs, model, args, embs_type):
         sample[key] = sample[key].to(device)
 
     # Run the model
-    model.eval()
     with torch.no_grad():
         output = model(sample)
     return output
@@ -226,17 +225,38 @@ app.add_middleware(
 )
 
 class Entry(BaseModel):
+    """
+    Data model for an entry in the request body
+    :param text: Optional[str] - The text content of the entry
+    :param image: Optional[str] - The URL of the image in the entry
+    :param timestamp: str - The timestamp of the entry (ISO 8601 format)
+    """
     text: Optional[str] = None
     image: Optional[str] = None
     timestamp: str
 
 class RequestBody(BaseModel):
+    """
+    Data model for the request body
+    """
     data: List[Entry]
 
 backend_endpoint = os.getenv("BACKEND_ENDPOINT") or "http://localhost:8000"
 
-@app.post("/check")
+class ResponseBody(BaseModel):
+    """
+    Response body data model
+    """
+    logits: List[float]
+    probas: List[float]
+
+@app.post("/check", response_model=ResponseBody)
 async def check(body: RequestBody):
+    """
+    This endpoint receives a list of entries, each containing a text, image URL, and timestamp.
+    It processes the entries and returns the logits and probabilities of the model.
+    """
+
     processed = []
     for data in body.data:
         print(data)
@@ -279,7 +299,6 @@ async def check(body: RequestBody):
                 continue
         
         processed.append(item)
-    print("here")
     output = process_inputs(processed, model, args, embs_type)
     print(output)
     return {

@@ -1,10 +1,10 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import App from "./App.tsx";
-import PrivacyPolicy from "./PrivacyPolicy.tsx";
+import App from "./App.js";
+import PrivacyPolicy from "./PrivacyPolicy.js";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Terms from "./Terms.tsx";
-import Layout from "./Layout.tsx"; // Import Layout component
+import Terms from "./Terms.js";
+import Layout from "./Layout.js"; // Import Layout component
 
 const router = createBrowserRouter([
   {

@@ -21,9 +21,7 @@ from app import commands, schemas
 
 # Create FastAPI app
 async def init_session():
-    return aiohttp.ClientSession(
-        timeout=aiohttp.ClientTimeout(total=3),
-    )
+    return aiohttp.ClientSession()
 
 async def startup_event():
     app.state.session = await init_session()
@@ -995,13 +993,19 @@ async def get_chat_messages(
 
 @app.get("/batch")
 async def update_depression_risk(
+    token: str = Query(..., description="Authentication token"),
     db: Session = Depends(get_db)
 ):
     """
     Update depression risk for all patients
     :param db (Session): Database session
     """
+
+    if token != os.getenv("BATCH_TOKEN"):
+        raise HTTPException(status_code=403, detail="Unauthorized")
+
     patients = commands.get_all_patients_with_entries(db)
+    details = {}
     for patient in patients:
         model_endpoint = os.getenv("MODEL_ENDPOINT")
         inputs = []
@@ -1015,7 +1019,7 @@ async def update_depression_risk(
             )
         
         response: aiohttp.ClientResponse = await app.state.session.post(model_endpoint, json={"data": inputs})
-        
+
         if response.status == 200:
             output = await response.json()
             print(output)
@@ -1042,8 +1046,12 @@ async def update_depression_risk(
                 user_id=patient.id,
                 severity=risk
             ))
+            details[patient.id] = {
+                "risk": prob,
+                "severity": risk
+            }
 
-    return {"detail": "Depression risk updated"}
+    return {"detail": "Depression risk updated", "details": details}
 
 @app.get("/user/depression-risks/{user_id}", response_model=List[schemas.DepressionRiskLog])
 async def get_depression_risks(

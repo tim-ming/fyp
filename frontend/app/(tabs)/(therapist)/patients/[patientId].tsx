@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { View, ScrollView, Pressable, ActivityIndicator } from "react-native";
+import {
+  View,
+  ScrollView,
+  Pressable,
+  ActivityIndicator,
+  StyleSheet,
+} from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import CustomText from "@/components/CustomText";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -92,36 +98,18 @@ const RiskTable = () => {
           Value Range
         </CustomText>
       </View>
-
       {/* Table Row 1 */}
       <View className="flex-row py-1">
-        <CustomText className="flex-1 text-black">None</CustomText>
+        <CustomText className="flex-1 text-black">No depression</CustomText>
         <CustomText className="flex-1 text-black">0</CustomText>
-      </View>
-
-      {/* Table Row 2 */}
-      <View className="flex-row py-1 bg-gray-50">
-        <CustomText className="flex-1 text-black">Mild</CustomText>
-        <CustomText className="flex-1 text-black">0.2 - 0.4</CustomText>
-      </View>
-
-      {/* Table Row 3 */}
-      <View className="flex-row py-1">
-        <CustomText className="flex-1 text-black">Moderate</CustomText>
-        <CustomText className="flex-1 text-black">0.4 - 0.6</CustomText>
-      </View>
-
-      {/* Table Row 4 */}
-      <View className="flex-row py-1 bg-gray-50">
-        <CustomText className="flex-1 text-black">Moderately Severe</CustomText>
-        <CustomText className="flex-1 text-black">0.6 - 0.8</CustomText>
       </View>
 
       {/* Table Row 5 */}
       <View className="flex-row py-1">
-        <CustomText className="flex-1 text-black">Severe</CustomText>
-        <CustomText className="flex-1 text-black">0.8 - 1</CustomText>
+        <CustomText className="flex-1 text-black">Depression</CustomText>
+        <CustomText className="flex-1 text-black">1</CustomText>
       </View>
+      {/* <ValueLine value={depressionRisk}/> */}
     </View>
   );
 };
@@ -416,5 +404,72 @@ const PatientDetails = () => {
     </SafeAreaView>
   );
 };
+const ValueLine: React.FC<{ value: number }> = ({ value }) => {
+  return (
+    <View style={styles.container}>
+      {/* Line with circles at both ends */}
+      <View style={styles.lineContainer}>
+        <View style={styles.circle} />
+        <View style={styles.line}>
+          {/* Marker representing the value */}
+          {/* <View
+            style={[
+              styles.marker,
+              { left: `${value * 100}%` }, // Place marker based on value
+            ]}
+          /> */}
+        </View>
+        <View style={styles.circle} />
+      </View>
+
+      {/* Labels for the start and end */}
+      <View style={styles.labelsContainer}>
+        <CustomText style={styles.label}>0</CustomText>
+        <CustomText style={styles.label}>1</CustomText>
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 20,
+    alignItems: "center",
+  },
+  lineContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  circle: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: "orange",
+  },
+  line: {
+    width: 200, // Adjust the width based on your design
+    height: 2,
+    backgroundColor: "black",
+    position: "relative",
+    marginHorizontal: 5,
+  },
+  marker: {
+    position: "absolute",
+    top: -5, // Adjust to center marker on the line
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: "blue", // Marker color
+  },
+  labelsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: 220, // Adjust width based on line length
+  },
+  label: {
+    color: "blue",
+  },
+});
 
 export default PatientDetails;

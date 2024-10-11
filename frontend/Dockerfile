@@ -6,16 +6,13 @@ COPY . .
 
 RUN npm install
 
-# Install expo-cli globally
-RUN npm install -g expo-cli
-
 # Expose the port Expo uses
 EXPOSE 8081
 
 # Create a startup script
 RUN echo '#!/bin/sh\n\
 if [ -n "$EXPO_USERNAME" ] && [ -n "$EXPO_PASSWORD" ]; then\n\
-  expo login -u $EXPO_USERNAME -p $EXPO_PASSWORD\n\
+  npx expo login -u $EXPO_USERNAME -p $EXPO_PASSWORD\n\
   npx expo start --tunnel\n\
 else\n\
   npx expo start\n\

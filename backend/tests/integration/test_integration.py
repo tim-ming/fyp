@@ -8,8 +8,7 @@ from sqlalchemy.orm import sessionmaker
 from app.main import app, get_db
 from app.database import Base
 from PIL import Image
-from datetime import date
-
+from datetime import date, timedelta
 
 @pytest.fixture(scope="function")
 def test_db():
@@ -161,12 +160,13 @@ def test_post_journal_and_depression_evaluation(test_db):
         {"title": "Happy Journal 5", "body": "Accomplished all my tasks."},
     ]
 
-    for journal in happy_journal_entries:
+    for i, journal in enumerate(happy_journal_entries):
+        date_str = (date.today() + timedelta(days=i)).isoformat()
         journal_entry_data = {
             "title": journal["title"],
             "body": journal["body"],
             "image": img_str,  # Same base64 image for all entries
-            "date": date.today().isoformat(),
+            "date": date_str,
         }
 
         response = client.post(
@@ -176,7 +176,7 @@ def test_post_journal_and_depression_evaluation(test_db):
         assert response.status_code == 200  # Entry should be created successfully
 
         created_entry = response.json()
-        now = date.today().isoformat()
+        now = (date.today() + timedelta(days=i)).isoformat()
         assert created_entry["title"] == journal["title"]
         assert created_entry["body"] == journal["body"]
         assert "image" in created_entry  # Image should be saved
@@ -198,7 +198,8 @@ def test_post_journal_and_depression_evaluation(test_db):
     # --- Depression Evaluation testing ---
 
     # call the depression evaluation endpoint
-    get_response = client.post("/batch")
+    batch_token = os.getenv("BATCH_TOKEN")
+    get_response = client.get("/batch", params={"token": batch_token})
     assert get_response.status_code == 200
 
     # check if the risk is between 0 and 1

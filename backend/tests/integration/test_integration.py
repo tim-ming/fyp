@@ -1,4 +1,6 @@
 import os
+
+import requests
 import pytest
 import base64
 import io
@@ -190,19 +192,31 @@ def test_post_journal_and_depression_evaluation(test_db):
     assert len(journal_entries) >= 5  # Ensure there are at least 5 entries
 
     # Verify that the 5 "happy" journals are present
+    inputs = []
     for journal in happy_journal_entries:
         assert any(entry["title"] == journal["title"] for entry in journal_entries)
 
+    for journal in journal_entries:
+        inputs.append(
+            {
+                "text": journal["title"] + "\n" + journal["body"], 
+                "timestamp": journal["date"], 
+                "image": journal["image"] if journal["image"] else None,
+            }
+        )
+        
     # --- End Journal testing ---
 
     # --- Depression Evaluation testing ---
 
     # call the depression evaluation endpoint
-    batch_token = os.getenv("BATCH_TOKEN")
-    get_response = client.get("/batch", params={"token": batch_token})
+    model_endpoint = os.getenv("MODEL_ENDPOINT")
+    get_response = requests.post(
+        model_endpoint,
+        json={"data": inputs},
+    )
     assert get_response.status_code == 200
 
     # check if the risk is between 0 and 1
     details = get_response.json()
-    assert user.id in details
-    assert details[user.id]["risk"] >= 0 <= 1
+    assert details["probas"][0] >= 0 and details["probas"][0] <= 1

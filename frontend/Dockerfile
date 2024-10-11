@@ -6,9 +6,6 @@ COPY . .
 
 RUN npm install
 
-# Install expo-cli globally
-RUN npm install -g expo-cli
-
 # Expose the port Expo uses
 EXPOSE 8081
 

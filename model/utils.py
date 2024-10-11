@@ -40,7 +40,12 @@ def load_model(args):
         exit(-1)
 
     try:
-        state_dict = torch.load(checkpoints[-1])
+        # check if cuda is available
+        if torch.cuda.is_available():
+            state_dict = torch.load(checkpoints[-1])
+        else:
+            state_dict = torch.load(checkpoints[-1], map_location=torch.device('cpu'))
+            
         print("::: Found model at:", checkpoints[-1])
     except Exception as e:
         print("No checkpoints found: ", checkpoint_path)

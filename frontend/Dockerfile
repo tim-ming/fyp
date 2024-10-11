@@ -1,4 +1,3 @@
-# frontend/Dockerfile
 FROM node:20.11
 
 WORKDIR /app
@@ -10,12 +9,15 @@ RUN npm install
 # Install expo-cli globally
 RUN npm install -g expo-cli
 
-# Set environment variables for Expo credentials
-ENV EXPO_USERNAME=""
-ENV EXPO_PASSWORD=""
-
 # Expose the port Expo uses
 EXPOSE 8081
 
-# Login to Expo and start the app
-CMD expo login -u $EXPO_USERNAME -p $EXPO_PASSWORD && npx expo start
+# Create a startup script
+RUN echo '#!/bin/sh\n\
+if [ -n "$EXPO_USERNAME" ] && [ -n "$EXPO_PASSWORD" ]; then\n\
+  expo login -u $EXPO_USERNAME -p $EXPO_PASSWORD\n\
+fi\n\
+npx expo start\n' > /app/start.sh && chmod +x /app/start.sh
+
+# Set the startup script as the entrypoint
+ENTRYPOINT ["/app/start.sh"]

@@ -24,6 +24,12 @@ import {
   DepressionRiskLog,
 } from "@/types/models";
 
+/**
+ * Handles non-OK responses by throwing an error with detailed information.
+ *
+ * @param {Response} response - The response object to check.
+ * @throws {Error} Throws an error if the response is not OK.
+ */
 export const handleNotOk = async (response: Response) => {
   if (!response.ok) {
     const errorData = await response.json();
@@ -33,6 +39,12 @@ export const handleNotOk = async (response: Response) => {
   }
 };
 
+/**
+ * Updates the onboarded status of the user.
+ *
+ * @returns {Promise<Response>} The response from the backend.
+ * @throws {Error} Throws an error if the user is not found.
+ */
 export const updateOnboarded = async (): Promise<Response> => {
   const { token } = useAuth.getState();
   const user = useAuth.getState().user;
@@ -53,6 +65,12 @@ export const updateOnboarded = async (): Promise<Response> => {
   return response;
 };
 
+/**
+ * Checks if an email exists in the backend.
+ *
+ * @param {string} email - The email to check.
+ * @returns {Promise<Response>} The response from the backend.
+ */
 export const checkEmailExists = async (email: string): Promise<Response> => {
   const response = await fetch(
     `${BACKEND_URL}/users/check-email?email=${encodeURIComponent(email)}`
@@ -61,6 +79,13 @@ export const checkEmailExists = async (email: string): Promise<Response> => {
   return response;
 };
 
+/**
+ * Updates the user information.
+ *
+ * @param {UserUpdate} user - The user information to update.
+ * @returns {Promise<UserWithoutSensitiveData>} The updated user information without sensitive data.
+ * @throws {Error} Throws an error if the response is not OK.
+ */
 export const updateUser = async (
   user: UserUpdate
 ): Promise<UserWithoutSensitiveData> => {
@@ -81,6 +106,12 @@ export const updateUser = async (
   return updatedUser;
 };
 
+/**
+ * Retrieves the user information.
+ *
+ * @returns {Promise<UserWithoutSensitiveData>} The user information without sensitive data.
+ * @throws {Error} Throws an error if the response is not OK.
+ */
 export const getUser = async (): Promise<UserWithoutSensitiveData> => {
   const { token } = useAuth.getState();
 
@@ -96,6 +127,13 @@ export const getUser = async (): Promise<UserWithoutSensitiveData> => {
   return profile;
 };
 
+/**
+ * Retrieves a journal entry for a specific date.
+ *
+ * @param {string} date - The date of the journal entry to retrieve.
+ * @returns {Promise<JournalEntry>} The journal entry for the specified date.
+ * @throws {Error} Throws an error if the response is not OK.
+ */
 export const getJournalEntry = async (date: string): Promise<JournalEntry> => {
   const { token } = useAuth.getState();
 
@@ -118,6 +156,13 @@ export const getJournalEntry = async (date: string): Promise<JournalEntry> => {
   return data;
 };
 
+/**
+ * Retrieves a list of journal entries with a specified limit.
+ *
+ * @param {number} [limit=30] - The maximum number of journal entries to retrieve.
+ * @returns {Promise<JournalEntry[]>} A list of journal entries.
+ * @throws {Error} Throws an error if the response is not OK.
+ */
 export const getJournalEntries = async (
   limit = 30
 ): Promise<JournalEntry[]> => {
@@ -139,6 +184,12 @@ export const getJournalEntries = async (
   return journals;
 };
 
+/**
+ * Sends a signup request to the backend.
+ *
+ * @param {UserCreate} user - The user information to create.
+ * @returns {Promise<Response>} The response from the backend.
+ */
 export const postSignup = async (user: UserCreate): Promise<Response> => {
   const response = await fetch(`${BACKEND_URL}/signup`, {
     method: "POST",
@@ -151,6 +202,13 @@ export const postSignup = async (user: UserCreate): Promise<Response> => {
   return response;
 };
 
+/**
+ * Sends a signin request to the backend.
+ *
+ * @param {string} email - The email of the user.
+ * @param {string} password - The password of the user.
+ * @returns {Promise<Response>} The response from the backend.
+ */
 export const postSignin = async (
   email: string,
   password: string
@@ -167,6 +225,12 @@ export const postSignin = async (
   return response;
 };
 
+/**
+ * Sends a Google signin request to the backend.
+ *
+ * @param {Token} token - The Google token.
+ * @returns {Promise<Response>} The response from the backend.
+ */
 export const postSigninGoogle = async (token: Token): Promise<Response> => {
   const response = await fetch(`${BACKEND_URL}/signin/google?token=${token}`, {
     method: "POST",
@@ -175,6 +239,13 @@ export const postSigninGoogle = async (token: Token): Promise<Response> => {
   return response;
 };
 
+/**
+ * Sends a journal entry to the backend.
+ *
+ * @param {JournalEntryCreate} journal - The journal entry to create.
+ * @returns {Promise<JournalEntry>} The created journal entry.
+ * @throws {Error} Throws an error if the response is not OK.
+ */
 export const postJournalEntry = async (
   journal: JournalEntryCreate
 ): Promise<JournalEntry> => {
@@ -195,6 +266,12 @@ export const postJournalEntry = async (
   return data;
 };
 
+/**
+ * Retrieves a list of patients from the backend.
+ *
+ * @returns {Promise<UserWithPatientData[]>} A list of patients with their data.
+ * @throws {Error} Throws an error if the response is not OK.
+ */
 export const getPatients = async (): Promise<UserWithPatientData[]> => {
   const { token } = useAuth.getState();
 
@@ -210,6 +287,13 @@ export const getPatients = async (): Promise<UserWithPatientData[]> => {
   return patients;
 };
 
+/**
+ * Retrieves patient data for a specific patient ID.
+ *
+ * @param {number} id - The ID of the patient.
+ * @returns {Promise<UserWithPatientData>} The patient data.
+ * @throws {Error} Throws an error if the response is not OK.
+ */
 export const getPatientData = async (
   id: number
 ): Promise<UserWithPatientData> => {
@@ -227,6 +311,13 @@ export const getPatientData = async (
   return patient;
 };
 
+/**
+ * Retrieves a guided journal entry for a specific date.
+ *
+ * @param {string} date - The date of the guided journal entry to retrieve.
+ * @returns {Promise<GuidedJournalEntry>} The guided journal entry for the specified date.
+ * @throws {Error} Throws an error if the response is not OK.
+ */
 export const getGuidedJournalEntry = async (
   date: string
 ): Promise<GuidedJournalEntry> => {
@@ -247,6 +338,13 @@ export const getGuidedJournalEntry = async (
   return data;
 };
 
+/**
+ * Retrieves a list of guided journal entries with a specified limit.
+ *
+ * @param {number} [limit=30] - The maximum number of guided journal entries to retrieve.
+ * @returns {Promise<GuidedJournalEntry[]>} A list of guided journal entries.
+ * @throws {Error} Throws an error if the response is not OK.
+ */
 export const getGuidedJournalEntries = async (
   limit = 30
 ): Promise<GuidedJournalEntry[]> => {
@@ -271,6 +369,13 @@ export const getGuidedJournalEntries = async (
   return journals;
 };
 
+/**
+ * Sends a guided journal entry to the backend.
+ *
+ * @param {GuidedJournalEntryCreate} guidedJournal - The guided journal entry to create.
+ * @returns {Promise<GuidedJournalEntry>} The created guided journal entry.
+ * @throws {Error} Throws an error if the response is not OK.
+ */
 export const postGuidedJournalEntry = async (
   guidedJournal: GuidedJournalEntryCreate
 ): Promise<GuidedJournalEntry> => {
@@ -291,6 +396,13 @@ export const postGuidedJournalEntry = async (
   return data;
 };
 
+/**
+ * Retrieves a mood entry for a specific date.
+ *
+ * @param {string} date - The date of the mood entry to retrieve.
+ * @returns {Promise<MoodEntry>} The mood entry for the specified date.
+ * @throws {Error} Throws an error if the response is not OK.
+ */
 export const getMoodEntry = async (date: string): Promise<MoodEntry> => {
   const { token } = useAuth.getState();
 
@@ -309,6 +421,13 @@ export const getMoodEntry = async (date: string): Promise<MoodEntry> => {
   return data;
 };
 
+/**
+ * Retrieves a list of mood entries with a specified limit.
+ *
+ * @param {number} [limit=30] - The maximum number of mood entries to retrieve.
+ * @returns {Promise<MoodEntry[]>} A list of mood entries.
+ * @throws {Error} Throws an error if the response is not OK.
+ */
 export const getMoodEntries = async (limit = 30): Promise<MoodEntry[]> => {
   const { token } = useAuth.getState();
 
@@ -328,6 +447,14 @@ export const getMoodEntries = async (limit = 30): Promise<MoodEntry[]> => {
   return entries;
 };
 
+/**
+ * Retrieves mood entries within a specified date range.
+ *
+ * @param {string} start - The start date of the range.
+ * @param {string} end - The end date of the range.
+ * @returns {Promise<MoodEntry[]>} A list of mood entries within the date range.
+ * @throws {Error} Throws an error if the response is not OK.
+ */
 export const getMoodEntriesRange = async (start: string, end: string) => {
   const { token } = useAuth.getState();
 
@@ -350,6 +477,13 @@ export const getMoodEntriesRange = async (start: string, end: string) => {
   return entries;
 };
 
+/**
+ * Sends a mood entry to the backend.
+ *
+ * @param {MoodEntryCreate} mood - The mood entry to create.
+ * @returns {Promise<MoodEntry>} The created mood entry.
+ * @throws {Error} Throws an error if the response is not OK.
+ */
 export const postMoodEntry = async (
   mood: MoodEntryCreate
 ): Promise<MoodEntry> => {
@@ -370,6 +504,13 @@ export const postMoodEntry = async (
   return data;
 };
 
+/**
+ * Sends a mood entry to the backend.
+ *
+ * @param {MoodEntryCreate} mood - The mood entry to create.
+ * @returns {Promise<MoodEntry>} The created mood entry.
+ * @throws {Error} Throws an error if the response is not OK.
+ */
 export const getTherapists = async (): Promise<UserWithoutSensitiveData[]> => {
   const { token } = useAuth.getState();
 
@@ -385,6 +526,13 @@ export const getTherapists = async (): Promise<UserWithoutSensitiveData[]> => {
   return therapists;
 };
 
+/**
+ * Retrieves therapist data for a specific therapist ID.
+ *
+ * @param {number} id - The ID of the therapist.
+ * @returns {Promise<UserWithTherapistData>} The therapist data.
+ * @throws {Error} Throws an error if the response is not OK.
+ */
 export const getTherapistData = async (
   id: number
 ): Promise<UserWithTherapistData> => {
@@ -402,6 +550,13 @@ export const getTherapistData = async (
   return therapist;
 };
 
+/**
+ * Updates therapist data.
+ *
+ * @param {TherapistDataCreate} therapist_data - The therapist data to update.
+ * @returns {Promise<TherapistData>} The updated therapist data.
+ * @throws {Error} Throws an error if the response is not OK.
+ */
 export const updateTherapistData = async (
   therapist_data: TherapistDataCreate
 ): Promise<TherapistData> => {
@@ -422,6 +577,12 @@ export const updateTherapistData = async (
   return data;
 };
 
+/**
+ * Retrieves user statistics.
+ *
+ * @returns {Promise<Stats>} The user statistics.
+ * @throws {Error} Throws an error if the response is not OK.
+ */
 export const getStats = async (): Promise<Stats> => {
   const { token } = useAuth.getState();
 
@@ -437,6 +598,12 @@ export const getStats = async (): Promise<Stats> => {
   return data;
 };
 
+/**
+ * Assigns a therapist to the user.
+ *
+ * @param {number} therapist_id - The ID of the therapist to assign.
+ * @returns {Promise<Response>} The response from the backend.
+ */
 export const assignTherapist = async (
   therapist_id: number
 ): Promise<Response> => {
@@ -455,6 +622,11 @@ export const assignTherapist = async (
   return response;
 };
 
+/**
+ * Unassigns the therapist from the user.
+ *
+ * @returns {Promise<Response>} The response from the backend.
+ */
 export const unassignTherapist = async (): Promise<Response> => {
   const { token } = useAuth.getState();
 
@@ -468,6 +640,13 @@ export const unassignTherapist = async (): Promise<Response> => {
   return response;
 };
 
+/**
+ * Updates patient data.
+ *
+ * @param {PatientDataUpdate} patientData - The patient data to update.
+ * @returns {Promise<PatientData>} The updated patient data.
+ * @throws {Error} Throws an error if the response is not OK.
+ */
 export const updatePatientData = async (
   patientData: PatientDataUpdate
 ): Promise<PatientData> => {
@@ -488,6 +667,12 @@ export const updatePatientData = async (
   return data;
 };
 
+/**
+ * Retrieves the therapist in charge of the user.
+ *
+ * @returns {Promise<UserWithoutSensitiveData>} The therapist in charge.
+ * @throws {Error} Throws an error if the response is not OK.
+ */
 export const getTherapistInCharge =
   async (): Promise<UserWithoutSensitiveData> => {
     const { token } = useAuth.getState();
@@ -504,6 +689,13 @@ export const getTherapistInCharge =
     return therapist;
   };
 
+/**
+ * Retrieves messages for a specific recipient.
+ *
+ * @param {number} recipient_id - The ID of the recipient.
+ * @returns {Promise<Message[]>} A list of messages for the recipient.
+ * @throws {Error} Throws an error if the response is not OK.
+ */
 export const getMessages = async (recipient_id: number): Promise<Message[]> => {
   const { token } = useAuth.getState();
   const response = await fetch(`${BACKEND_URL}/chat/messages/${recipient_id}`, {
@@ -519,6 +711,13 @@ export const getMessages = async (recipient_id: number): Promise<Message[]> => {
   return messages;
 };
 
+/**
+ * Retrieves depression risk logs for a specific user.
+ *
+ * @param {number} userId - The ID of the user.
+ * @returns {Promise<DepressionRiskLog[]>} A list of depression risk logs for the user.
+ * @throws {Error} Throws an error if the response is not OK.
+ */
 export const getDepressionRisks = async (userId: number) => {
   const { token } = useAuth.getState();
   const response = await fetch(

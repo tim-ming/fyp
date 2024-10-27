@@ -1,3 +1,4 @@
+// Patient User Details Edit Screen
 import React from "react";
 import {
   View,
@@ -50,6 +51,7 @@ const UserDetails = () => {
   const [image, setImage] = useState<string | null>(null);
   const auth = useAuth();
 
+  // Fetch user data
   useHydratedEffect(() => {
     const fetchData = async () => {
       try {
@@ -86,6 +88,9 @@ const UserDetails = () => {
     fetchData();
   }, []);
 
+  /**
+   *  Function to submit the form
+   */
   const onSubmit = async () => {
     let base64Image = null;
     if (image !== auth.user?.image && image) {
@@ -122,6 +127,11 @@ const UserDetails = () => {
     }
   };
 
+  /**
+   *  Function to handle date change
+   * @param value  The value of the input
+   * @param type  The type of the input
+   */
   const handleDateChange = (value: string, type: "day" | "month" | "year") => {
     if (type === "day") {
       if (/^\d{0,2}$/.test(value)) setDay(value);
@@ -132,6 +142,9 @@ const UserDetails = () => {
     }
   };
 
+  /**
+   *  Function to validate the form
+   */
   const validateForm = (): boolean => {
     const newErrors: Errors = {};
     if (!occupation.trim()) newErrors.occupation = "Occupation is required";
@@ -157,6 +170,7 @@ const UserDetails = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  // Function to submit the form
   const submit = async () => {
     if (!validateForm()) return;
     setLoading(true);
@@ -172,6 +186,7 @@ const UserDetails = () => {
     setLoading(false);
   };
 
+  // Function to pick an image
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,

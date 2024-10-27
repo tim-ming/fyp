@@ -1,3 +1,4 @@
+// Patient Chat Screen
 import React, { useRef, useState, useEffect, useCallback } from "react";
 import {
   FlatList,
@@ -35,7 +36,9 @@ const ChatScreen: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const webSocketStore = useWebSocketStore();
   const { therapist, setTherapist } = useTherapistStore();
+  const [clickedMessageId, setClickedMessageId] = useState<number | null>(null);
 
+  // Get messages from the server
   const fetchMessages = useCallback(async (therapistId: number) => {
     try {
       const fetchedMessages = await getMessages(therapistId);
@@ -45,6 +48,7 @@ const ChatScreen: React.FC = () => {
     }
   }, []);
 
+  // Fetch therapist in charge and messages
   useHydratedEffect(async () => {
     setLoading(true);
     const token = auth.token?.access_token;
@@ -95,16 +99,19 @@ const ChatScreen: React.FC = () => {
     };
   }, [therapist, fetchMessages]);
 
+  // Function to scroll to the bottom of the chat
   const scrollToBottom = useCallback(() => {
     if (flatListRef.current && messages.length > 0) {
       flatListRef.current.scrollToOffset({ offset: 0, animated: true });
     }
   }, [messages]);
 
+  // Scroll to bottom when messages change
   useEffect(() => {
     scrollToBottom();
   }, [scrollToBottom]);
 
+  // Function to send a message
   const handleSend = () => {
     if (inputText.trim() && therapist?.id) {
       const message = {
@@ -117,12 +124,12 @@ const ChatScreen: React.FC = () => {
     }
   };
 
-  const [clickedMessageId, setClickedMessageId] = useState<number | null>(null);
-
+  // Function to handle message press
   const handleMessagePress = useCallback((messageId: number) => {
     setClickedMessageId((prevId) => (prevId === messageId ? null : messageId));
   }, []);
 
+  // Function to render a message
   const renderMessage = useCallback(
     ({ item, index }: ListRenderItemInfo<Message>) => {
       const isTherapist = item.sender_id == therapist!.id;
@@ -199,6 +206,7 @@ const ChatScreen: React.FC = () => {
     [therapist, messages, clickedMessageId, handleMessagePress]
   );
 
+  // Function to extract key for message
   const keyExtractor = useCallback((item: Message) => item.id.toString(), []);
 
   if (loading) {

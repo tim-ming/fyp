@@ -1,3 +1,4 @@
+// Vault Guided Journal Details
 import { getGuidedJournalEntry, getJournalEntry } from "@/api/api";
 import { STEPS_TEXT } from "@/app/patient/guided-journal/constants";
 import CustomText from "@/components/CustomText";
@@ -13,6 +14,9 @@ export default function GuidedJournalScreen() {
   const date = useLocalSearchParams().date as string;
   const [entry, setEntry] = useState<GuidedJournalEntry | null>(null);
 
+  /**
+   * Fetches the guided journal entry for the given date
+   */
   const fetchEntry = async () => {
     try {
       const data = await getGuidedJournalEntry(date);
@@ -22,6 +26,7 @@ export default function GuidedJournalScreen() {
     }
   };
 
+  // Fetch on mount
   useHydratedEffect(() => {
     fetchEntry();
   }, []);

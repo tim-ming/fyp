@@ -1,3 +1,4 @@
+// Reading Page
 import articlesData from "@/assets/articles/articles.json";
 import ArrowLeft from "@/assets/icons/arrow-left.svg";
 import ArrowRight from "@/assets/icons/arrow-right.svg";
@@ -29,6 +30,9 @@ const ReadingPage = () => {
   const totalPages = pages.length;
   const pageIdInt = parseInt(pageId as string);
 
+  /**
+   * Fetch progress from storage and update it
+   */
   const fetchProgress = async () => {
     if (!auth.user?.id) {
       console.error("User ID is undefined");
@@ -65,6 +69,7 @@ const ReadingPage = () => {
     }
   };
 
+  // Fetch progress on page load
   useHydratedEffect(() => {
     fetchProgress();
   }, [articleId, pageIdInt, totalPages, chapterId]);

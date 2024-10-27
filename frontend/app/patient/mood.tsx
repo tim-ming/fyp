@@ -1,3 +1,4 @@
+// Tracking Screen
 import { postMoodEntry } from "@/api/api";
 import EatIcon from "@/assets/icons/eat.svg";
 import HeartIcon from "@/assets/icons/heart.svg";
@@ -78,6 +79,12 @@ export default function MoodScreen() {
   const [eating, setEating] = useState(50);
   const [sleeping, setSleeping] = useState(50);
 
+  /**
+   *  Submit the mood entry
+   * @param mood  The mood value
+   * @param eat  The eat value
+   * @param sleep  The sleep value
+   */
   const submit = async (mood: number, eat: number, sleep: number) => {
     console.log(mood, eat, sleep);
     try {

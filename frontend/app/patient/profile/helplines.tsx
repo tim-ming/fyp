@@ -1,3 +1,4 @@
+// Helplines page for patients to view helplines for mental health support
 import CustomText from "@/components/CustomText";
 import { ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -5,6 +6,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 export default function App() {
   const insets = useSafeAreaInsets();
 
+  // List of helplines
   const helplines = [
     {
       name: "Befrienders KL",

@@ -1,3 +1,4 @@
+// Read Screen
 import articlesData from "@/assets/articles/articles.json";
 import CustomText from "@/components/CustomText";
 import { shadows } from "@/constants/styles";
@@ -23,6 +24,9 @@ const ArticlePage = () => {
     }))
   );
 
+  /**
+   * Fetch progress from storage and update it
+   */
   const fetchProgress = async () => {
     const updatedArticles = await Promise.all(
       articles.map(async (article) => {
@@ -72,6 +76,7 @@ const ArticlePage = () => {
     setArticles(filteredArticles);
   };
 
+  // Fetch progress on page load
   useHydratedFocusEffect(() => {
     fetchProgress();
   }, []);

@@ -1,3 +1,4 @@
+// Gamification Screen
 import { shadows } from "@/constants/styles";
 import React from "react";
 import { View, ScrollView } from "react-native";
@@ -22,6 +23,7 @@ const Gamification = () => {
   });
   const auth = useAuth();
 
+  // Fetch user stats
   useHydratedEffect(() => {
     const fetchData = async () => {
       try {
@@ -47,6 +49,7 @@ const Gamification = () => {
     fetchData();
   }, []);
 
+  // Badge data
   const badges = [
     {
       title: "Newbie Journalist",
@@ -86,13 +89,13 @@ const Gamification = () => {
     },
   ];
 
-  // Step 2: Calculate the progress percentage for each badge
+  // Calculate the progress percentage for each badge
   const badgesWithProgress = badges.map((badge) => ({
     ...badge,
     progressPercentage: badge.progress / badge.total,
   }));
 
-  // Step 3: Sort the array by progress percentage
+  // Sort the array by progress percentage
   const sortedBadges = badgesWithProgress.sort(
     (a, b) => b.progressPercentage - a.progressPercentage
   );

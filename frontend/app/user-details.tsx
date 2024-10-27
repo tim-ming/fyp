@@ -1,3 +1,4 @@
+// Sign up user details form
 import React from "react";
 import {
   View,
@@ -42,6 +43,7 @@ const UserDetails = () => {
   const [loading, setLoading] = useState(false);
   const auth = useAuth();
 
+  // Fetch user data
   useHydratedEffect(() => {
     const fetchData = async () => {
       try {
@@ -70,6 +72,7 @@ const UserDetails = () => {
     fetchData();
   }, []);
 
+  // Update user data
   const onSubmit = async () => {
     const dateString = `${year}-${month}-${day}`;
     const date = format(
@@ -92,6 +95,11 @@ const UserDetails = () => {
     }
   };
 
+  /**
+   *  Handle date change
+   * @param value  The value of the input
+   * @param type  The type of the input
+   */
   const handleDateChange = (value: string, type: "day" | "month" | "year") => {
     if (type === "day") {
       if (/^\d{0,2}$/.test(value)) setDay(value);
@@ -102,6 +110,10 @@ const UserDetails = () => {
     }
   };
 
+  /**
+   *  Validate the form
+   * @returns  Whether the form is valid
+   */
   const validateForm = (): boolean => {
     const newErrors: Errors = {};
     if (!occupation.trim()) newErrors.occupation = "Occupation is required";
@@ -126,6 +138,9 @@ const UserDetails = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  /**
+   *  Submit the form
+   */
   const submit = async () => {
     if (!validateForm()) return;
     setLoading(true);

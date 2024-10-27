@@ -1,3 +1,4 @@
+// Sign in screen
 import { getPatientData, getUser, postSignin } from "@/api/api";
 import Check from "@/assets/icons/check.svg";
 import Lock from "@/assets/icons/lock.svg";
@@ -28,10 +29,16 @@ const SignInScreen = () => {
   const [canSignin, setCanSignin] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // Enable sign in button when email and password are filled
   useEffect(() => {
     setCanSignin(email.length > 0 && password.length > 0);
   }, [email, password]);
 
+  /**
+   *  Sign in handler
+   * @param email Email
+   * @param password Password
+   */
   const signInHandler = async (email: string, password: string) => {
     setLoading(true);
     try {

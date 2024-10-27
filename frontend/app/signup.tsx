@@ -1,3 +1,4 @@
+// Sign up Screen
 import React, { useEffect, useMemo } from "react";
 import { Linking } from "react-native";
 import {
@@ -69,6 +70,11 @@ const UserDetails: React.FC<{
   const [errors, setErrors] = useState<Errors>({});
   const [loading, setLoading] = useState(false);
 
+  /**
+   *  Handle date change
+   * @param value  The value of the input
+   * @param type  The type of the input
+   */
   const handleDateChange = (value: string, type: "day" | "month" | "year") => {
     if (type === "day") {
       if (/^\d{0,2}$/.test(value)) setDay(value);
@@ -79,10 +85,15 @@ const UserDetails: React.FC<{
     }
   };
 
+  // Set date of birth
   useEffect(() => {
     setDob(new Date(`${year}-${month}-${day}`));
   }, [day, month, year]);
 
+  /**
+   *  Validate the form
+   * @returns  Whether the form is valid
+   */
   const validateForm = (): boolean => {
     const newErrors: Errors = {};
     if (!name.trim()) newErrors.name = "Full name is required";
@@ -108,6 +119,9 @@ const UserDetails: React.FC<{
     return Object.keys(newErrors).length === 0;
   };
 
+  /**
+   *  Submit the form
+   */
   const submit = async () => {
     if (!validateForm()) return;
 

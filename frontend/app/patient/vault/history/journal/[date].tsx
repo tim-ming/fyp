@@ -1,3 +1,4 @@
+// Vault Journal Details Screen
 import { getJournalEntry } from "@/api/api";
 import CustomText from "@/components/CustomText";
 import { useHydratedEffect } from "@/hooks/hooks";
@@ -14,6 +15,9 @@ export default function JournalScreen() {
   const date = useLocalSearchParams().date as string;
   const [entry, setEntry] = useState<JournalEntry | null>(null);
 
+  /**
+   * Fetches the journal entry for the given date
+   */
   const fetchEntry = async () => {
     try {
       const data = await getJournalEntry(date);
@@ -23,6 +27,7 @@ export default function JournalScreen() {
     }
   };
 
+  // Fetch on mount
   useHydratedEffect(() => {
     fetchEntry();
   }, []);

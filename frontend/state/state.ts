@@ -1,7 +1,12 @@
+// Custom Hooks for state
 import { useState, useEffect } from "react";
 import { useAuth } from "./auth";
 import { useData } from "./data";
 
+/**
+ *  Use hydration for components that need to wait for the hydration to complete because of the server-side rendering in global state
+ * @returns boolean
+ */
 export const useHydration = () => {
   const stores = [useAuth, useData];
   const [hydrated, setHydrated] = useState(false);

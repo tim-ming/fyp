@@ -1,3 +1,4 @@
+// Guided Journal Step 1 Screen
 import React, { useEffect, useState } from "react";
 import { View, TextInput, Pressable } from "react-native";
 import { router } from "expo-router";
@@ -21,6 +22,7 @@ const GuidedJournalStep1: React.FC = () => {
     guidedJournalEntry?.step1_text || ""
   );
 
+  // Fetch existing journal entry if it exists
   useHydratedEffect(() => {
     if (guidedJournalEntry?.step1_text) return;
     const fetchData = async () => {
@@ -36,6 +38,9 @@ const GuidedJournalStep1: React.FC = () => {
     fetchData();
   }, []);
 
+  /**
+   * Handles the next button press
+   */
   const handleNext = () => {
     const updatedEntry: GuidedJournalBody = {
       ...guidedJournalEntry,

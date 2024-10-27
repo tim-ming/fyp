@@ -22,12 +22,46 @@ type Store = {
 };
 
 type Action = {
+  /**
+   *  Update a journal entry
+   * @param journal  The journal to be updated
+   * @returns  void
+   */
   updateJournal: (journal: JournalEntry) => void;
+  /**
+   *  Update a guided journal entry
+   * @param guidedJournal  The guided journal to be updated
+   * @returns  void
+   */
   updateGuidedJournal: (guidedJournal: GuidedJournalEntry) => void;
+  /**
+   *  Update a mood entry
+   * @param mood  The mood to be updated
+   * @returns  void
+   */
   updateMood: (mood: MoodEntry) => void;
+  /**
+   *  Set the journal entries
+   * @param journals  The journal entries to be set
+   * @returns void
+   */
   setJournals: (journals: JournalEntry[]) => void;
+  /**
+   *  Set the guided journal entries
+   * @param guidedJournals  The guided journal entries to be set
+   * @returns void
+   */
   setGuidedJournals: (guidedJournals: GuidedJournalEntry[]) => void;
+  /**
+   *  Set the mood entries
+   * @param moods  The mood entries to be set
+   * @returns void
+   */
   setMoods: (moods: MoodEntry[]) => void;
+  /**
+   *  Reset the store
+   * @returns void
+   */
   reset: () => void;
 };
 

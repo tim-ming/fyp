@@ -1,3 +1,4 @@
+// Patients-Therapist Details Screen
 import React, { useState } from "react";
 import {
   View,
@@ -33,7 +34,9 @@ const DoctorDetails = () => {
   const auth = useAuth();
   const therapistStore = useTherapistStore();
 
-  // Function to handle sharing data with the doctor
+  /**
+   * Function to handle sharing data with the doctor
+   */
   const share = async () => {
     if (hasDoctor) {
       setModalVisible(true);
@@ -45,6 +48,9 @@ const DoctorDetails = () => {
     }
   };
 
+  /**
+   * Function to handle unsharing data with the doctor
+   */
   const handleConfirm = async () => {
     await unassignTherapist();
     await assignTherapist(Number(doctorId));
@@ -54,10 +60,16 @@ const DoctorDetails = () => {
     therapistStore.setTherapist(doctor);
   };
 
+  /**
+   * Function to handle canceling the modal
+   */
   const handleCancel = () => {
     setModalVisible(false);
   };
 
+  /**
+   * Function to unshare data with the doctor
+   */
   const unshare = async () => {
     await unassignTherapist();
     setHasDoctor(false);
@@ -65,6 +77,7 @@ const DoctorDetails = () => {
     therapistStore.clearTherapist();
   };
 
+  // Fetch doctor data
   useHydratedEffect(() => {
     const fetchData = async () => {
       try {

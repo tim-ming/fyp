@@ -1,3 +1,4 @@
+// Social Media Linking Screen
 import React, { useEffect, useState } from "react";
 import { View, Pressable } from "react-native";
 import { Image } from "expo-image";
@@ -68,6 +69,10 @@ const SocialMediaScreen = () => {
   ];
   const [platforms, setPlatforms] = useState<Platform[]>(initialPlatforms);
 
+  /**
+   *  Mock platform linker
+   * @param id Platform ID
+   */
   const mockPlatformLinker = (id: string) => {
     setPlatforms((prevPlatforms) =>
       prevPlatforms.map((platform) =>
@@ -78,6 +83,9 @@ const SocialMediaScreen = () => {
     );
   };
 
+  /**
+   * Skip the linking process
+   */
   const skip = () => {
     router.push("/");
   };

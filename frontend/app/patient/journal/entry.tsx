@@ -1,3 +1,4 @@
+// Journal Entry Screen
 import { getJournalEntry, postJournalEntry } from "@/api/api";
 import Plus from "@/assets/icons/plus.svg";
 import X from "@/assets/icons/x.svg";
@@ -28,6 +29,11 @@ const BASE_JOURNAL_ENTRY: JournalInput = {
   image: null,
 };
 
+/**
+ * Get the journal entry for the given date
+ * @param date  The date of the journal entry
+ * @returns  The journal entry for the given date
+ */
 const getJournalEntryHandler = async (date: string) => {
   try {
     const data = await getJournalEntry(date);
@@ -38,6 +44,13 @@ const getJournalEntryHandler = async (date: string) => {
   }
 };
 
+/**
+ *  Posts the journal entry to the backend
+ * @param journal  The journal entry to be posted
+ * @param date  The date of the journal entry
+ * @param source  The source of the journal entry
+ * @returns  The journal entry that was posted
+ */
 const postJournalEntryHandler = async (
   journal: JournalInput,
   date: string,
@@ -88,6 +101,7 @@ const Entry: React.FC = () => {
 
   const dateObj = new Date(date);
 
+  // Fetch existing journal entry if it exists
   useHydratedEffect(() => {
     const fetchData = async () => {
       const data = await getJournalEntryHandler(date);
@@ -102,6 +116,7 @@ const Entry: React.FC = () => {
     fetchData();
   }, []);
 
+  // Pick an image from the gallery
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,

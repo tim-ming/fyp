@@ -1,3 +1,4 @@
+// Patient Home Screen
 import {
   getJournalEntries,
   getMoodEntry,
@@ -54,7 +55,10 @@ type JournalEntryCard = {
   date: Date;
 };
 
+// Icon size
 const ICON_SIZE = 28;
+
+// Card dimensions
 const CARD = {
   HEIGHT: 280,
   WIDTH: 210,
@@ -62,6 +66,11 @@ const CARD = {
 
 const ref = React.createRef<Carousel<any>>();
 
+/**
+ * Render a journal entry card
+ * @param journal Journal entry card
+ * @returns Journal entry card component
+ */
 const renderCard = (journal: JournalEntryCard) => {
   const handlePress = () => {
     router.push({
@@ -134,14 +143,17 @@ const renderCard = (journal: JournalEntryCard) => {
   );
 };
 
+// Get viewport width and height
 const { width: viewportWidth, height: viewportHeight } =
   Dimensions.get("window");
 
+// Get width in percentage
 const wp = (percentage: number) => {
   const value = (percentage * viewportWidth) / 100;
   return Math.round(value);
 };
 
+// for carousel
 const scrollInterpolator2 = (
   index: number,
   carouselProps: CarouselProps<any>
@@ -153,6 +165,7 @@ const scrollInterpolator2 = (
   return { inputRange, outputRange };
 };
 
+// for carousel
 const animatedStyles2 = (
   index: number,
   animatedValue: Animated.AnimatedValue,
@@ -195,6 +208,11 @@ const animatedStyles2 = (
   };
 };
 
+/**
+ * Get journal entries for the past 30 days
+ * @param journalEntries Journal entries
+ * @returns Journal entries for the past 30 days
+ */
 const getJournalEntriesHandler = (journalEntries: JournalEntry[]) => {
   const today = new Date();
   const days: JournalEntryCard[] = Array.from({ length: 30 }, (_, i) =>
@@ -213,6 +231,7 @@ interface CardProps {
   icon?: "book" | "dove" | "bookopen" | "bookandpen";
 }
 
+// Suggested card component
 const SuggestedCard: React.FC<CardProps> = ({ title, href, icon }) => {
   let imageSource;
   switch (icon) {
@@ -267,6 +286,7 @@ const HomeScreen = () => {
   const therapist = useTherapistStore();
   const lotusImage = require("@/assets/images/lotus.png");
 
+  // Fetch data
   const fetchData = async () => {
     setDoneFetch(false);
     try {
@@ -284,6 +304,7 @@ const HomeScreen = () => {
     setDoneFetch(true);
   };
 
+  // Fetch data on mount
   useHydratedEffect(() => {
     fetchData();
     if (params?.newJournalAdded) {
@@ -291,6 +312,7 @@ const HomeScreen = () => {
     }
   }, [params?.newJournalAdded]);
 
+  // Pull to refresh
   const onRefresh = useCallback(() => {
     const fetchData = async () => {
       getJournalEntries()

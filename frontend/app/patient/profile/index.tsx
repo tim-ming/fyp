@@ -1,26 +1,18 @@
-import UserDetails from "@/app/user-details";
+// Patient Profile Screen
 import ChevronRight from "@/assets/icons/chevron-right.svg";
-import Data from "@/assets/icons/data.svg";
-import Feedback from "@/assets/icons/feedback.svg";
-import Link from "@/assets/icons/link.svg";
-import Lock from "@/assets/icons/lock.svg";
 import Logout from "@/assets/icons/logout.svg";
-import Moon from "@/assets/icons/moon.svg";
-import Notification from "@/assets/icons/notification.svg";
-import Question from "@/assets/icons/question.svg";
 import Support from "@/assets/icons/support.svg";
 import UserHeart from "@/assets/icons/user-heart.svg";
 import CustomText from "@/components/CustomText";
 import { shadows } from "@/constants/styles";
-import { useHydratedEffect } from "@/hooks/hooks";
 import useTherapistStore from "@/state/assignedTherapist";
 import { useAuth } from "@/state/auth";
-import * as ImagePicker from "expo-image-picker";
 import { Href, router } from "expo-router";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Pressable, ScrollView, TextInput, View, Image } from "react-native";
+import { Pressable, ScrollView, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+// Passcode Component
 const Passcode: React.FC = () => {
   const length = 4;
   const inputRefs = useRef<Array<TextInput | null>>(Array(length).fill(null)); // Refs for TextInput fields
@@ -199,6 +191,9 @@ const SettingsScreen = () => {
   const auth = useAuth();
   const therapist = useTherapistStore();
 
+  /**
+   * Logout user
+   */
   const logout = () => {
     auth.reset();
     therapist.reset();

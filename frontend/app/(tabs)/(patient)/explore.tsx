@@ -1,3 +1,4 @@
+// Patient Explore Screen
 import React, { useRef, useState } from "react";
 import { Pressable, ScrollView, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";

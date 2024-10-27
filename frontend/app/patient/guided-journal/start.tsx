@@ -1,3 +1,4 @@
+// Guided Journal Start Screen
 import React from "react";
 import { View, Pressable } from "react-native";
 import { Link } from "expo-router";

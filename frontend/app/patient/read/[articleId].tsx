@@ -1,3 +1,4 @@
+// Article Page
 import articlesData from "@/assets/articles/articles.json";
 import Check from "@/assets/icons/check.svg";
 import ChevronRight from "@/assets/icons/chevron-right.svg";
@@ -31,14 +32,25 @@ const ArticleProgressPage = () => {
     {}
   );
 
+  /**
+   *  Get the chapter ID to go to
+   * @returns Chapter ID to go to
+   */
   const getChapterToGo = () => {
     return progress.lastReadChapterId ? progress.lastReadChapterId : "1";
   };
 
+  /**
+   * Get the page ID to go to
+   * @returns Page ID to go to
+   */
   const getPageToGo = () => {
     return progress.lastReadPageId ? progress.lastReadPageId : "1";
   };
 
+  /**
+   * Fetch progress from storage and update it
+   */
   const fetchProgress = async () => {
     if (!auth.user?.id) {
       console.error("User ID is undefined");
@@ -51,6 +63,7 @@ const ArticleProgressPage = () => {
     setProgress(chapterProgress || {});
   };
 
+  // Fetch progress on focus
   useHydratedFocusEffect(() => {
     fetchProgress();
   }, []);

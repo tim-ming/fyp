@@ -1,3 +1,4 @@
+// Therapist Chat Screen
 import React, { useRef, useState, useEffect, useCallback } from "react";
 import {
   FlatList,
@@ -40,7 +41,9 @@ const ChatScreen = () => {
   const auth = useAuth();
   const [loading, setLoading] = useState(true);
   const [patient, setPatient] = useState<UserWithoutSensitiveData | null>(null);
-  console.log(intPatientId);
+  const [clickedMessageId, setClickedMessageId] = useState<number | null>(null);
+
+  // Get messages from the server
   useHydratedEffect(async () => {
     setLoading(true);
     const token = auth.token?.access_token;
@@ -83,16 +86,19 @@ const ChatScreen = () => {
     };
   }, [patientId]);
 
+  // Scroll to the bottom of the chat
   const scrollToBottom = useCallback(() => {
     if (flatListRef.current && messages.length > 0) {
       flatListRef.current.scrollToOffset({ offset: 0, animated: true });
     }
   }, [messages]);
 
+  // Scroll to bottom when messages change
   useEffect(() => {
     scrollToBottom();
   }, [scrollToBottom]);
 
+  // Send a message
   const handleSend = () => {
     if (inputText.trim() && patient?.id) {
       const message = {
@@ -104,12 +110,12 @@ const ChatScreen = () => {
     }
   };
 
-  const [clickedMessageId, setClickedMessageId] = useState<number | null>(null);
-
+  // Handle message press
   const handleMessagePress = useCallback((messageId: number) => {
     setClickedMessageId((prevId) => (prevId === messageId ? null : messageId));
   }, []);
 
+  // Render a message
   const renderMessage = useCallback(
     ({ item, index }: ListRenderItemInfo<Message>) => {
       const isPatient = item.sender_id == patient!.id;
@@ -186,8 +192,10 @@ const ChatScreen = () => {
 
   const insets = useSafeAreaInsets();
 
+  // Function to extract key for message
   const keyExtractor = useCallback((item: Message) => item.id.toString(), []);
 
+  // Navigate to patient profile
   const navigateToPatientProfile = () => {
     router.push(`/(therapist)/patients/${patientId}`);
   };

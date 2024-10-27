@@ -1,3 +1,4 @@
+// Auth state
 import { Token, User, UserWithoutSensitiveData } from "@/types/models";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
@@ -16,8 +17,22 @@ type Store = {
 };
 
 type Action = {
+  /**
+   *  Set the token
+   * @param token  The token to be set
+   * @returns  void
+   */
   setToken: (token: Token) => void;
+  /**
+   *  Set the user
+   * @param user  The user to be set
+   * @returns  void
+   */
   setUser: (user: UserWithoutSensitiveData) => void;
+  /**
+   *  Reset the store
+   * @returns void
+   */
   reset: () => void;
 };
 

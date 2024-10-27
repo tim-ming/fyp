@@ -1,3 +1,4 @@
+// Day in Vault Screen
 import CustomText from "@/components/CustomText";
 import TopNav from "@/components/TopNav";
 import { getStatus } from "@/constants/globals";
@@ -141,6 +142,7 @@ export default function VaultScreen() {
   const [data, setData] = React.useState<Data>();
   const date = useLocalSearchParams().date as string;
 
+  // Fetch data for the given date
   const fetchData = async () => {
     try {
       const guidedJournal = await getGuidedJournalEntry(date);
@@ -156,6 +158,7 @@ export default function VaultScreen() {
     }
   };
 
+  // Fetch data on mount
   useHydratedEffect(() => {
     fetchData();
   }, []);

@@ -1,3 +1,4 @@
+// Journal Completion Screen
 import React from "react";
 import { View, Pressable } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
@@ -9,6 +10,9 @@ const JournalComplete: React.FC = () => {
   const today = new Date();
   const { source } = useLocalSearchParams();
 
+  /**
+   * Handles the complete button press
+   */
   const handleComplete = () => {
     const target = source === "/" ? "/" : "/(tabs)/explore";
 

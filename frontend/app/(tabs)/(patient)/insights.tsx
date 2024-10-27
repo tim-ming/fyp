@@ -1,3 +1,4 @@
+// Patient Insights Screen
 import { getJournalEntries, getMoodEntries } from "@/api/api";
 import ChevronLeft from "@/assets/icons/chevron-left.svg";
 import ChevronRight from "@/assets/icons/chevron-right.svg";
@@ -28,6 +29,12 @@ const TODAY = startOfToday();
 
 type JournalMood = { journal: number; mood: number; date: Date };
 
+/**
+ * Interpolates a color based on a value
+ * @param value  A number between 0 and 100
+ * @param preset  The color preset to use
+ * @returns  A hex color string
+ */
 const interpolateColor = (value: number, preset: "r" | "g" | "b"): string => {
   // Ensure value is between 0 and 1
   value = Math.max(0, Math.min(1, value / 100));
@@ -123,6 +130,11 @@ const interpolateColor = (value: number, preset: "r" | "g" | "b"): string => {
   return `#${toHex(newR)}${toHex(newG)}${toHex(newB)}`;
 };
 
+/**
+ * Corrects a date to the nearest Monday
+ * @param date The date to correct
+ * @returns The corrected date
+ */
 const correctDateToMonday = (date: Date) => {
   const dayOfWeek = getDay(date);
   if (dayOfWeek !== 1) {
@@ -131,8 +143,12 @@ const correctDateToMonday = (date: Date) => {
   return date;
 };
 
+/**
+ *  Get the mood data for a month
+ * @param date  The date to get the mood data for
+ * @returns  An array of MoodEntry objects
+ */
 const getMonthMoodData = async (date: Date): Promise<JournalMood[]> => {
-  // TODO: super inefficient code :) optimise pls, maybe create backend to get both journal and mood entries
   const monthData: { [key: string]: JournalMood } = {};
 
   const startDate = startOfMonth(date);
@@ -166,6 +182,11 @@ const getMonthMoodData = async (date: Date): Promise<JournalMood[]> => {
   );
 };
 
+/**
+ *  Get the mood data for a week
+ * @param startDate  The start date of the week
+ * @returns  An array of MoodEntry objects
+ */
 const getWeekMoodData = async (startDate: Date): Promise<MoodEntry[]> => {
   // Check if the first day is not Monday (getDay returns 1 for Monday)
   const correctedStartDate = correctDateToMonday(startDate);
@@ -204,6 +225,7 @@ const getWeekMoodData = async (startDate: Date): Promise<MoodEntry[]> => {
   return filledMoodEntries;
 };
 
+// InsightsCard component
 const InsightsCard = () => {
   type Variables = "mood" | "eat" | "sleep";
 
@@ -405,6 +427,7 @@ const InsightsCard = () => {
   );
 };
 
+// CalendarCard component
 const CalendarCard = () => {
   // Generate data for the month
   const [monthData, setMonthData] = useState<JournalMood[]>([]);

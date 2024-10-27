@@ -1,3 +1,4 @@
+// Patient data by date
 import {
   getJournalEntry,
   getMoodEntry,
@@ -134,6 +135,7 @@ export default function MoodScreen() {
   });
   const [loading, setLoading] = useState(true);
 
+  // Fetch patient data
   useHydratedEffect(() => {
     const fetchPatient = async (patientId: number) => {
       try {

@@ -1,3 +1,4 @@
+// Relax Page
 import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
@@ -30,6 +31,11 @@ type Settings = {
   duration: number;
 };
 
+/**
+ * Formats the time left to be displayed
+ * @param progress  The progress of the session
+ * @param duration  The duration of the session
+ */
 const getTimeLeft = (progress: number, duration: number) => {
   const timeLeftInSeconds = duration * (1 - progress);
   const minutes = Math.floor(timeLeftInSeconds / 60);
@@ -116,10 +122,14 @@ const BreathingPhase: React.FC<{
   const [sliderVisible, setSliderVisible] = useState(false); // State to control the overlay
   const progressValue = new Animated.Value(0);
 
+  // Animated values for the rings
   const scaleAnims = useRef(
     Array.from({ length: RING_SIZES.length }, () => new Animated.Value(1))
   );
 
+  /**
+   * Animates the rings to simulate breathing
+   */
   const animateRing = () => {
     scaleAnims.current.forEach((scaleAnim, index) => {
       const a = Animated.timing(scaleAnim, {
@@ -156,6 +166,9 @@ const BreathingPhase: React.FC<{
     });
   };
 
+  /**
+   * Animates the progress bar
+   */
   const animateProgress = () => {
     Animated.timing(progressValue, {
       toValue: 1,
@@ -168,17 +181,23 @@ const BreathingPhase: React.FC<{
       setProgress(value);
     });
   };
+  /**
+   * Completes the session
+   */
   const complete = () => {
-    // TODO: log something
     onComplete();
     router.push("/");
   };
+
+  /**
+   * Ends the session early
+   */
   const endEarly = () => {
-    // TODO: log something
     onEndEarly();
     router.push("/");
   };
 
+  // Animate the rings and progress bar
   useEffect(() => {
     animateRing();
     animateProgress();
@@ -281,13 +300,25 @@ const BreathingPhase: React.FC<{
 
 const Screen = () => {
   const [phase, setPhase] = useState<"selection" | "breathing">("selection");
-  const [settings, setSettings] = useState<Settings>({ duration: 300 });
+  const [settings, setSettings] = useState<Settings>({ duration: 300 });\
+
+  /**
+   * Callback when the session starts
+   */
   function onStart() {
     setPhase("breathing");
   }
+
+  /**
+   * Callback when the session ends early
+   */
   function onEndEarly() {
     setPhase("selection");
   }
+
+  /**
+   * Callback when the session completes
+   */
   function onComplete() {
     setPhase("selection");
   }

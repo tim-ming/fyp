@@ -1,3 +1,6 @@
+/**
+ * Constants for guided journal
+ */
 export const STEPS_TEXT = {
   ONE: "An unhelpful thought you have?",
   TWO: `Look at your thought again. Test whether any of the common distortions apply to your thoughts.`,

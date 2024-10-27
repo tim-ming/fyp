@@ -1,3 +1,4 @@
+// Journal Entry Start Page
 import React from "react";
 import { View, Pressable } from "react-native";
 import { Link, useLocalSearchParams } from "expo-router";

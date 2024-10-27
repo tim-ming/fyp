@@ -1,3 +1,4 @@
+// Patient Data Compilation
 import CustomText from "@/components/CustomText";
 import TopNav from "@/components/TopNav";
 import { getStatus } from "@/constants/globals";
@@ -32,6 +33,11 @@ import {
 } from "@/api/api";
 import { STEPS_TEXT } from "@/app/patient/guided-journal/constants";
 
+/**
+ *  Formats the date to be displayed in the header
+ * @param date  The date to be formatted
+ * @returns  The formatted date
+ */
 const formatDateHeader = (date: string) => {
   const parsedDate = new Date(date);
 
@@ -165,6 +171,9 @@ const GuidedJournalSection: React.FC<GuidedJournalProps> = ({ data }) => {
 const Card: React.FC<CardProps> = ({ data, patientId }) => {
   const navigation = useNavigation<any>();
 
+  /**
+   * Routes to the specific date's data
+   */
   const route = () => {
     const formattedDate = format(data.date, "yyyy-MM-dd");
     console.log(data.date);
@@ -191,6 +200,11 @@ const Card: React.FC<CardProps> = ({ data, patientId }) => {
   );
 };
 
+/**
+ *  Creates a list of entries for the past month
+ * @param data  The patient data
+ * @returns  The list of entries
+ */
 const createMonthlyEntries = (data: PatientData) => {
   const monthData: { [key: string]: Section } = {};
   const endDate = new Date();
@@ -237,6 +251,7 @@ export default function VaultScreen() {
   const [loading, setLoading] = useState(true);
   const [entries, setEntries] = useState<Section[]>([]);
 
+  // Fetch all entries
   useHydratedEffect(() => {
     const fetchPatient = async (patientId: number) => {
       try {

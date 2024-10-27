@@ -1,3 +1,4 @@
+// Patient notes
 import React, { useEffect, useRef, useState } from "react";
 import {
   View,
@@ -21,6 +22,7 @@ const PatientDetails = () => {
   const [notes, setNotes] = useState<string>("");
   const [saving, setSaving] = useState(false);
 
+  // Fetch patient notes
   useEffect(() => {
     const fetchPatient = async (patientId: number) => {
       try {

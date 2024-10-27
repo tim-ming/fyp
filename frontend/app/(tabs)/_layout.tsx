@@ -1,7 +1,7 @@
+// Layout for the tab navigation
 import { router, Tabs, useSegments } from "expo-router";
 import React, { useState } from "react";
 import { Pressable, SafeAreaView, StyleSheet, View } from "react-native";
-
 import VaultIcon from "@/assets/icons/archive.svg";
 import InsightsIcon from "@/assets/icons/chart.svg";
 import MessageIcon from "@/assets/icons/message.svg";
@@ -34,6 +34,7 @@ export default function TabLayout() {
 
   const [isLoading, setIsLoading] = useState(true);
 
+  // Check if the user is authenticated
   useHydratedEffect(() => {
     if (auth && auth.user) {
       setIsLoading(false);

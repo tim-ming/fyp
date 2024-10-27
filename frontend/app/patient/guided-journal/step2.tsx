@@ -1,3 +1,4 @@
+// Guided Journal Step 2 Screen
 import React, { useEffect, useState } from "react";
 import { View, Pressable, ScrollView } from "react-native";
 import { router } from "expo-router";
@@ -10,6 +11,9 @@ import { useJournalStore } from "@/state/data";
 import { useHydratedEffect } from "@/hooks/hooks";
 import { STEPS_TEXT } from "./constants";
 
+/**
+ * List of cognitive distortions
+ */
 const distortionOptions = [
   {
     id: 1,
@@ -72,6 +76,10 @@ const GuidedJournalStep2: React.FC = () => {
     CognitiveDistortion[]
   >(guidedJournalEntry?.step2_selected_distortions || []);
 
+  /**
+   *  Handles the selection of a distortion
+   * @param distortion The selected distortion
+   */
   const handleSelectDistortion = (distortion: CognitiveDistortion) => {
     setSelectedDistortions((prevSelected) =>
       prevSelected.includes(distortion)
@@ -80,6 +88,7 @@ const GuidedJournalStep2: React.FC = () => {
     );
   };
 
+  // Fetch existing journal entry if it exists
   useHydratedEffect(() => {
     if (guidedJournalEntry?.step2_selected_distortions) return;
     const fetchData = async () => {
@@ -96,6 +105,9 @@ const GuidedJournalStep2: React.FC = () => {
     fetchData();
   }, []);
 
+  /**
+   * Handles the next button press
+   */
   const handleNext = () => {
     const updatedEntry = {
       ...guidedJournalEntry,

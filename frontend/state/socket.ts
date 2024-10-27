@@ -1,18 +1,53 @@
+// Socket State
 import { create } from "zustand";
 import { BACKEND_URL } from "@/constants/globals";
 import { Message } from "@/types/models";
 
 interface WebSocketStore {
+  /**
+   * The WebSocket connection
+   */
   socket: WebSocket | null;
+  /**
+   * Whether the WebSocket is connected
+   */
   isConnected: boolean;
+  /**
+   * Map of message handlers
+   */
   messageHandlers: Map<number, (message: Message) => void>;
+  /**
+   * Connect to the WebSocket
+   * @param token  The token to connect with
+   * @returns  void
+   */
   connect: (token: string) => void;
+  /**
+   * Disconnect from the WebSocket
+   * @returns  void
+   */
   disconnect: () => void;
+  /**
+   * Send a message through the WebSocket
+   * @param message  The message to send
+   * @returns  void
+   */
   sendMessage: (message: { content: string; recipient_id: number }) => void;
+  /**
+   * Add a message listener
+   * @param recipientId  The recipient ID
+   * @param callback  The callback to be called when a message is received
+   * @returns  void
+   */
   addMessageListener: (
     recipientId: number,
     callback: (message: Message) => void
   ) => void;
+  /**
+   * Remove a message listener
+   * @param recipientId  The recipient ID
+   * @returns  void
+   */
   removeMessageListener: (recipientId: number) => void;
 }
 

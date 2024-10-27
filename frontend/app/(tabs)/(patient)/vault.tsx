@@ -1,3 +1,4 @@
+// Patient Vault Screen
 import CustomText from "@/components/CustomText";
 import TopNav from "@/components/TopNav";
 import { getStatus } from "@/constants/globals";
@@ -17,6 +18,11 @@ import {
 } from "@/api/api";
 import { STEPS_TEXT } from "@/app/patient/guided-journal/constants";
 
+/**
+ *  Formats the date to be displayed in the header
+ * @param date  The date to be formatted
+ * @returns  The formatted date
+ */
 const formatDateHeader = (date: string) => {
   const parsedDate = new Date(date);
 
@@ -153,6 +159,8 @@ type Section = {
 
 export default function VaultScreen() {
   const [data, setData] = React.useState<Section[]>([]);
+
+  // Fetch all entries
   useHydratedEffect(() => {
     const fetchData = async () => {
       const journalEntries = await getJournalEntries();

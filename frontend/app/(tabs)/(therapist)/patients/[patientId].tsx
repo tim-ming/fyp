@@ -1,3 +1,4 @@
+// Patient details screen
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -53,6 +54,7 @@ const treatments: { [key: string]: string } = {
     "Assessment required to determine the patient's risk level and treatment plan.",
 };
 
+// Depression Graph Component
 const DepressionGraph = ({ risks }: { risks: LineChartData }) => {
   const chartConfig = {
     backgroundGradientFrom: "#fff",
@@ -86,6 +88,7 @@ const DepressionGraph = ({ risks }: { risks: LineChartData }) => {
   );
 };
 
+// Risk Table Component
 const RiskTable = () => {
   return (
     <View className="w-3/4">
@@ -114,6 +117,7 @@ const RiskTable = () => {
   );
 };
 
+// Main Component
 const PatientDetails = () => {
   const router = useRouter();
   const { patientId } = useLocalSearchParams();
@@ -130,6 +134,7 @@ const PatientDetails = () => {
     originalConsoleError.apply(console, [message, ...args]);
   };
 
+  // Fetch patient data
   useHydratedEffect(() => {
     const fetchPatient = async (patientId: number) => {
       try {
@@ -172,6 +177,7 @@ const PatientDetails = () => {
     fetch();
   }, [patientId]);
 
+  // Risk Color Mapping
   const riskColorMap: { [key: string]: string } = {
     Severe: "red300",
     "Moderately Severe": "orange300",

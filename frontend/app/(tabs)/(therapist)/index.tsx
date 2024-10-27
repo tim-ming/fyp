@@ -1,3 +1,4 @@
+// Therapist Home Screen
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { View, FlatList, StyleSheet, Image, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -47,6 +48,9 @@ const PatientListScreen = () => {
     direction: "descending",
   });
 
+  /**
+   * Updates the last message of a patient in the list
+   */
   const updatePatientMessage = useCallback((message: Message) => {
     setPatients((currentPatients) => {
       return currentPatients.map((patient) => {
@@ -68,6 +72,7 @@ const PatientListScreen = () => {
     });
   }, []);
 
+  // Connect to the WebSocket server
   useEffect(() => {
     if (auth.token && !webSocketStore.isConnected) {
       webSocketStore.connect(auth.token.access_token);
@@ -85,6 +90,7 @@ const PatientListScreen = () => {
     };
   }, [auth.token]);
 
+  // Fetch patients and their last messages
   useHydratedEffect(async () => {
     try {
       const fetchedPatients = await getPatients();
@@ -118,6 +124,13 @@ const PatientListScreen = () => {
     }
   }, []);
 
+  /**
+   *  Sorts the list of patients by the given key and direction
+   * @param p  The list of patients
+   * @param key  The key to sort by
+   * @param direction  The direction to sort in
+   * @returns  The sorted list of patients
+   */
   const getSortedData = (
     p: PatientWithLastMessage[],
     key: keyof PatientWithLastMessage | "lastMessageTimestamp",
@@ -155,6 +168,10 @@ const PatientListScreen = () => {
     return sortedData;
   };
 
+  /**
+   *  Handles sorting the list of patients by the given key
+   * @param key The key to sort by
+   */
   const handleSort = (
     key: keyof PatientWithLastMessage | "lastMessageTimestamp"
   ) => {
@@ -173,6 +190,11 @@ const PatientListScreen = () => {
     setPatients(getSortedData(patients, key, direction));
   };
 
+  /**
+   * Gets the style for the risk tag based on the risk level
+   * @param risk  The risk level of the patient
+   * @returns  The style for the risk tag
+   */
   const getRiskTagStyle = (risk: string) => {
     switch (risk) {
       case "Severe":
@@ -191,6 +213,11 @@ const PatientListScreen = () => {
     }
   };
 
+  /**
+   *  Renders the sort icon based on the key
+   * @param key  The key to render the icon for
+   * @returns  The sort icon component
+   */
   const renderSortIcon = (
     key: keyof PatientWithLastMessage | "lastMessageTimestamp"
   ) => {
@@ -206,6 +233,7 @@ const PatientListScreen = () => {
     );
   };
 
+  // Renders a patient item
   const renderPatientItem = ({ item }: { item: PatientWithLastMessage }) => {
     const riskTagStyle = getRiskTagStyle(item.risk);
 

@@ -1,3 +1,4 @@
+// Guided Journal Complete Screen
 import React from "react";
 import { View, Pressable } from "react-native";
 import { Link, router } from "expo-router";

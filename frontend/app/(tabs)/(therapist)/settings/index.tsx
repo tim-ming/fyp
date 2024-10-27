@@ -1,28 +1,13 @@
+// Settings Screen
 import ChevronRight from "@/assets/icons/chevron-right.svg";
-import Data from "@/assets/icons/data.svg";
-import Feedback from "@/assets/icons/feedback.svg";
-import Link from "@/assets/icons/link.svg";
-import Lock from "@/assets/icons/lock.svg";
 import Logout from "@/assets/icons/logout.svg";
-import Moon from "@/assets/icons/moon.svg";
-import Notification from "@/assets/icons/notification.svg";
-import Question from "@/assets/icons/question.svg";
-import Support from "@/assets/icons/support.svg";
-import UserHeart from "@/assets/icons/user-heart.svg";
 import CustomText from "@/components/CustomText";
 import { shadows } from "@/constants/styles";
 import useTherapistStore from "@/state/assignedTherapist";
 import { useAuth } from "@/state/auth";
-import { Image } from "expo-image";
 import { Href, router } from "expo-router";
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import {
-  Pressable,
-  SafeAreaView,
-  ScrollView,
-  TextInput,
-  View,
-} from "react-native";
+import React from "react";
+import { Pressable, SafeAreaView, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const SettingsScreen = () => {
@@ -33,6 +18,9 @@ const SettingsScreen = () => {
   const auth = useAuth();
   const therapist = useTherapistStore();
 
+  /**
+   * Logs out the user
+   */
   const logout = () => {
     auth.reset();
     therapist.reset();

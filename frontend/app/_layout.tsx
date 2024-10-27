@@ -1,3 +1,4 @@
+// Layout for the entire app
 import {
   DarkTheme,
   DefaultTheme,
@@ -34,6 +35,8 @@ export default function RootLayout() {
   });
   const pathname = usePathname();
   const auth = useAuth();
+
+  // Fetch user data on mount
   useHydratedEffect(() => {
     const fetchData = async () => {
       try {
@@ -67,6 +70,9 @@ export default function RootLayout() {
     return <Slot />;
   }
 
+  /**
+   * Go back to the previous screen or to the home screen if there is no previous screen.
+   */
   const goBack = () => {
     if (router.canGoBack()) {
       router.back();

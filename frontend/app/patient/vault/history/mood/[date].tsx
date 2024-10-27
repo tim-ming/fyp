@@ -1,3 +1,4 @@
+// Vault Tracking Details Screen
 import { getJournalEntry, getMoodEntry } from "@/api/api";
 import CustomText from "@/components/CustomText";
 import { getStatus } from "@/constants/globals";
@@ -13,6 +14,9 @@ export default function MoodScreen() {
   const date = useLocalSearchParams().date as string;
   const [entry, setEntry] = useState<MoodEntry | null>(null);
 
+  /**
+   * Fetches the mood entry for the given date
+   */
   const fetchEntry = async () => {
     try {
       const data = await getMoodEntry(date);
@@ -22,6 +26,7 @@ export default function MoodScreen() {
     }
   };
 
+  // Fetch on mount
   useHydratedEffect(() => {
     fetchEntry();
   }, []);
